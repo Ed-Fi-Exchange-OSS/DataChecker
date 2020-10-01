@@ -1,0 +1,618 @@
+<div class="row">
+
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="name">Rule Name:</label>
+      <input name="ruleName" class="form-control" [(ngModel)]="searchModel.ruleName" #ruleName="ngModel">
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="name">Tags:</label>
+      <ng-multiselect-dropdown [placeholder]="'All tags'"
+                               [data]="tagList"
+                               [(ngModel)]="selectedTagItems"
+                               [settings]="dropdownSettings">
+      </ng-multiselect-dropdown>
+    </div>
+
+  </div>
+
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="name">Collection:</label>
+      <ng-multiselect-dropdown [placeholder]="'All collections'"
+                               [data]="collectionList"
+                               [(ngModel)]="selectedCollectionItems"
+                               [settings]="dropdownSettings">
+      </ng-multiselect-dropdown>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="name">Container:</label>
+      <ng-multiselect-dropdown [placeholder]="'All containers'"
+                               [data]="containerList"
+                               [(ngModel)]="selectedContainerItems"
+                               [settings]="dropdownSettings">
+      </ng-multiselect-dropdown>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="name">Destination:</label>
+      <select id="ruleDestination" name="ruleDestination" class="form-control" [(ngModel)]="searchModel.ruleDestination" #ruleDestination="ngModel">
+        <option value="0">All</option>
+        <option *ngFor="let item of destinationTypes; let i = index" [value]="destinationTypes[i].id">
+          {{destinationTypes[i].name}}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="name">Severity level:</label>
+      <select id="ruleSeverity" name="ruleSeverity" class="form-control" [(ngModel)]="searchModel.ruleSeverity" #ruleSeverity="ngModel">
+        <option value="0">All</option>
+        <option value="1">Warning</option>
+        <option value="2">Major</option>
+        <option value="3">Critical</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="col-md-12">
+    <div class="form-group">
+      <label for="name">Text included in the Diagnostic Sql:</label>
+      <input id="ruleSql" name="ruleSql" class="form-control" [(ngModel)]="searchModel.ruleSql" #ruleSql="ngModel">
+    </div>
+  </div>
+
+  <div class="col-md-12">
+    <div class="form-group text-right">
+      <button type="button" class="btn btn-info btn-lg" (click)="search()">
+        <i class="ion-md-checkmark-circle-outline"></i> Search
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<div class="row" *ngIf="clickToSearch && rules.length==0">
+  <div class="col-md-12">
+    <div style="text-align:center;font-size:30px">
+      No rules found
+    </div>
+  </div>
+</div>
+
+<div class="row" *ngIf="rules.length>0">
+
+  <div class="col-md-2" style="margin-bottom:20px">
+    <h4>
+      <input type="checkbox" [(ngModel)]="allRulesSelected" (change)="allRulesSelectedChange($event.target)" />
+      Rules
+    </h4>
+  </div>
+  <div class="col-md-10" style="margin-bottom:20px;text-align:right">
+    <button style="margin:5px" type="button" class="btn btn-info btn-lg btn_standar" (click)="showCopyRulesSelected(ruleCopyRulesToContent)">
+      <i class=" icon ion-md-copy"></i> Copy Selected Rules
+    </button>
+    <button style="margin:5px" type="button" class="btn btn-secondary btn-lg btn_standar" (click)="showAssignTagsRulesSelected(ruleAssignTagsContent)">
+      <fa name="tags"></fa> Assign Tags to Selected Rules
+    </button>
+    <button style="margin:5px" type="button" class="btn btn-primary btn-lg btn_standar" (click)="showMoveRulesSelected(moveRuleRuleSearchToContent)">
+      <fa name="arrows-alt"></fa> Move Selected Rules
+    </button>
+    <ng-template #popDeleteSelectedRuleSearchContent>
+      <button class="btn btn-danger" (click)="deleteRulesSelected()">Yes</button>
+      <button class="btn btn-default" style="margin-left:10px">No</button>
+    </ng-template>
+    <button [disabled]="isDeleteDisabled" style="margin:5px" type="button" class="btn btn-danger btn-lg btn_standar" [ngbPopover]="popDeleteSelectedRuleSearchContent" popoverTitle="Confirm Delete?" placement="bottom">
+      <i class=" icon ion-md-trash"></i> Delete Selected Rules
+    </button>
+  </div>
+
+  <div class="col-md-12">
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col" style="width:20%">Collection/Container</th>
+          <th scope="col">Name</th>
+          <th scope="col">Description</th>
+          <th scope="col" style="width:10%">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entity of rules; index as i">
+          <td style="width:20%">
+            <input type="checkbox" [(ngModel)]="entity.selected" (change)="ruleSelectedChange($event.target)"/>
+            {{ entity.collectionContainerName }}
+          </td>
+          <td> {{ entity.name }} </td>
+          <td>{{ entity.description }}</td>
+          <td style="width:12%">
+            <fa placement="top" ngbTooltip="Modify Rule" style="margin:5px;cursor:pointer;" class="icon-table text-success" name="pencil-alt" (click)="modifyRule(ruleContent, entity)"></fa>
+            <fa placement="top" ngbTooltip="Copy Rule" style="margin:5px;cursor:pointer;" class="icon-table text-info" name="copy" (click)="copyRule(entity)"></fa>
+            <ng-template #popDeleteRuleSearchContent>
+              <button class="btn btn-danger" (click)="deleteRuleChild(entity)">Yes</button>
+              <button class="btn btn-default" style="margin-left:10px">No</button>
+            </ng-template>
+            <fa ngbTooltip="Delete Rule" style="margin:5px;cursor:pointer;" class="icon-table text-danger" name="trash" [ngbPopover]="popDeleteRuleSearchContent" popoverTitle="Confirm Delete?" placement="bottom"></fa>
+            <fa placement="top" ngbTooltip="Move Rule" style="margin:5px;cursor:pointer;" class="icon-table text-primary" name="arrows-alt" (click)="showMoveRule(entity, moveRuleRuleSearchToContent)"></fa>
+            <fa placement="top" ngbTooltip="View Last Log Details" style="margin:5px;cursor:pointer;" class="icon-table text-warning" name="eye" (click)="viewRuleExecutionLogDetailsFromOptions(ruleExecutionLogDetailRuleEditSearchContent, entity)"></fa>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+</div>
+
+<ng-template #ruleContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Modify Sql Data Check</h4>
+    <button type="button" class="close" aria-label="Close" (click)="cancelRule(false, ruleWarningContent)">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #ruleSearchForm="ngForm">
+
+      <div class="row">
+        <div class="col">
+          <div class="row justify-content-between">
+            <div class="col">
+              <div class="form-group">
+                <div>
+                  <label>Collection:</label>
+                  <label style="margin-left: 10px; font-weight: bolder;">{{newRule.collectionName}}</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="form-group">
+                <div>
+                  <label>Container:</label>
+                  <label style="margin-left: 10px; font-weight: bolder;">{{newRule.containerName}}</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="form-group">
+                <div>
+                  <label>Environment type:</label>
+                  <label style="margin-left: 10px; font-weight: bolder;">{{newRule.environmentTypeText}}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+
+        <div class="col">
+
+
+          <div class="row justify-content-between">
+            <div class="col">
+              <div class="form-group"
+                   [ngClass]="{'invalid': name.invalid, 'valid': name.valid}">
+                <label for="name"> Name:</label>
+                <input id="name" name="name" class="form-control" required [(ngModel)]="newRule.name"
+                       #name="ngModel">
+
+                <div *ngIf="name.invalid" class="form-feedback">
+
+                  <div *ngIf="name.errors.required">
+                    Name is required.
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-group">
+                <label for="ruleIdentification">External Rule ID:</label>
+                <input id="ruleIdentification" name="ruleIdentification" class="form-control" [(ngModel)]="newRule.ruleIdentification" #ruleIdentification="ngModel">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group"
+               [ngClass]="{'invalid': description.invalid, 'valid': description.valid}">
+            <label for="name"> Description:</label>
+            <textarea id="description" name="description" class="form-control" required [(ngModel)]="newRule.description" #description="ngModel"></textarea>
+
+            <div *ngIf="description.invalid" class="form-feedback">
+              <div *ngIf="description.errors.required">
+                Description is required.
+              </div>
+            </div>
+          </div>
+
+          <div class="row justify-content-between">
+            <div class="col">
+              <div class="form-group"
+                   [ngClass]="{'invalid': version.invalid, 'valid': version.valid}">
+                <label for="version">Version:</label>
+                <input type="text" id="version" name="version" class="form-control" required
+                       [(ngModel)]="newRule.version" #version="ngModel">
+
+                <div *ngIf="version.invalid" class="form-feedback">
+
+                  <div *ngIf="version.errors.required">
+                    Version is required.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="form-group"
+                   [ngClass]="{'invalid': errorSeverityLevel.invalid, 'valid': errorSeverityLevel.valid}">
+                <label for="errorSeverityLevel"> Severity level:</label>
+
+                <select id="errorSeverityLevel" name="errorSeverityLevel" class="form-control" required
+                        [(ngModel)]="newRule.errorSeverityLevel" #errorSeverityLevel="ngModel">
+                  <option value="1">Warning</option>
+                  <option value="2">Major</option>
+                  <option value="3">Critical</option>
+
+                </select>
+
+
+                <div *ngIf="errorSeverityLevel.invalid" class="form-feedback">
+
+                  <div *ngIf="errorSeverityLevel.errors.required">
+                    Severity level is required.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row justify-content-between">
+            <div class="col">
+              <div class="form-group">
+                <label for="errorMessage">Error message:</label>
+                <input id="errorMessage" name="errorMessage" class="form-control"
+                       [(ngModel)]="newRule.errorMessage" #errorMessage="ngModel">
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-group">
+                <label for="resolution">Resolution:</label>
+                <input id="resolution" name="resolution" class="form-control" [(ngModel)]="newRule.resolution" #resolution="ngModel">
+              </div>
+            </div>
+          </div>
+
+          <div class="row justify-content-between">
+            <div class="col">
+              <div class="form-group">
+                <label for="tagsRule"> Tags:</label>
+                <tag-input id="tagsRule" name="tagsRule"
+                           [ngModel]="newRule.tags" #tagsRule="ngModel"
+                           [identifyBy]="'id'"
+                           [displayBy]="'name'"
+                           (onAdd)="onAddingRuleTag($event)"
+                           (onRemove)="onRemovingRuleTag($event)"
+                           [onlyFromAutocomplete]="false">
+                  <tag-input-dropdown [autocompleteItems]="listTags"
+                                      [identifyBy]="'id'"
+                                      [displayBy]="'name'">
+                  </tag-input-dropdown>
+                </tag-input>
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-group">
+                <label for="maxNumberResults">Max Number Results:</label>
+                <input id="maxNumberResults" name="maxNumberResults" class="form-control" type="number"
+                       [(ngModel)]="newRule.maxNumberResults" #maxNumberResults="ngModel">
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col">
+
+          <div class="form-group" [ngClass]="{'invalid': newRule.diagnosticSql == '', 'valid': newRule.diagnosticSql != ''}">
+            <label for="diagnosticSql">Sql:</label>
+            <ngx-codemirror [(ngModel)]="newRule.diagnosticSql" [options]="sqlOptions"
+                            #diagnosticSql="ngModel" id="diagnosticSql" name="diagnosticSql"></ngx-codemirror>
+
+            <div *ngIf="newRule.diagnosticSql==''" class="form-feedback">
+              Sql is required.
+            </div>
+            <div class="testRunSql">
+              <div style="display:inline-block">
+                <button type="button" class="btn btn-info btn-lg btn_standar" (click)="runSqlRule('sql')">
+                  <i class=" icon ion-md-play-circle"></i> Test SQL
+                </button>
+              </div>
+              <div *ngIf="runSqlTest==true" style="display:inline-block;margin-left:10px">
+                <div>
+                  {{messageSqlTest}}
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button *ngIf="newRule.idLastRuleExecutionLog > 0" type="button" class="btn btn-warning btn-lg btn_standar" (click)="viewRuleExecutionLogDetails(ruleExecutionLogDetailRuleEditSearchContent)">
+      <i class=" icon ion-md-eye"></i> View Last Log Details
+    </button>
+    <button type="button" class="btn btn-primary btn-lg btn_standar" (click)="copyRuleSelected(ruleCopyRulesToContent)">
+      <i class=" icon ion-md-copy"></i> Copy
+    </button>
+    <ng-template #popDeleteEditRuleSearchContent>
+      <button class="btn btn-danger" (click)="deleteRuleSelected()">Yes</button>
+      <button class="btn btn-default" style="margin-left:10px">No</button>
+    </ng-template>
+    <button type="button" class="btn btn-danger btn-lg btn_standar" [ngbPopover]="popDeleteEditRuleSearchContent" popoverTitle="Confirm Delete?" placement="top">
+      <i class=" icon ion-md-trash"></i> Delete
+    </button>
+    <button type="button" class="btn btn-info btn-lg btn_standar" (click)="ruleSearchForm.valid && newRule.diagnosticSql != '' ? validateIncreaseVersion(increaseVersionNumberRuleSearchMessageContent) : ''">
+      <i class=" icon ion-md-checkmark-circle-outline"></i> Save
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #ruleWarningContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Warning</h4>
+    <button type="button" class="close" aria-label="Close" (click)="cancelRule(true, ruleWarningContent)">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p style="text-align:center;margin-bottom:0px">
+      You have pending changes, do you want to save it or close without saving?
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info btn-lg btn_standar" (click)="saveRule()">
+      <i class=" icon ion-md-checkmark-circle-outline"></i> Save
+    </button>
+
+    <button type="button" class="btn btn-danger btn-lg btn_standar" (click)="cancelRule(true, ruleWarningContent)">
+      <i class=" icon ion-md-remove-circle-outline"></i> Close
+    </button>
+  </div>
+
+</ng-template>
+
+<ng-template #ruleAssignTagsContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Assign Tags</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="name">Select the Tags:</label>
+          <tag-input id="tagsSelectedAssign"
+                     name="tagsSelectedAssign"
+                     [ngModel]="tagsSelectedAssign"
+                     [identifyBy]="'id'"
+                     [displayBy]="'name'"
+                     (onAdd)="onAddingTagAssign($event)"
+                     (onRemove)="onRemovingTagAssign($event)"
+                     [onlyFromAutocomplete]="false">
+            <tag-input-dropdown [autocompleteItems]="listTagsAssign"
+                                [identifyBy]="'id'"
+                                [displayBy]="'name'">
+            </tag-input-dropdown>
+          </tag-input>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info btn-lg btn_standar" (click)="saveAssignTags()">
+      <i class=" icon ion-md-checkmark-circle-outline"></i> Save
+    </button>
+    <button type="button" class="btn btn-danger btn-lg btn_standar" (click)="modal.dismiss('Cross click')">
+      <i class=" icon ion-md-remove-circle-outline"></i> Cancel
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #ruleCopyRulesToContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Copy Rules To</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-12">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">
+                <input type="checkbox" [(ngModel)]="allContainersSelected" (change)="allContainersSelectedChange($event.target)" />
+                Collection/Container
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let childContainer of listChildContainers; index as i">
+              <td>
+                <input type="checkbox" [(ngModel)]="childContainer.selected" />
+                {{ childContainer.parentContainerName }} / {{ childContainer.name }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info btn-lg btn_standar" (click)="saveCopyRulesTo()">
+      <i class=" icon ion-md-checkmark-circle-outline"></i> Save
+    </button>
+    <button type="button" class="btn btn-danger btn-lg btn_standar" (click)="modal.dismiss('Cross click')">
+      <i class=" icon ion-md-remove-circle-outline"></i> Cancel
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #ruleExecutionLogDetailRuleEditSearchContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Rule Execution Log Details</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label style="display:block">
+            Destination Table: <span style="font-weight:bold">{{ruleDetailsLogResult.destinationTable}}</span>
+          </label>
+          <label style="display:block">
+            Environment Name: <span style="font-weight:bold">{{ruleDetailsLogResult.environmentName}}</span>
+          </label>
+          <label style="display:block">
+            Execution Date And Time: <span style="font-weight:bold">{{ruleDetailsLogResult.executionDateTime}}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label for="diagnosticSql">Diagnostic Sql:</label>
+          <ngx-codemirror [(ngModel)]="ruleDetailsLogResult.ruleDiagnosticSql" [options]="sqlOptions"></ngx-codemirror>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+
+          <div style="overflow: hidden; overflow-x: auto; clear: both; width: 100%;">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th style="text-align:left" *ngFor="let column of ruleDetailsLogResult.columns; index as i">{{column}}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of ruleDetailsLogResult.rows; index as i">
+                  <td *ngFor="let column of ruleDetailsLogResult.columns; index as iColumn">
+                    {{ item[column] }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-warning btn-lg btn_standar" (click)="exportToCsv()">
+      <i class=" icon ion-md-document"></i> Export To CSV
+    </button>
+    <button type="button" class="btn btn-info btn-lg btn_standar" (click)="exportToTable()">
+      <i class=" icon ion-md-arrow-up"></i> Export To Table
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #increaseVersionNumberRuleSearchMessageContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Increase Version Number</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p style="text-align:center;margin-bottom:0px">
+      You have not increase the version number, do you want to increase it automatically or continue?
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success btn-lg btn_standar" (click)="increaseRuleVersion()">
+      <i class=" icon ion-md-checkmark-circle"></i> Increase Automatically
+    </button>
+
+    <button type="button" class="btn btn-info btn-lg btn_standar" (click)="saveRule()">
+      <i class=" icon ion-md-checkmark-circle-outline"></i> Continue
+    </button>
+  </div>
+
+</ng-template>
+
+<ng-template #moveRuleRuleSearchToContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Move Rule To</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-12">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">
+                Collection/Container
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let childContainer of listChildContainers; index as i">
+              <td>
+                <input type="radio" [(ngModel)]="containerSelectedToMove" name="movetorule" value="{{childContainer.id}}" (change)="onContainerToMoveItemChange(childContainer)" />
+                {{ childContainer.parentContainerName }} / {{ childContainer.name }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info btn-lg btn_standar" (click)="saveMoveRuleTo()">
+      <i class=" icon ion-md-checkmark-circle-outline"></i> Save
+    </button>
+    <button type="button" class="btn btn-danger btn-lg btn_standar" (click)="modal.dismiss('Cross click')">
+      <i class=" icon ion-md-remove-circle-outline"></i> Cancel
+    </button>
+  </div>
+</ng-template>

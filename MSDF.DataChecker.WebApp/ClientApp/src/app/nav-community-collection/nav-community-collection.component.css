@@ -1,0 +1,74 @@
+.sql-code {
+  /* max-width: 500px;
+    text-align: center;
+    margin: auto; */
+  max-height: 300px;
+}
+
+.sql-code code {
+  white-space: pre-wrap;
+}
+
+.console-container {
+  background-color: #2d2d2d;
+  padding: 10px;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem !important;
+}
+
+.segment-key {
+  color: rgb(198, 176, 119);
+  margin-left: 5px;
+  margin-right: 2px;
+}
+
+.segment-value {
+  color: rgb(199, 147, 125);
+  margin: 2px 10px;
+}
+
+.segment-number-value {
+  color: rgb(176, 197, 155);
+  margin: 2px 10px;
+}
+
+.segment-key::before,
+.segment-value::before {
+  content: '"';
+}
+
+.segment-key::after,
+.segment-value::after {
+  content: '"';
+}
+
+.segment {
+  color: rgb(192, 193, 192);
+  display: flex;
+  margin-left: 20px;
+}
+
+.init-segment {
+  margin-left: 10px;
+  color: rgb(215, 226, 215);
+}
+
+.limit-segment {
+  margin-left: 10px;
+  color: rgb(215, 226, 215);
+}
+
+.text-container {
+  font-size: 1.25rem;
+}
+
+.text-description {
+  font-size: 1rem;
+}
+
+.ruleProperty{
+    display:block;
+    font-weight:bold;
+}

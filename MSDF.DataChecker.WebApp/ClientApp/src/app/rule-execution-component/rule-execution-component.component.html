@@ -1,0 +1,281 @@
+<div class="category-child">
+    <div class="row">
+
+        <div class="col-md-7">
+          <div class="rule-name">
+            <div class="text-truncate" placement="top" ngbTooltip="{{rule.ruleIdentification}} {{rule.name}}">
+              <fa *ngIf="rule.lastStatus == 3" name="exclamation-circle" class="fa-lg fa-status-sql-error"></fa>
+              <fa *ngIf="rule.lastStatus == 1" name="check-circle" class="fa-lg fa-status-success"></fa>
+              <fa *ngIf="rule.lastStatus == 2" name="times-circle" class="fa-lg fa-status-fail"></fa>
+              {{rule.ruleIdentification}} {{rule.name}}
+            </div>
+            <div style="float:right">
+              <span (click)="rule.displayDetails = !rule.displayDetails;">
+                <fa class="right-icon icon-medium-size" name="info-circle"></fa>
+              </span>
+            </div>
+          </div>
+          <div [ngStyle]="{'margin-left':(rule.lastStatus == 1 || rule.lastStatus == 2) ? '45px' : '0px' }">
+            <span class="rule-name">
+              <small>{{rule.id}}</small>
+            </span>
+          </div>
+        </div>    
+
+        <div class="col-md-5">
+          <div style="float:left;margin-top:10px">
+            <span *ngIf="!rule.displayDetails && rule.lastExecution!=null" class="col-12"> Result ({{rule.counter}})</span>
+            <div *ngIf="!rule.displayDetails && rule.lastExecution!=null" class="col-12">
+              {{calculateDiffTime(rule.lastExecution)}} ago
+            </div>
+          </div>
+          <div style="float:right">
+            <button *ngIf="rule.isExecuting" class="btn btn-success btn-addon" style="font-size: 13px;">
+              <fa name="spinner" animation="pulse"></fa> Running
+            </button>
+            <button *ngIf="!rule.isExecuting" class="btn btn-info btn-addon" (click)="executeRule();" style="font-size: 13px;">
+              <fa name="play"></fa> Run
+            </button>
+            <i *ngIf="rule.displayResults" class="fas fa-angle-up fa-lg margin-auto right-icon cursor-pointer"
+               style="color: #b0b0b0;margin-left: 8px;margin-top: 20px;" (click)="getRuleResults();"></i>
+            <i *ngIf="!rule.displayResults" class="fas fa-angle-down fa-lg margin-auto right-icon cursor-pointer"
+               style="color: #b0b0b0;margin-left: 8px;margin-top: 20px;" (click)="getRuleResults();"></i>
+          </div>
+        </div>
+
+        <div *ngIf="rule.displayDetails" class="col-md-12" style="margin:auto;  margin-top: 10px; padding-bottom:10px;">
+            <article class="col-12 console-container rounded-lg" style="font-family: 'Lucida Console', arial;">
+              <div class="init-segment">{{"{"}} </div>
+              <div class="segment">
+                <div class="segment-key">Id</div>:<div class="segment-value">{{rule.id}}</div>
+              </div>
+              <div class="segment">
+                <div class="segment-key">Name</div>:<div class="segment-value">{{rule.name}}</div>
+              </div>
+              <div class="segment">
+                <div class="segment-key">Category</div>:<div class="segment-value">{{rule.category}}</div>
+              </div>
+              <div class="segment">
+                <div class="segment-key">Version</div>:<div class="segment-value">{{rule.version}}</div>
+              </div>
+              <div class="segment">
+                <div class="segment-key">EdFiODSCompatibilityVersion</div>:<div class="segment-value">
+                  {{rule.edFiODSCompatibilityVersion}}</div>
+              </div>
+              <div class="segment">
+                <div class="segment-key">ErrorSeverityLevel</div>:<div class="segment-value">{{rule.errorSeverityLevel}}</div>
+              </div>
+              <br />
+              <div class="segment">
+                <div class="segment-key">Sql</div>:<div class="segment-value">{{rule.sql}}</div>
+              </div>
+              <div class="segment">
+                <div class="segment-key">EvaluationOperand</div>:<div class="segment-value">{{rule.evaluationOperand}}</div>
+              </div>
+              <div class="segment">
+                <div class="segment-key">ExpectedResult</div>:<div class="segment-number-value">{{rule.expectedResult}}</div>
+              </div>
+              <br />
+              <div class="segment">
+                <div class="segment-key">ErrorMessage</div>:<div class="segment-value">{{rule.errorMessage}}</div>
+              </div>
+              <div class="segment">
+                <div class="segment-key">Resolution</div>:<div class="segment-value">{{rule.resolution}}</div>
+              </div>
+              <div class="segment">
+                <div class="segment-key">DiagnosticSql</div>:<div class="segment-value">{{rule.diagnosticSql}}</div>
+              </div>
+              <div class="limit-segment">{{"}"}}</div>
+      
+            </article>
+      
+          </div>
+
+        <div  class="col-md-12 container-table100"  *ngIf="rule.displayResults">
+          <div class="table-wrap">
+            <table class="table " >
+                <thead class="table-header">
+                    <tr class="tr-hov">
+                    <th scope="col" class="text-center">#</th>
+                    <th scope="col" class="text-center">Status</th>
+                    <th scope="col" class="text-center">Result </th>
+                    <th scope="col" class="text-center">Execution time</th>
+                    <th scope="col" class="text-center">Last Executed</th>
+                    <th scope="col" class="text-center">Error Detail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container 
+                    *ngFor="let result of rule.results"
+                    > 
+                    <tr class="tr-hov">
+                        <td class="text-center"> {{result.id}}</td>
+                        <td class="text-center">
+                          <div *ngIf="result.isExecuting" class="cell text-format" data-title="Status">
+                            <i class="fa fa-spinner"
+                               style="color: blue;" aria-hidden="true"></i> Running
+                          </div>
+                          <div *ngIf="result.status == 1" class="cell text-format" data-title="Status">
+                            <i class="fa fa-check-circle"
+                               style="color:#038003;" aria-hidden="true"></i> No validation results found
+                          </div>
+                          <div *ngIf="result.status == 2" class="cell text-format" data-title="Status">
+                            <i class="fa fa-times-circle"
+                               style="color: #d60f0f;" aria-hidden="true"></i> Validation results found
+                          </div>
+                          <div *ngIf="result.status == 3" class="cell text-format" data-title="Status">
+                            <i class="fa fa-times-circle"
+                               style="color: #d60f0f;" aria-hidden="true"></i> Rule error
+                          </div>
+                        </td>
+                        <td class="text-center"> {{result.result}}
+
+                        
+                              <i class=" icon ion-md-eye "
+                              
+                              [ngbPopover]="popContent"
+                              [popoverTitle]="popTitle"
+                              [autoClose]="'outside'"
+                              container="body"
+                              #popover="ngbPopover" 
+                              
+                              popoverClass="popover-query"
+                              (shown)="loadPopover(result)"
+                              > </i>
+                              <!--  -->
+                            
+                        </td>
+                        <td class="text-center"> {{result.executionTimeMs}} ms</td>
+                        <td class="text-center">   {{calculateDiffTime(result.lastExecuted)}} ago</td>
+                        <td class="text-center"> 
+                            
+                            <div class="" data-title="See error"
+                            *ngIf="result.displayErrorDetails && result.status == 2"
+                            (click)="result.displayErrorDetails = !result.displayErrorDetails">
+                            <fa name="arrow-up"></fa>
+                          </div>
+                          <div class="" data-title="See error"
+                            *ngIf="!result.displayErrorDetails && result.status == 2"
+                            (click)="result.displayErrorDetails = !result.displayErrorDetails">
+                            <fa name="arrow-down"></fa>
+                          </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <th colspan="12" *ngIf="result.displayErrorDetails">
+                          <div class="col-12" style="margin-right: 0; margin-left: auto;">
+                            <div class="error-detail col-12">
+                              <strong>Error: </strong> <span>{{result.errorMessage}}</span>
+                            </div>
+                            <div class="error-detail col-12" *ngIf="result.result >= 0">
+                              <strong>Resolution: </strong>
+                              <div> {{rule.resolution}}</div>
+                            </div>
+                            <div class="error-detail col-12" *ngIf="result.result >= 0">
+                              <strong>Diagnostics: </strong>
+                              <span>
+                                Run this SQL against ODS
+                                <i class="fa fa-copy icon-medium-size" style="cursor:pointer" (click)="copyDiagnostic(result);"></i>
+                              </span>
+                            </div>
+                            <div class="error-detail col-12 diagnostic-div" *ngIf="result.result > 0 && result.ruleDetailsDestinationId != null && result.ruleDetailsDestinationId > 0">
+                              <button type="button" class="btn btn-warning" (click)="viewRuleExecutionLogDetails(ruleLogDetailsContent, result);">Log Details</button>
+                            </div>
+                          </div>
+                      </th>
+                    </tr>
+                </ng-container>
+             
+                </tbody>
+            </table>
+
+
+          </div>
+          
+
+          </div>         
+
+    </div>
+</div>
+
+
+<ng-template #popContent >
+
+    <!-- <div class="container" style="width: 500px"> -->
+        <ngx-codemirror [(ngModel)]="executedSql" [options]="sqlOptions" ></ngx-codemirror>
+    <!-- </div> -->
+  </ng-template>
+
+<ng-template #popTitle>
+  Result query
+</ng-template>
+
+<ng-template #ruleLogDetailsContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Rule Execution Log Details</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label style="display:block">
+            Destination Table: <span style="font-weight:bold">{{ruleDetailsLogResult.destinationTable}}</span>
+          </label>
+          <label style="display:block">
+            Environment Name: <span style="font-weight:bold">{{ruleDetailsLogResult.environmentName}}</span>
+          </label>
+          <label style="display:block">
+            Execution Date And Time: <span style="font-weight:bold">{{ruleDetailsLogResult.executionDateTime}}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label for="diagnosticSql">Diagnostic Sql:</label>
+          <ngx-codemirror [(ngModel)]="ruleDetailsLogResult.ruleDiagnosticSql" [options]="sqlOptions"></ngx-codemirror>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+
+          <div style="overflow: hidden; overflow-x: auto; clear: both; width: 100%;">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th style="text-align:left" *ngFor="let column of ruleDetailsLogResult.columns; index as i">{{column}}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of ruleDetailsLogResult.rows; index as i">
+                  <td *ngFor="let column of ruleDetailsLogResult.columns; index as iColumn">
+                    {{ item[column] }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-warning btn-lg btn_standar" (click)="exportToCsv()">
+      <i class=" icon ion-md-document"></i> Export To CSV
+    </button>
+    <button type="button" class="btn btn-info btn-lg btn_standar" (click)="exportToTable()">
+      <i class=" icon ion-md-arrow-up"></i> Export To Table
+    </button>
+  </div>
+</ng-template>

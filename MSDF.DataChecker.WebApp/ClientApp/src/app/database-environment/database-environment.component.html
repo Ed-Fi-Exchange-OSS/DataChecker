@@ -1,0 +1,407 @@
+<div class="btn-group" style="display:flex;z-index:50">
+
+  <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown" style="display:contents">
+
+    <button class="btn btn-outline-primary button-regular-st" style="white-space: normal;" ngbDropdownToggle>
+      Environment: <span class="font-weight-bold">{{ selectedDatabaseEnvironment? selectedDatabaseEnvironment.name:"Select Environment"}}</span>
+    </button>
+    <div class="dropdown-menu" ngbDropdownMenu style="width:100%;text-align:center">
+
+      <button *ngFor="let dbEnvItem of databaseEnvironments"
+              (click)="changeDatabaseEnvironment(dbEnvItem)"
+              ngbDropdownItem>
+        {{ dbEnvItem.name }}
+      </button>
+
+      <button ngbDropdownItem
+              (click)="addEnvironment(environmentContent)">
+        <i class=" icon ion-md-add "></i> Add Environment
+      </button>
+
+    </div>
+
+    <button type="button"
+            *ngIf="selectedDatabaseEnvironment"
+            class="btn btn-outline-secondary button-regular-st"
+            [ngbPopover]="popContent"
+            [popoverTitle]="popTitle"
+            [autoClose]="'outside'"
+            container="body"
+            #popover="ngbPopover"
+            (shown)="loadParams()"
+            popoverClass="popover-custom">
+      <i class=" icon ion-md-eye "></i>
+    </button>
+
+    <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown" *ngIf="selectedDatabaseEnvironment">
+
+      <button class="btn btn-outline-primary button-regular-st" ngbDropdownToggle>
+        <i class=" icon ion-md-settings"></i>
+      </button>
+
+      <div class="dropdown-menu" ngbDropdownMenu>
+
+        <button ngbDropdownItem
+                (click)="updateDatabaseEnvironmentModal(environmentContent)">
+          Edit
+        </button>
+
+        <button ngbDropdownItem
+                (click)="duplicateDatabaseEnvironment()">
+          Duplicate
+        </button>
+
+
+        <button ngbDropdownItem
+                *ngIf="databaseEnvironments && databaseEnvironments.length > 1"
+                (click)="deleteDatabaseEnvironment()">
+          Delete
+        </button>
+
+      </div>
+    </div>
+
+    <!--<button class="btn btn-outline-primary button-regular-st" ngbDropdownToggle>
+      <i class=" icon ion-md-settings"></i>
+    </button>
+    <div class="dropdown-menu" ngbDropdownMenu>
+
+      <button ngbDropdownItem
+              (click)="updateDatabaseEnvironmentModal(environmentContent)">
+        Edit
+      </button>
+
+      <button ngbDropdownItem
+              (click)="duplicateDatabaseEnvironment()">
+        Duplicate
+      </button>
+
+
+      <button ngbDropdownItem
+              *ngIf="databaseEnvironments && databaseEnvironments.length > 1"
+              (click)="deleteDatabaseEnvironment()">
+        Delete
+      </button>
+
+    </div>-->
+    <!--<div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown" *ngIf="selectedDatabaseEnvironment">
+      <button type="button"
+              class="btn btn-outline-secondary button-regular-st"
+              [ngbPopover]="popContent"
+              [popoverTitle]="popTitle"
+              [autoClose]="'outside'"
+              container="body"
+              #popover="ngbPopover"
+              (shown)="loadParams()"
+              popoverClass="popover-custom">
+        <i class=" icon ion-md-eye "></i>
+      </button>
+    </div>-->
+    <!--<div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown" *ngIf="selectedDatabaseEnvironment">
+
+      <button class="btn btn-outline-primary button-regular-st" ngbDropdownToggle>
+        <i class=" icon ion-md-settings"></i>
+      </button>
+
+      <div class="dropdown-menu" ngbDropdownMenu>
+
+        <button ngbDropdownItem
+                (click)="updateDatabaseEnvironmentModal(environmentContent)">
+          Edit
+        </button>
+
+        <button ngbDropdownItem
+                (click)="duplicateDatabaseEnvironment()">
+          Duplicate
+        </button>
+
+
+        <button ngbDropdownItem
+                *ngIf="databaseEnvironments && databaseEnvironments.length > 1"
+                (click)="deleteDatabaseEnvironment()">
+          Delete
+        </button>
+
+      </div>
+    </div>-->
+  </div>
+
+</div>
+
+<ng-template #popContent>
+
+  <div class="container" style="width:500px">
+
+    <div class="row justify-content-around" style="margin-bottom:10px">
+
+      <button type="button"
+              class="btn btn-primary btn-standar"
+              (click)="addParameter();">
+        Add Parameter
+      </button>
+
+      <button type="button"
+              class="btn btn-info btn-lg btn-standar"
+              (click)="saveUserParams();">
+        <i class=" icon ion-md-checkmark-circle-outline"></i> Save
+      </button>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Value</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="" *ngFor="let userParam of userParams">
+
+          <td style="width: 33%" class=" p-0 m-0 align-middle">
+            <input *ngIf="!userParam.isReadMode"
+                   id="name"
+                   name="name"
+                   class="form-control-slim"
+                   [(ngModel)]="userParam.name"
+                   #name="ngModel">
+            <span *ngIf="userParam.isReadMode">{{userParam.name}}</span>
+          </td>
+
+          <td style="width: 33%" class=" p-0 m-0 align-middle">
+            <input *ngIf="!userParam.isReadMode"
+                   id="value"
+                   name="value"
+                   class="form-control-slim"
+                   [(ngModel)]="userParam.value" #value="ngModel">
+            <span *ngIf="userParam.isReadMode">{{userParam.value}}</span>
+          </td>
+
+
+          <td style="width: 25%" class=" p-0 m-0 align-middle ">
+            <button *ngIf="userParam.isReadMode"
+                    (click)="userParam.isReadMode=false"
+                    class="btn">
+              <fa name="edit"></fa>
+            </button>
+
+            <button class="btn"
+                    (click)="removeUserParam(userParam)">
+              <fa name="trash"></fa>
+            </button>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</ng-template>
+
+<ng-template #popTitle>
+  Parameter Configuration
+</ng-template>
+
+<ng-template #environmentContent let-modal>
+
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{titleEnvironment}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body ">
+
+    <form #environmentForm="ngForm">
+
+      <div class="row">
+        <div class="col-12">
+          <div class="form-group row" [ngClass]="{'invalid': name.invalid, 'valid': name.valid}">
+            <label for="name" class="col-4 align-self-center"> Environment name:</label>
+            <div class="col-8">
+              <input id="name" name="name" class="form-control" required minlength="4" [(ngModel)]="newDatabaseEnvironment.name" #name="ngModel">
+              <div *ngIf="name.invalid" class="form-feedback">
+                <div *ngIf="name.errors.required">
+                  Name is required.
+                </div>
+                <div *ngIf="name.errors.minlength">
+                  Name must be at least 4 characters long.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr />
+
+      <div class="row">
+        <div class="col-12" style="margin-bottom:20px">
+          <h4>Db Connection</h4>
+          <div *ngIf="newDatabaseEnvironment.securityIntegrated==false" class="connection-style">
+            Database =  {{ newDatabaseEnvironment.database }}; Data Source ={{ newDatabaseEnvironment.dataSource }}; User Id = {{ newDatabaseEnvironment.user }}; Password = {{ getPasswordWithFormat() }}; {{ newDatabaseEnvironment.extraData }}
+          </div>
+          <div *ngIf="newDatabaseEnvironment.securityIntegrated==true" class="connection-style">
+            Database =  {{ newDatabaseEnvironment.database }}; Data Source ={{ newDatabaseEnvironment.dataSource }}; Integrated Security=true; {{ newDatabaseEnvironment.extraData }}
+          </div>
+        </div>
+        <div class="col-12"></div>
+
+        <div class="col-6">
+          <div class="form-group row" [ngClass]="{'invalid': dataSource.invalid, 'valid': dataSource.valid}">
+            <label for="dataSource " class="col-4 align-self-center">Server:</label>
+            <div class="col-8">
+              <input id="dataSource" name="dataSource" class="form-control" required
+                     [(ngModel)]="newDatabaseEnvironment.dataSource" #dataSource="ngModel">
+
+              <div *ngIf="dataSource.invalid" class="form-feedback">
+                <div *ngIf="dataSource.errors.required">
+                  Server is required.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="form-group row" [ngClass]="{'invalid': database.invalid, 'valid': database.valid}">
+            <label for="database" class="col-4 align-self-center">Database:</label>
+            <div class="col-8">
+              <input id="database" name="database" class="form-control" required
+                     [(ngModel)]="newDatabaseEnvironment.database" #database="ngModel">
+              <div *ngIf="database.invalid" class="form-feedback">
+
+                <div *ngIf="database.errors.required">
+                  Database is required.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="form-group row">
+            <label for="securityIntegrated" class="col-4 align-self-center">Integrated Security:</label>
+            <div class="col-8">
+              <input id="securityIntegrated" name="securityIntegrated" type="checkbox" style="height:40px"
+                     [(ngModel)]="newDatabaseEnvironment.securityIntegrated" #securityIntegrated="ngModel"
+                     (ngModelChange)="onChangeSecurityIntegrated($event)">
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4" *ngIf="newDatabaseEnvironment.securityIntegrated==false">
+          <div class="form-group row" [ngClass]="{'invalid': user.invalid, 'valid': user.valid}">
+            <label for="user" class="col-4 align-self-center">User:</label>
+            <div class="col-8">
+              <input id="user" name="user" class="form-control" required
+                     [disabled]="newDatabaseEnvironment.securityIntegrated==true"
+                     [(ngModel)]="newDatabaseEnvironment.user" #user="ngModel">
+              <div *ngIf="user.invalid" class="form-feedback">
+                <div *ngIf="user.errors.required">
+                  User is required.
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4" *ngIf="newDatabaseEnvironment.securityIntegrated==false">
+          <div class="form-group row" [ngClass]="{'invalid': (password.invalid) , 'valid':password.valid}">
+            <label for="password" class="col-4 align-self-center">Password:</label>
+            <div class="col-8">
+              <input id="password" name="password" class="form-control" required type="password"
+                     [disabled]="newDatabaseEnvironment.securityIntegrated==true"
+                     [(ngModel)]="newDatabaseEnvironment.password" #password="ngModel">
+              <div *ngIf="password.invalid" class="form-feedback">
+                <div *ngIf="password.errors.required">
+                  Password is required.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="form-group row " [ngClass]="{'invalid': extraData.invalid, 'valid': extraData.valid}">
+            <label for="extraData" class="col-4 align-self-center">Extra:</label>
+            <div class="col-8">
+              <input id="extraData" name="extraData" class="form-control"
+                     [(ngModel)]="newDatabaseEnvironment.extraData" #extraData="ngModel">
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="form-group row"
+               [ngClass]="{'invalid': version.invalid, 'valid': version.valid}">
+            <label for="version " class="col-4 align-self-center">Environment type:</label>
+            <div class="col-8">
+              <select id="version" name="version" class="form-control"
+                      required [(ngModel)]="newDatabaseEnvironment.version"
+                      #version="ngModel">
+                <option *ngFor="let item of environmentTypes; let i = index" [value]="environmentTypes[i].id">
+                  {{environmentTypes[i].name}}
+                </option>
+              </select>
+              <div *ngIf="version.invalid"
+                   class="form-feedback">
+                <div *ngIf="version.errors.required">
+                  Environment type is required.
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="form-group row " [ngClass]="{'invalid': maxNumberResults.invalid, 'valid': maxNumberResults.valid}">
+            <label for="maxNumberResults" class="col-4 align-self-center">Max Number Results:</label>
+            <div class="col-8">
+              <input id="maxNumberResults" name="maxNumberResults" class="form-control" type="number" required
+                     [(ngModel)]="newDatabaseEnvironment.maxNumberResults" #maxNumberResults="ngModel">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </form>
+    <hr />
+    <div class="col-12">
+      <h4>Parameters</h4>
+    </div>
+
+    <div class="row">
+      <div class="col-4 offset-md-1">  Name</div>
+      <div class="col-4 offset-md-2"> Value</div>
+    </div>
+    <div class="row anyClassScroll">
+      <ng-container *ngFor="let userParam of userParams" class="row">
+        <div class="col-4 offset-md-1 mt-3">
+          <input name="name" class="form-control"
+                 [(ngModel)]="userParam.name">
+        </div>
+        <div class="col-4 offset-md-1 mt-3">
+          <input name="value" class="form-control"
+                 [(ngModel)]="userParam.value">
+        </div>
+        <div class="col-1">
+          <button (click)="removeUserParam(userParam)" class="btn   ">
+            <fa name="trash"></fa>
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary btn-lg btn-standar" (click)="addParameter();">Add Parameter</button>
+    <button type="button" class="btn btn-primary btn-lg btn-standar" (click)="testConnection();">Test Connection</button>
+    <button type="button" class="btn btn-info btn-lg btn-standar" (click)="!environmentForm.form.invalid ? modal.close('Save click') : ''">
+      <i class="ion-md-checkmark-circle-outline "></i> Save
+    </button>
+  </div>
+</ng-template>

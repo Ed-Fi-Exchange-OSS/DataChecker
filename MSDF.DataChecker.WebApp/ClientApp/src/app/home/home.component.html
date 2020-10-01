@@ -1,0 +1,423 @@
+<div class="container parent-container">
+
+  <div class="row">
+    <div class="col-md-5">
+      <database-environment [databaseEnvironments]="databaseEnvironments"
+                            [selectedDatabaseEnvironment]="selectedDatabaseEnvironment"
+                            (updateDatabaseEnvironmentFromChild)="updateDatabaseEnvironmentFromChild($event)">
+      </database-environment>
+    </div>
+    <div class="col-md-7"></div>
+  </div>
+
+  <div class="row" style="border-bottom: 1px dashed black">
+    <div class="col">
+      <button class="main-btn btn-success btn-addon btn-block" style="font-size: 16px" (click)="addCollection(content)">
+        <fa name="plus"></fa> Add Collection
+      </button>
+    </div>
+    <div class="col">
+      <button class="main-btn btn-info btn-addon btn-block" style="font-size: 16px; " (click)="showTags(contentTags)">
+        <fa name="tags"></fa> Tags
+      </button>
+    </div>
+    <div class="col">
+      <button class="main-btn btn-warning btn-addon btn-block" style="font-size: 16px; " (click)="showSearchByTags(contentTagsSearch)">
+        <fa name="search"></fa> Rule Search
+      </button>
+    </div>
+    <div class="col">
+      <button class="main-btn btn-danger btn-addon btn-block" style="font-size: 16px;" (click)="showJobs(contentJobs)">
+        <fa name="cogs"></fa> Job Scheduler
+      </button>
+    </div>
+    <div class="col">
+      <button class="main-btn btn-primary btn-addon btn-block" style="font-size: 16px;" (click)="showSignInToRepository(signInContent, downloadCommunityContent)">
+        <fa name="download"></fa> Community Collections
+      </button>
+    </div>
+  </div>
+
+
+  <div class="row" style="padding-bottom:50px">
+    <div class="col-md-5">
+      <div>
+        <div style="margin-bottom:20px;text-align:center">
+          <h2>Local Collections</h2>
+        </div>
+        <nav-collection *ngFor=" let categoryItem of collections"
+                        [categorySelected]="selectedCategory"
+                        [selectedDatabaseEnvironment]="selectedDatabaseEnvironment"
+                        [collections]="collections"
+                        [category]="categoryItem"
+                        (selectCategoryFromChild)="selectCategoryFromChild($event)"
+                        (deleteCollectionFromChild)="deleteCollectionFromChild($event)"
+                        (reloadDataFromChild)="reloadDataFromChild($event)">
+        </nav-collection>
+      </div>
+    </div>
+    <div class="col-md-7" style="border-left: 1px dashed black">
+
+      <div class="row pt-0">
+        <div class="col-md-8">
+          <h2>{{ collectionName }}</h2>
+        </div>
+        <div class="col-md-4 text-right">
+          <button *ngIf="isRunningAll" class="btn btn-success btn-addon right-button" style="margin:0px">
+            <fa name="spinner" animation="pulse"></fa>Running ...
+          </button>
+          <button *ngIf="!isRunningAll && categories != null && categories.length > 0 " class="btn btn-info btn-addon right-button btn-large"
+                  (click)="executeAll()" style="margin:0px">
+
+            <fa name="play"></fa>
+            Run All
+          </button>
+        </div>
+      </div>
+
+      <div class="rules-container" *ngIf="categories != null && categories.length > 0">
+
+        <div class="row category-header main-rule-st">
+          <div class="col">
+            <button class="main-btn btn-default btn-addon btn-block" (click)="expandAll()" style="margin:0px">
+              <fa name="expand"></fa> Expand All
+            </button>
+          </div>
+          <div class="col">
+            <button class="main-btn btn-default btn-addon btn-block" (click)="collapseAll()" style="margin:0px">
+              <fa name="compress-alt"></fa> Collapse All
+            </button>
+          </div>
+        </div>
+
+        <div class="row category-header main-rule-st" style="height:auto!important;padding-bottom:10px">
+          <div class="col">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="inlineCheckbox1" [(ngModel)]="rulesFilter.rulesSuccess" (change)="filterRulesOfCategories()">
+              <label class="form-check-label" for="inlineCheckbox1">Rules Success</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="inlineCheckbox2" [(ngModel)]="rulesFilter.rulesValidation" (change)="filterRulesOfCategories()">
+              <label class="form-check-label" for="inlineCheckbox2">Rules Validation</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="inlineCheckbox3" [(ngModel)]="rulesFilter.rulesError" (change)="filterRulesOfCategories()">
+              <label class="form-check-label" for="inlineCheckbox3">Rules Sql Errors</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="inlineCheckbox4" [(ngModel)]="rulesFilter.rulesNotRan" (change)="filterRulesOfCategories()">
+              <label class="form-check-label" for="inlineCheckbox4">Rules Not Ran</label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="rules-container">
+        <ng-container *ngFor="let category of categoriesFilter">
+          <div class="row category-header main-rule-st">
+
+            <div class="col-7 category-row  cursor-pointer category-name"
+                 (click)="category.showRules = !category.showRules;">
+              <fa *ngIf="category.lastStatus == 1" name="check-circle" class="fa-large fa-status-success">
+              </fa>
+              <fa *ngIf="category.lastStatus == 2" name="times-circle" class="fa-large fa-status-fail">
+              </fa>
+              <fa *ngIf="category.lastStatus == 3" name="exclamation-circle" class="fa-large fa-status-sql-error">
+              </fa>
+              <span style="margin-left: 10px;">{{ category.name }}</span>
+            </div>
+
+            <div class="col-2 category-run-button center-center" style="position: relative; margin-left: auto;"
+                 (click)="category.showRules = !category.showRules">
+              {{ category.validRules }}/{{ category.rules.length }} Failing
+            </div>
+
+            <div class="col-3 category-run-button  center-end" style="position: relative; margin-left: inherit;">
+              <button *ngIf="category.isRunning" class="btn btn-success btn-addon">
+                <fa name="spinner" animation="pulse"></fa>Running ...
+              </button>
+              <button *ngIf="!category.isRunning && category.rules.length>0" class="btn btn-info btn-addon "
+                      (click)="executeCategory(category); category.showRules = true">
+
+                <fa name="play"></fa>
+                Run All
+              </button>
+
+              <i *ngIf="category.showRules" class="fas fa-angle-up fa-lg   right-icon margin-auto cursor-pointer "
+                 style="color: #b0b0b0;" (click)="category.showRules = !category.showRules;"></i>
+              <i *ngIf="!category.showRules" class="fas fa-angle-down fa-lg  right-icon  margin-auto cursor-pointer"
+                 style="color: #b0b0b0;" (click)="category.showRules = !category.showRules;"></i>
+            </div>
+          </div>
+
+          <ng-container *ngIf="category.showRules">
+            <div>
+              <rule-execution-component *ngFor=" let rule of category.rules"
+                                        [rule]="rule"
+                                        [selectedDatabaseEnvironment]="selectedDatabaseEnvironment"
+                                        (updateRuleResultFromChild)="updateRuleResultFromChild($event,category)">
+              </rule-execution-component>
+            </div>
+
+          </ng-container>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+
+  <ng-template #contentTags let-modal>
+
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Tags</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <tags></tags>
+    </div>
+
+    <div class="modal-footer">
+    </div>
+
+  </ng-template>
+
+  <ng-template #contentTagsSearch let-modal>
+
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Rule Search</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <tags-search [selectedDatabaseEnvironment]="selectedDatabaseEnvironment"
+                   (notifyChanges)="notifyChangesFromRuleSearch($event)">
+      </tags-search>
+    </div>
+
+    <div class="modal-footer">
+    </div>
+
+  </ng-template>
+
+  <ng-template #content let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Add Collection</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+
+    <div class="modal-body">
+      <form #collectionForm="ngForm">
+        <div class="form-group" [ngClass]="{'invalid': name.invalid, 'valid': name.valid}">
+          <label for="name"> Name:</label>
+          <input id="name" name="name" class="form-control" required minlength="4" [(ngModel)]="newCollection.name" #name="ngModel">
+
+          <div *ngIf="name.invalid" class="form-feedback">
+            <div *ngIf="name.errors.required">
+              Name is required.
+            </div>
+            <div *ngIf="name.errors.minlength">
+              Name must be at least 4 characters long.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" [ngClass]="{'invalid': description.invalid, 'valid': description.valid}">
+          <label for="description">Description:</label>
+          <input id="description" name="description" class="form-control" required minlength="4"
+                 [(ngModel)]="newCollection.description" #description="ngModel">
+
+          <div *ngIf="description.invalid" class="form-feedback">
+
+            <div *ngIf="description.errors.required">
+              Description is required.
+            </div>
+            <div *ngIf="description.errors.minlength">
+              Description must be at least 4 characters long.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form-group" [ngClass]="{'invalid': environmentType.invalid, 'valid': environmentType.valid}">
+          <label for="description">Environment type:</label>
+
+          <select id="environmentType" name="environmentType" class="form-control"
+                  required [(ngModel)]="newCollection.environmentType"
+                  #environmentType="ngModel">
+            <option *ngFor="let item of environmentTypes; let i = index" [value]="environmentTypes[i].id">
+              {{environmentTypes[i].name}}
+            </option>
+          </select>
+
+          <div *ngIf="environmentType.invalid" class="form-feedback">
+            <div *ngIf="environmentType.errors.required">
+              Environment type is required.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form-group">
+          <label for="tags">Tags:</label>
+          <tag-input id="tags" name="tags"
+                     [ngModel]="newCollection.tags" #tags="ngModel"
+                     [identifyBy]="'id'"
+                     [displayBy]="'name'"
+                     (onAdd)="onAddingTag($event)"
+                     (onRemove)="onRemovingTag($event)"
+                     [onlyFromAutocomplete]="true">
+            <tag-input-dropdown [autocompleteItems]="listTags"
+                                [identifyBy]="'id'"
+                                [displayBy]="'name'">
+            </tag-input-dropdown>
+          </tag-input>
+        </div>
+
+        <div class="form-group">
+          <label for="ruleDetailsDestinationId">Destination:</label>
+          <select id="ruleDetailsDestinationId"
+                  name="ruleDetailsDestinationId"
+                  class="form-control"
+                  [(ngModel)]="newCollection.ruleDetailsDestinationId"
+                  #ruleDetailsDestinationId="ngModel">
+            <option value="0">None</option>
+            <option *ngFor="let item of destinationTypes; let i = index" [value]="destinationTypes[i].id">
+              {{destinationTypes[i].name}}
+            </option>
+          </select>
+        </div>
+
+      </form>
+    </div>
+
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-info btn-lg" (click)="!description.invalid && !name.invalid && !environmentType.invalid ? this.addCollectionObjModal.close('Save click') : ''">
+        <i class="ion-md-checkmark-circle-outline "></i> Save
+      </button>
+    </div>
+  </ng-template>
+
+  <ng-template #contentJobs let-modal>
+
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Job Scheduler</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <jobs></jobs>
+    </div>
+
+    <div class="modal-footer">
+    </div>
+
+  </ng-template>
+
+</div>
+
+<ng-template #signInContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Sign In</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #signIngForm="ngForm">
+
+      <div class="form-group" [ngClass]="{'invalid': server.invalid, 'valid': server.valid}">
+        <label for="server"> Server Url:</label>
+        <input id="server" name="server" class="form-control" required
+               [(ngModel)]="userSignIn.server" #server="ngModel" type="url" url>
+
+        <div *ngIf="server.invalid" class="form-feedback">
+          <div *ngIf="server.errors.required">
+            Server Url is required.
+          </div>
+          <div *ngIf="email.errors.email">
+            Server Url invalid.
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" [ngClass]="{'invalid': email.invalid, 'valid': email.valid}">
+        <label for="email"> Email:</label>
+        <input id="email" name="email" class="form-control" required minlength="4"
+               [(ngModel)]="userSignIn.email" #email="ngModel" type="email" email>
+
+        <div *ngIf="email.invalid" class="form-feedback">
+          <div *ngIf="email.errors.required">
+            Email is required.
+          </div>
+          <div *ngIf="email.errors.email">
+            Email invalid.
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" [ngClass]="{'invalid': password.invalid, 'valid': password.valid}">
+        <label for="password"> Password:</label>
+        <input id="password" name="password" class="form-control" required
+               [(ngModel)]="userSignIn.password" #password="ngModel" type="password">
+
+        <div *ngIf="password.invalid" class="form-feedback">
+          <div *ngIf="password.errors.required">
+            Password is required.
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info btn-lg btn_standar" (click)="signIngForm.valid ? signInToRepository(downloadCommunityContent) : ''">
+      <i class=" icon ion-md-checkmark-circle-outline"></i>
+      Sign In
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #downloadCommunityContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Community Collections</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <div *ngIf="allCommunityCollections.length>0">
+      <nav-community-collection *ngFor=" let categoryItem of allCommunityCollections"
+                                [category]="categoryItem"
+                                (notifyDownloadedCollection)="notifyDownloadedCollection($event)">
+      </nav-community-collection>
+    </div>
+
+    <div class="row" *ngIf="allCommunityCollections.length==0" style="text-align:center;font-size:25px">
+      <div class="col-md-12">
+        No Community Collections
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+  </div>
+</ng-template>

@@ -1,0 +1,15 @@
+.anyClassScroll {
+    /*height:200px;*/
+    overflow-y: scroll;
+  }
+
+.btn-standar {
+  font-size: 13px;
+  max-height: 34px;
+}
+
+.connection-style {
+  font-weight: bold;
+  text-align: center;
+  margin-top: 15px;
+}

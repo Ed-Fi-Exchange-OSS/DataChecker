@@ -1,0 +1,13 @@
+.btn {
+  font-size: 13px;
+  max-height: 34px;
+}
+
+.icon-table{
+    margin:10px;
+    cursor:pointer;
+}
+
+.btn-margin{
+    margin:5px;
+}

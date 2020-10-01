@@ -1,0 +1,213 @@
+@import url("./app/app.component.css");
+ @import url("./app/appStyleSheeet.component.css"); 
+@import "~codemirror/lib/codemirror";
+@import "~codemirror/theme/material";
+
+html,
+body {
+  /* height: 100%;
+  width: 100%;
+  background-color: #f8f8f8;
+  font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial,
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #545454; */
+}
+
+th {
+  font-weight: normal;
+}
+
+.page-title h1 {
+  font-weight: 300;
+  color: black;
+}
+
+.page-title small {
+  color: #98a6ad;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.center-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.center-between {
+  display: flex;
+  align-content: center;
+  justify-content: space-between;
+}
+
+.center-end {
+  display: flex;
+  align-content: center;
+  justify-content: flex-end;
+}
+
+.margin-auto {
+  margin: auto;
+}
+
+
+
+fa {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+.text-ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.segment-key {
+  color: rgb(198, 176, 119);
+}
+
+.segment-value {
+  color: rgb(199, 147, 125);
+}
+
+/* Provide sufficient contrast against white background */
+a {
+  color: #0366d6;
+}
+
+code {
+  color: #e01a76;
+}
+
+.modal-custom-xl .modal-dialog {
+  width: 100%;
+  max-width: 95%;
+}
+
+.modal-custom-xl .modal-content {
+  width: 100%;
+  height: 95%;
+}
+
+.CodeMirror-hints {
+  z-index: 10000 !important;
+}
+
+.CodeMirror-hint {
+  z-index: 10000 !important;
+}
+
+li.CodeMirror-hint-active {
+  z-index: 10000 !important;
+}
+
+.btn {
+  font-weight: 500;
+  border-radius: 2px;
+}
+
+.btn,
+:focus {
+  outline: 0 !important;
+}
+
+.btn-info {
+  color: #fff !important;
+  background-color: #23b7e5;
+  border-color: #23b7e5;
+}
+
+.big-icon {
+  font-size: 20px;
+}
+
+.btn-info.active,
+.btn-info:active,
+.btn-info:focus,
+.btn-info:hover,
+.open .dropdown-toggle.btn-info {
+  color: #fff !important;
+  background-color: #19a9d5;
+  border-color: #189ec8;
+}
+
+.btn-addon fa {
+  position: relative;
+  float: left;
+  width: 34px;
+  height: 34px;
+  margin: -7px 12px -7px -12px;
+  line-height: 34px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 2px 0 0 2px;
+}
+
+.popover-custom{
+  max-width: 100%;
+  max-height: 800px;
+  overflow-y: auto;
+  /* white-space:pre-wrap; */
+}
+
+.popover-query{
+  max-width: 100%;
+  /* max-height: 800px; */
+  /* overflow-y: auto; */
+  /* white-space:pre-wrap; */
+}
+
+.CodeMirror-wrap {
+  height: 390px !important;
+}
+
+.button-regular-st {
+  background-color: white;
+  border-color: white;
+  color: black;
+}
+.button-regular-st:hover {
+  background-color: white;
+  border-color: white;
+  color: black;
+}
+.btn-outline-primary:not(:disabled):not(.disabled):active, .btn-outline-primary:not(:disabled):not(.disabled).active, .show > .btn-outline-primary.dropdown-toggle {
+  background-color: white;
+  border-color: white;
+  color: black;
+}
+
+
+.collection-selected {
+  border-left: 5px solid #23b7e5 !important;
+}
+
+.popover-body{
+    text-align:center;
+}
+
+.notes_text {
+  font-weight: bold;
+  text-align: center;
+}
+
+
+.ng2-dropdown-menu{
+    z-index:2000!important;
+}
+
+.btn_standar {
+  font-size: 13px;
+  max-height: 34px;
+}
+
+.testRunSql {
+  margin-top: 10px;
+}

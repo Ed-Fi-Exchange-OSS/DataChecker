@@ -1,0 +1,190 @@
+<div class="container">
+    <div class="row p-0">
+        <div class="col-12 page-title">
+            <h1>User Profile</h1>
+        </div>
+    </div>
+
+    <form name="userForm" #userForm="ngForm">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2>Personal Information</h2>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group"
+                                            [ngClass]="{'invalid': name.invalid, 'valid': name.valid}">
+                                            <label for="name">Full Name:</label>
+                                            <input id="name" name="name" class="form-control" required minlength="4"
+                                                [(ngModel)]="localUser.name" #name="ngModel">
+
+                                            <div *ngIf="name.invalid"
+                                                class="form-feedback">
+
+                                                <div *ngIf="name.errors.required">
+                                                    Full Name is required.
+                                                </div>
+                                                <div *ngIf="name.errors.minlength">
+                                                    Full Name must be at least 4 characters long.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group"
+                                            [ngClass]="{'invalid': email.invalid, 'valid': email.valid}">
+                                            <label for="email">Email:</label>
+                                            <input type="email" id="email" name="email" class="form-control" required
+                                                minlength="4" [(ngModel)]="localUser.email" #email="ngModel" email>
+
+                                            <div *ngIf="email.invalid"
+                                                class="form-feedback">
+
+                                                <div *ngIf="email.errors.required">
+                                                    Email is required.
+                                                </div>
+                                                <div *ngIf="email.errors.minlength">
+                                                    Email must be at least 4 characters long.
+                                                </div>
+
+                                                <div *ngIf="email.errors.email">
+                                                    Invalid email format.
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2>Company Information</h2>
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <div class="form-group"
+                                    [ngClass]="{'invalid': nameOfInstitution.invalid, 'valid': nameOfInstitution.valid}">
+                                    <label for="nameOfInstitution "> Institution Name:</label>
+                                    <input id="nameOfInstitution " name="nameOfInstitution " class="form-control"
+                                        required minlength="4" [(ngModel)]="localUser.organization.nameOfInstitution "
+                                        #nameOfInstitution="ngModel">
+
+                                    <div *ngIf="nameOfInstitution.invalid"
+                                        class="form-feedback">
+
+                                        <div *ngIf="nameOfInstitution.errors.required">
+                                            Institution name is required.
+                                        </div>
+                                        <div *ngIf="nameOfInstitution.errors.minlength">
+                                            Institution name must be at least 4 characters long.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group"
+                                    [ngClass]="{'invalid': primaryContactName.invalid, 'valid': primaryContactName.valid}">
+                                    <label for="primaryContactName "> Contact name:</label>
+                                    <input id="primaryContactName " name="primaryContactName " class="form-control"
+                                        required minlength="4" [(ngModel)]="localUser.organization.primaryContactName "
+                                        #primaryContactName="ngModel">
+
+                                    <div *ngIf="primaryContactName.invalid"
+                                        class="form-feedback">
+
+                                        <div *ngIf="primaryContactName.errors.required">
+                                            Contact name is required.
+                                        </div>
+                                        <div *ngIf="primaryContactName.errors.minlength">
+                                            Contact name must be at least 4 characters long.
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                            <div class="col-md-6">
+                                <div class="form-group"
+                                    [ngClass]="{'invalid': primaryContactPhone.invalid, 'valid': primaryContactPhone.valid}">
+                                    <label for="primaryContactPhone "> Contact
+                                        Phone:</label>
+                                    <input type="text" id="primaryContactPhone " name="primaryContactPhone "
+                                        class="form-control" required minlength="4"
+                                        [(ngModel)]="localUser.organization.primaryContactPhone "
+                                        #primaryContactPhone="ngModel">
+
+                                    <div *ngIf="primaryContactPhone.invalid"
+                                        class="form-feedback">
+
+                                        <div *ngIf="primaryContactPhone.errors.required">
+                                            Contact phone is required.
+                                        </div>
+                                        <div *ngIf="primaryContactPhone.errors.minlength">
+                                            Contact phone must be at least 10 characters long.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group"
+                                    [ngClass]="{'invalid': primaryContactEmail.invalid, 'valid': primaryContactEmail.valid}">
+                                    <label for="primaryContactEmail" type="email"> Contact
+                                        Email:</label>
+                                    <input id="primaryContactEmail" name="primaryContactEmail" class="form-control"
+                                        email required minlength="4"
+                                        [(ngModel)]="localUser.organization.primaryContactEmail"
+                                        #primaryContactEmail="ngModel">
+
+                                    <div *ngIf="primaryContactEmail.invalid"
+                                        class="form-feedback">
+
+                                        <div *ngIf="primaryContactEmail.errors.required">
+                                            Contact email is required.
+                                        </div>
+                                        <div *ngIf="primaryContactEmail.errors.minlength">
+                                            Contact email must be at least 4 characters long.
+                                        </div>
+                                        <div *ngIf="primaryContactEmail.errors.email">
+                                            Email incorrect format
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-info btn-lg float-right mt-3" (click)="!name.invalid && !email.invalid && !nameOfInstitution.invalid && !primaryContactName.invalid && !primaryContactPhone.invalid && !primaryContactEmail.invalid ? saveInformation() : ''">
+                    <i class="ion-md-checkmark-circle-outline"></i>
+                    Save
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div>

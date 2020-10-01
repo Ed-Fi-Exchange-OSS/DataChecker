@@ -1,0 +1,131 @@
+
+<div class="row" style="margin-bottom:20px">
+  <div class="col-md-12">
+    <h4>Create/Update Tags</h4>
+  </div>
+</div>
+
+<div class="row">
+
+  <div class="col-md-12">
+
+    <form #tagForm="ngForm" (ngSubmit)="saveTag(tagForm)">
+
+      <div class="row">
+
+        <div class="col-12">
+          <div class="form-group row" [ngClass]="{'invalid': name.invalid && (name.dirty || name.touched), 'valid': name.valid}">
+            <label for="name" class="col-2 text-right"> Name:</label>
+            <div class="col-10">
+              <input id="name" name="name" class="form-control" required minlength="4" [(ngModel)]="newTag.name" #name="ngModel">
+              <div *ngIf="name.invalid && (name.dirty || name.touched)" class="form-feedback">
+                <div *ngIf="name.errors.required">
+                  Name is required.
+                </div>
+                <div *ngIf="name.errors.minlength">
+                  Name must be at least 4 characters long.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="form-group row" [ngClass]="{'invalid': description.invalid && (description.dirty || description.touched), 'valid': description.valid}">
+            <label for="description" class="col-2 text-right"> Description:</label>
+            <div class="col-10">
+              <input id="description" name="description" class="form-control" required minlength="4" [(ngModel)]="newTag.description" #description="ngModel">
+              <div *ngIf="description.invalid && (description.dirty || description.touched)" class="form-feedback">
+                <div *ngIf="description.errors.required">
+                  Description is required.
+                </div>
+                <div *ngIf="description.errors.minlength">
+                  Description must be at least 4 characters long.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="form-group row" [ngClass]="{'invalid': isPublic.invalid, 'valid': isPublic.valid}">
+            <label for="isPublic" class="col-2 text-right"> Is Public:</label>
+            <div class="col-10">
+              <input id="isPublic" name="isPublic" type="checkbox" [(ngModel)]="newTag.isPublic" #isPublic="ngModel">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-md-12 text-right">
+          <button type="submit" class="btn btn-info btn-lg btn-margin">
+            <i class="ion-md-checkmark-circle-outline"></i> {{titleButton}}
+          </button>
+
+          <button type="button" class="btn btn-danger btn-lg btn-margin" *ngIf="newTag.id != 0" (click)="cancelTag(tagForm)">
+            <i class="ion-md-checkmark-circle-outline"></i> Cancel
+          </button>
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<div class="row">
+
+  <div class="col-md-12">
+
+    <div class="form-group">
+      <label for="searchInput"> Search:</label>
+      <input id="searchInput" name="searchInput" class="form-control" (ngModelChange)="searchTags($event)" [(ngModel)]="searchInput">
+    </div>
+
+  </div>
+
+</div>
+
+<div class="row">
+
+  <div class="col-md-12" style="margin-bottom:20px">
+    <h4>Tags List</h4>
+  </div>
+
+  <div class="col-md-12">
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Description</th>
+          <th scope="col">Is Public</th>
+          <th scope="col">Is Used</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tag of filteredTags; index as i">
+          <td>{{ tag.name }}</td>
+          <td>{{ tag.description }}</td>
+          <td>{{ tag.isPublic ? 'Yes' : 'No' }}</td>
+          <td>{{ tag.isUsed ? 'Yes' : 'No' }}</td>
+          <td>
+            <fa class="icon-table text-success" name="pencil-alt" (click)="edit(tag)"></fa>
+            <ng-template #popDeleteTagContent>
+              <button class="btn btn-danger" (click)="delete(tag)" style="max-height: 50px;">{{tag.isUsed ? 'Yes (it will remove all relations where is use it)' : 'Yes'}}</button>
+              <button class="btn btn-default" style="margin-left:10px">No</button>
+            </ng-template>
+            <fa class="icon-table text-danger" name="trash" [ngbPopover]="popDeleteTagContent" popoverTitle="Confirm Delete?" placement="bottom"></fa>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+</div>
+

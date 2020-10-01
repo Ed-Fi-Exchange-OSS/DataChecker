@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MSDF.DataChecker.cmd": {
+      "commandName": "Project",
+      "commandLineArgs": "--ruleid \"25B08FD7-755A-CAA8-5741-02E186CEA415\" --environmentname \"ruben sm\" --collectionid \"\" --environmentId \"85897012-F5DB-4A15-61D1-08D7AA67B2D3\" "
+    }
+  }
+}

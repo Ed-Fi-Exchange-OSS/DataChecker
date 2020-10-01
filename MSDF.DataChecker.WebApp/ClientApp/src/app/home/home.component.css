@@ -1,0 +1,140 @@
+body {
+  /* font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial,    sans-serif; */
+  /* background-color: #f8f8f8; */
+}
+
+@media (min-width: 1200px) {
+  .parent-container {
+    max-width: 1200px !important;
+  }
+}
+
+@media (min-width: 1400px) {
+  .parent-container {
+    max-width: 1300px !important;
+  }
+}
+
+@media (min-width: 1600px) {
+  .parent-container {
+    max-width: 1500px !important;
+  }
+}
+
+@media (min-width: 1800px) {
+  .parent-container {
+    max-width: 1700px !important;
+  }
+}
+
+@media (min-width: 1900px) {
+  .parent-container {
+    max-width: 1800px !important;
+  }
+}
+.category-row {
+  /* display: flex; */
+  /* align-items: center; */
+}
+
+.category-header {
+  /* display: flex; */
+  margin-top: 15px;
+  background: white;
+  /* border-bottom: 2px #d3cfcf73 solid; */
+  border-radius: 5px;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* 
+* .category-header:first-child {
+  border-top: unset;
+} */
+
+.category-name {
+  font-size: x-large;
+}
+
+.category-run-button {
+  /* margin-right: 0px; */
+}
+
+.row {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  /* padding: 20px; */
+}
+
+.bg-info {
+  color: white;
+}
+
+.card-body {
+  padding: 0 !important;
+}
+
+.rules-container .row {
+  background-color: white;
+}
+
+.right-icon {
+   margin-left: 10px;
+  margin-right: 0px; 
+}
+
+.left-icon {
+  margin-right: 10px;
+}
+
+.right-button {
+  margin-right: 26px;
+}
+
+.rule-icon {
+  margin-left: 20px;
+}
+.btn {
+  font-size: 13px;
+
+  max-height: 34px;
+}
+
+.btn-large {
+  /* width: 200px; */
+}
+
+.btn-medium {
+  width: 200px;
+}
+
+.grayContainer {
+  background-color: #e6e3e3;
+}
+
+.hightlightText {
+  background-color: #ffff00;
+}
+
+.fa-status-success {
+  color: #038003;
+}
+
+.fa-status-fail {
+  color: #d60f0f;
+}
+
+.fa-status-sql-error {
+  color: #ffc107;
+}
+
+.main-rule-st {
+  margin-left: 0px;
+  margin-right: 0px;
+  height: 50px;
+  padding-top: 8px;
+  padding-bottom: 0px;
+}
+
+.filter-label{
+    margin-left:10px;
+}

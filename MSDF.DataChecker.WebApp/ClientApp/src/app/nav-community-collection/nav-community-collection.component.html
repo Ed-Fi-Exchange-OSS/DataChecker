@@ -1,0 +1,240 @@
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+
+      <div class="col-10">
+        <div style="float:left">
+          <div class="text-container" style="margin-bottom:5px">
+
+            <i *ngIf="category.showChilds" (click)="category.showChilds=!category.showChilds;"
+               class=" fas fa-angle-down fa-lg cursor-pointer" style="color: #b0b0b0;"></i>
+
+            <i *ngIf="!category.showChilds" (click)="category.showChilds=!category.showChilds;"
+               class=" fas fa-angle-right fa-lg cursor-pointer" style="color: #3d3d3d;"></i>
+
+            {{ category.name }}
+          </div>
+          <div class="card-subtitle text-description">
+            Public Tags : <span class="font-weight-bold">{{category.publicTagsName}}</span>
+          </div>
+          <div class="card-subtitle text-description">
+            Environment Type : <span class="font-weight-bold">{{category.environmentTypeName}}</span>
+          </div>
+          <div class="card-subtitle text-description">
+            Destination Table : <span class="font-weight-bold">{{category.destinationTable}}</span>
+          </div>
+          <div class="card-subtitle text-description">
+            Rules : <span class="font-weight-bold">{{category.totalRules}}</span>
+          </div>
+          <div class="card-subtitle text-description">
+            Administrator : <span class="font-weight-bold">{{category.administrator}}</span>
+          </div>
+          <div class="card-subtitle text-description">
+            Uploaded : <span class="font-weight-bold">{{category.uploaded | date:'MM/dd/yyyy HH:mm'}}</span>
+          </div>
+          <div class="card-subtitle text-description">
+            Updated : <span class="font-weight-bold">{{category.updated | date:'MM/dd/yyyy HH:mm'}}</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="col-2">
+        <button class="btn btn-primary btn-lg" (click)="validDownloadCollection(downloadCollectionMessageContent)" style="font-size: 13px;">
+          <fa name="download"></fa> Download collection
+        </button>
+      </div>
+
+    </div>
+
+    <div class="row" *ngIf="category.showChilds" style="margin-top:10px">
+      <div class="col-md-12 col-lg-12">
+        <div class="row" *ngFor="let categoryChild of category.childContainers" style="padding-left:30px;margin-bottom:10px">
+          <div class="col-12">
+
+            <div style="float:left;margin-right:15px">
+              <i *ngIf="categoryChild.showRules"
+                 (click)="categoryChild.showRules=!categoryChild.showRules;"
+                 class="fas fa-angle-down fa-lg cursor-pointer"
+                 style="color: #b0b0b0;">
+              </i>
+
+              <i *ngIf="!categoryChild.showRules"
+                 (click)="categoryChild.showRules=!categoryChild.showRules;"
+                 class="fas fa-angle-right fa-lg cursor-pointer" style="color: #3d3d3d;"></i>
+            </div>
+
+            <div style="float:left">
+              Container: {{categoryChild.name}}
+            </div>
+          </div>
+
+          <div *ngIf="categoryChild.showRules" class="col-12" style="margin-top:10px">
+            <div *ngFor="let rule of categoryChild.rules ; let i = index" style="padding-left:30px;margin-bottom:10px">
+              <span class="font-weight-bold" (click)="showRule(rule, ruleCommunityContent)" style="cursor:pointer">
+                Rule: {{rule.name}}
+                <i class="fa fa-search"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #downloadCollectionMessageContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Download Collection</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p style="text-align:center;margin-bottom:0px">
+      Already exist a collection with the same name, do you want overwrite it or create a new one (a consecutive number will be added at the end)?
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info btn-lg btn_standar" (click)="downloadCollection(false)">
+      <i class=" icon ion-md-paper"></i> Overwrite
+    </button>
+
+    <button type="button" class="btn btn-danger btn-lg btn_standar" (click)="downloadCollection(true)">
+      <i class=" icon ion-md-copy"></i> Create New One
+    </button>
+  </div>
+
+</ng-template>
+
+<ng-template #ruleCommunityContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Rule Community</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div>
+
+      <div class="row">
+        <div class="col">
+          <div class="row justify-content-between">
+            <div class="col">
+              <div class="form-group">
+                <div>
+                  <label>Collection:</label>
+                  <label style="margin-left: 10px; font-weight: bolder;">{{newRule.collectionName}}</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="form-group">
+                <div>
+                  <label>Container:</label>
+                  <label style="margin-left: 10px; font-weight: bolder;">{{newRule.containerName}}</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="form-group">
+                <div>
+                  <label>Environment type:</label>
+                  <label style="margin-left: 10px; font-weight: bolder;">{{newRule.environmentTypeText}}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+
+        <div class="col">
+
+
+          <div class="row justify-content-between">
+            <div class="col">
+              <div class="form-group">
+                <label for="name"> Name:</label>
+                <span class="ruleProperty">{{newRule.name}}</span>
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-group">
+                <label for="ruleIdentification">External Rule ID:</label>
+                <span class="ruleProperty">{{newRule.ruleIdentification}}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="name"> Description:</label>
+            <span class="ruleProperty">{{newRule.description}}</span>
+          </div>
+
+          <div class="row justify-content-between">
+            <div class="col">
+              <div class="form-group">
+                <label for="version">Version:</label>
+                <span class="ruleProperty">{{newRule.version}}</span>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="form-group">
+                <label for="errorSeverityLevel"> Severity level:</label>
+                <span class="ruleProperty">{{newRule.errorSeverityLevelText}}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row justify-content-between">
+            <div class="col">
+              <div class="form-group">
+                <label for="errorMessage">Error message:</label>
+                <span class="ruleProperty">{{newRule.errorMessage}}</span>
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-group">
+                <label for="resolution">Resolution:</label>
+                <span class="ruleProperty">{{newRule.resolution}}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row justify-content-between">
+            <div class="col">
+              <div class="form-group">
+                <label for="tagsRule"> Tags:</label>
+                <span class="ruleProperty">{{newRule.tagsName}}</span>
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-group">
+                <label for="maxNumberResults">Max Number Results:</label>
+                <span class="ruleProperty">{{newRule.maxNumberResults}}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col">
+          <div class="form-group">
+            <label for="diagnosticSql">Sql:</label>
+            <ngx-codemirror [(ngModel)]="newRule.diagnosticSql" [options]="sqlOptions"></ngx-codemirror>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+  </div>
+
+</ng-template>

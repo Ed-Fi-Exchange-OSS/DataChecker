@@ -1,0 +1,25 @@
+<header>
+  <nav class="navbar navbar-expand-xl navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 container-fluid" >
+      <a class="navbar-brand" [routerLink]='["/"]'><img src="assets/edfi-logo.png" /> QA - Data Checker</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse"
+        aria-label="Toggle navigation" [attr.aria-expanded]="isExpanded" (click)="toggle()">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse" [ngClass]="{ show: isExpanded }">
+        <ul class="navbar-nav flex-grow">
+          <!--<li class="nav-item" [routerLinkActive]="['link-active']" [routerLinkActiveOptions]="{ exact: true }">
+            <a class="nav-link text-dark" [routerLink]="['/']">Home</a>
+          </li>-->
+          <!--<li class="nav-item" [routerLinkActive]="['link-active']">
+            <a class="nav-link text-dark" [routerLink]="['/explore-collection']">Explore</a>
+          </li>-->
+          <!--<li class="nav-item" [routerLinkActive]="['link-active']">
+            <a class="nav-link text-dark" [routerLink]="['/profile']">Profile</a>
+          </li>-->
+          <li class="nav-item">
+            <a class="nav-link text-dark" href="https://docs.google.com/document/d/1oxoAl0upncGabM1ybRr4cY1zwEyuRG-Xc1gr46LP4-E/" target="_blank">Help</a>
+          </li>
+        </ul>
+      </div>    
+  </nav>
+</header>

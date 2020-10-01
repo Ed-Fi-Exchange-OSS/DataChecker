@@ -1,0 +1,138 @@
+
+<div class="row" style="margin-bottom:20px">
+  <div class="col-md-12">
+    <h4>Create/Update Jobs</h4>
+  </div>
+</div>
+
+<div class="row">
+
+  <div class="col-md-12">
+
+    <form #jobForm="ngForm" (ngSubmit)="saveJob(jobForm)">
+
+      <div class="row">
+
+        <div class="col-6">
+          <div class="form-group row" [ngClass]="{'invalid': name.invalid && (name.dirty || name.touched), 'valid': name.valid}">
+            <label for="name" class="col-4 text-right"> Job Name:</label>
+            <div class="col-8">
+              <input id="name" name="name" class="form-control" required minlength="4" [(ngModel)]="newJob.name" #name="ngModel">
+              <div *ngIf="name.invalid && (name.dirty || name.touched)" class="form-feedback">
+                <div *ngIf="name.errors.required">
+                  Name is required.
+                </div>
+                <div *ngIf="name.errors.minlength">
+                  Name must be at least 4 characters long.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row" [ngClass]="{'invalid': cron.invalid && (cron.dirty || cron.touched), 'valid': cron.valid}">
+            <label for="cron" class="col-4 text-right"> Cron Expression <fa name="info-circle" title="Click here for more info" (click)="showCronInfo()" style="cursor:pointer"></fa>:</label>
+            <div class="col-8">
+              <input id="cron" name="cron" class="form-control" pattern="((\*|\?|\d+((\/|\-){0,1}(\d+))*)\s*)([ ]{1}((\*|\?|\d+((\/|\-){0,1}(\d+))*)\s*)){4}" [(ngModel)]="newJob.cron" #cron="ngModel">
+            </div>
+          </div>
+          <div class="form-group row" [ngClass]="{'invalid': environment.invalid && (environment.dirty || environment.touched), 'valid': environment.valid}">
+            <label for="environment" class="col-4 text-right"> Environment:</label>
+            <div class="col-8">
+              <select id="environment" name="environment" class="form-control" required [(ngModel)]="newJob.databaseEnvironmentId" #environment="ngModel">
+                <option *ngFor="let env of databaseEnvironments" [value]="env.id">{{env.name}}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="form-group row" [ngClass]="{'invalid': type.invalid && (type.dirty || type.touched), 'valid': type.valid}">
+            <label for="type" class="col-3 text-right"> Job Type:</label>
+            <div class="col-9">
+              <select id="type" name="type" class="form-control" required [(ngModel)]="newJob.type" #type="ngModel">
+                <option *ngFor="let opt of [{id:1,description:'By Tag'},{id:2,description:'By Collection'}]" [value]="opt.id">{{opt.description}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row" *ngIf="newJob.type==1" [ngClass]="{'invalid': target.invalid && (target.dirty || target.touched), 'valid': target.valid}">
+            <label for="type" class="col-3 text-right"> Target:</label>
+            <div class="col-9">
+              <select id="target" name="target" class="form-control" required [(ngModel)]="newJob.tagId" #target="ngModel">
+                <option *ngFor="let tag of tags" [value]="tag.id">{{tag.name}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row" *ngIf="newJob.type==2" [ngClass]="{'invalid': target.invalid && (target.dirty || target.touched), 'valid': target.valid}">
+            <label for="type" class="col-3 text-right"> Target:</label>
+            <div class="col-9">
+              <select id="target" name="target" class="form-control" required [(ngModel)]="newJob.containerId" #target="ngModel">
+                <option *ngFor="let c of containers" [value]="c.id">{{c.name}}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12 text-right">
+          <button *ngIf="(newJob.cron=='')||(newJob.cron==null)||(cron.invalid)" type="submit" class="btn btn-info btn-lg btn-margin" [disabled]="!jobForm.form.valid">
+            <i class="ion-md-checkmark-circle-outline"></i> Run & Forget
+          </button>
+
+          <button *ngIf="(newJob.cron!='')&&(newJob.cron!=null)&&(!cron.invalid)" type="submit" class="btn btn-info btn-lg btn-margin" [disabled]="!jobForm.form.valid">
+            <i class="ion-md-checkmark-circle-outline"></i> Save
+          </button>
+
+          <button type="button" class="btn btn-danger btn-lg btn-margin" *ngIf="newJob.id != 0" (click)="cancelJob(jobForm)">
+            <i class="ion-md-checkmark-circle-outline"></i> Cancel
+          </button>
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<div class="row">
+
+  <div class="col-md-12" style="margin-bottom:20px">
+    <h4>Recurring/Scheduled Job List</h4>
+  </div>
+
+  <div class="col-md-12">
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Job Name</th>
+          <th scope="col">Cron</th>
+          <th scope="col">Environment</th>
+          <th scope="col">Job Type</th>
+          <th scope="col">Target</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let job of jobs; index as i">
+          <td>{{ job.name }}</td>
+          <td>{{ job.cron }}</td>
+          <td>{{ getDatabaseEnvironmentName(job) }}</td>
+          <td>{{ getTypeName(job) }}</td>
+          <td>{{ getTargetName(job) }}</td>
+          <td>
+            <fa class="icon-table text-info" name="play" (click)="enqueue(job)"></fa>
+            <fa class="icon-table text-success" name="pencil-alt" (click)="edit(job)"></fa>
+            <ng-template #popDeleteJobContent>
+              <button class="btn btn-danger" (click)="delete(job)" style="max-height: 50px;">Yes</button>
+              <button class="btn btn-default" style="margin-left:10px">No</button>
+            </ng-template>
+            <fa class="icon-table text-danger" name="trash" [ngbPopover]="popDeleteJobContent" popoverTitle="Confirm Delete?" placement="bottom"></fa>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+</div>
