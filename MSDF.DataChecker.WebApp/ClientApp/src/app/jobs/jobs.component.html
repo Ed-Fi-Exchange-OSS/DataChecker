@@ -49,7 +49,7 @@
             <label for="type" class="col-3 text-right"> Job Type:</label>
             <div class="col-9">
               <select id="type" name="type" class="form-control" required [(ngModel)]="newJob.type" #type="ngModel">
-                <option *ngFor="let opt of [{id:1,description:'By Tag'},{id:2,description:'By Collection'}]" [value]="opt.id">{{opt.description}}</option>
+                <option *ngFor="let opt of [{id:1,description:'By Tag'},{id:2,description:'By Collection/Container'}]" [value]="opt.id">{{opt.description}}</option>
               </select>
             </div>
           </div>

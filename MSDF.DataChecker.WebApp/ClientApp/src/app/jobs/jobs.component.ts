@@ -6,6 +6,7 @@ import { Category } from "../models/category.model";
 import { Job } from "../models/job.model";
 import { DatabaseEnvironment } from "../models/databaseEnvironment.model";
 import { FormGroup } from '@angular/forms';
+import { Container } from "@angular/compiler/src/i18n/i18n_ast";
 
 @Component({
   selector: 'jobs',
@@ -35,7 +36,20 @@ export class JobsComponent implements OnInit {
     });
     this.apiService.container.getAllCollections().subscribe(collections => {
       if (collections != null) {
-        collections.forEach(rec => this.containers = this.containers.concat(rec.childContainers));
+        collections.forEach(rec => {
+          let container = new Category();
+          container.id = rec.id;
+          container.name = rec.name;
+          this.containers.push(container);
+          if (rec.childContainers != null && rec.childContainers.length > 0) {
+            rec.childContainers.forEach(rec2 => {
+              let containerChild = new Category();
+              containerChild.id = rec2.id;
+              containerChild.name = rec.name + '/' + rec2.name;
+              this.containers.push(containerChild);
+            });
+          }
+        });
       }
     });
   }

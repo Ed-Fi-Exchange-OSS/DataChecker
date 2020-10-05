@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -70,7 +70,11 @@ namespace MSDF.DataChecker.Services.Models
                         tags.Add(job.TagId.Value);
                         break;
                     case JobType.Container:
-                        containers.Add(job.ContainerId.Value);
+                        var containerType = await _containerService.GetAsync(job.ContainerId.Value);
+                        if (containerType.ContainerTypeId == 1)
+                            collections.Add(job.ContainerId.Value);
+                        else
+                            containers.Add(job.ContainerId.Value);
                         break;
                 }
 
