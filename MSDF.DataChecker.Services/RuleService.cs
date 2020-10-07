@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -28,7 +28,7 @@ namespace MSDF.DataChecker.Services
         Task<List<RuleBO>> GetWithLogsByDatabaseEnvironmentIdAndContainerIdAsync(Guid databaseEnvironmentId, Guid containerId);
         Task<List<RuleTestResult>> GetTopResults(Guid id, Guid databaseEnvironmentId);
         Task<RuleBO> CopyToAsync(Guid ruleId, Guid containerId);
-        Task<SearchTagBO> SearchRulesAsync(List<Guid> collectionsSelected, List<Guid> containersSelected,List<int> tags, string name, string diagnostic, int? detailsDestination, int? severityId);
+        Task<SearchTagBO> SearchRulesAsync(List<Guid> collectionsSelected, List<Guid> containersSelected, List<int> tags, string name, string diagnostic, int? detailsDestination, int? severityId);
         Task AssignTagsToRule(Guid ruleId, List<TagBO> tags);
         Task<List<RuleBO>> GetByContainerIdAsync(Guid containerId);
         Task<bool> MoveRuleToContainer(List<Guid> rules, ContainerBO container);
@@ -37,7 +37,7 @@ namespace MSDF.DataChecker.Services
     public class RuleService : IRuleService
     {
         private IRuleQueries _ruleQueries;
-        private IRuleCommands  _ruleCommands;
+        private IRuleCommands _ruleCommands;
         private IRuleExecutionLogQueries _ruleExecutionLogQueries;
         private ITagCommands _tagCommands;
         private ITagQueries _tagQueries;
@@ -130,7 +130,7 @@ namespace MSDF.DataChecker.Services
             return null;
         }
 
-        public async Task<List<RuleBO>> GetWithLogsByDatabaseEnvironmentIdAndContainerIdAsync(Guid databaseEnvironmentId , Guid containerId)
+        public async Task<List<RuleBO>> GetWithLogsByDatabaseEnvironmentIdAndContainerIdAsync(Guid databaseEnvironmentId, Guid containerId)
         {
             var rulesDatabase = await this._ruleQueries
                 .GetByContainerIdAsync(containerId);
@@ -144,9 +144,18 @@ namespace MSDF.DataChecker.Services
                 foreach (RuleBO rule in rules)
                 {
                     var logs = await _ruleExecutionLogQueries.GetByRuleIdAndDatabaseEnvironmentIdAsync(rule.Id, databaseEnvironmentId);
-                    rule.Counter = logs.Any() ? logs.FirstOrDefault().Result : 0;
-                    rule.LastExecution = logs.Any() ? logs.FirstOrDefault().ExecutionDate : (DateTime?)(null);
-                    rule.LastStatus = logs.Any() ? logs.FirstOrDefault().StatusId : 0;
+                    var latestLogRecord = logs.FirstOrDefault();
+
+                    rule.Counter = 0;
+                    rule.LastExecution = (DateTime?)(null);
+                    rule.LastStatus = 0;
+
+                    if (latestLogRecord != null)
+                    {
+                        rule.Counter = latestLogRecord.Result;
+                        rule.LastExecution = latestLogRecord.ExecutionDate;
+                        rule.LastStatus = latestLogRecord.StatusId;
+                    }
                 }
                 return rules;
             }
@@ -154,11 +163,11 @@ namespace MSDF.DataChecker.Services
             return null;
         }
 
-        public async Task<List<RuleTestResult>> GetTopResults(Guid id,Guid databaseEnvironmentId)
+        public async Task<List<RuleTestResult>> GetTopResults(Guid id, Guid databaseEnvironmentId)
         {
             List<RuleTestResult> results = new List<RuleTestResult>();
             var ruleExecutionLogs = await _ruleExecutionLogQueries
-                .GetByRuleIdAndDatabaseEnvironmentIdAsync(id, databaseEnvironmentId);            
+                .GetByRuleIdAndDatabaseEnvironmentIdAsync(id, databaseEnvironmentId);
 
             foreach (var item in ruleExecutionLogs)
             {
@@ -320,7 +329,7 @@ namespace MSDF.DataChecker.Services
                             containersByDestination.AddRange(collection.ChildContainers.Select(rec => rec.Id));
                         }
                     }
-                    
+
                     if (containersByDestination.Any())
                     {
                         containersByDestination = containersByDestination.Distinct().ToList();
@@ -357,7 +366,7 @@ namespace MSDF.DataChecker.Services
                     .GetByListAsync(containersParents);
 
                 List<Container> allContainersMain = await _collectionQueries
-                    .GetByListAsync(allContainersParents.Select(rec=>rec.ParentContainerId.Value).ToList());
+                    .GetByListAsync(allContainersParents.Select(rec => rec.ParentContainerId.Value).ToList());
 
                 foreach (RuleBO rule in result.Rules)
                 {
