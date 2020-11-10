@@ -94,25 +94,25 @@
           <div class="col">
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="checkbox" id="inlineCheckbox1" [(ngModel)]="rulesFilter.rulesSuccess" (change)="filterRulesOfCategories()">
-              <label class="form-check-label" for="inlineCheckbox1">Rules Success</label>
+              <label class="form-check-label" for="inlineCheckbox1">No validation results found</label>
             </div>
           </div>
           <div class="col">
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="checkbox" id="inlineCheckbox2" [(ngModel)]="rulesFilter.rulesValidation" (change)="filterRulesOfCategories()">
-              <label class="form-check-label" for="inlineCheckbox2">Rules Validation</label>
+              <label class="form-check-label" for="inlineCheckbox2">Validation results found</label>
             </div>
           </div>
           <div class="col">
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="checkbox" id="inlineCheckbox3" [(ngModel)]="rulesFilter.rulesError" (change)="filterRulesOfCategories()">
-              <label class="form-check-label" for="inlineCheckbox3">Rules Sql Errors</label>
+              <label class="form-check-label" for="inlineCheckbox3">SQL Errors</label>
             </div>
           </div>
           <div class="col">
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="checkbox" id="inlineCheckbox4" [(ngModel)]="rulesFilter.rulesNotRan" (change)="filterRulesOfCategories()">
-              <label class="form-check-label" for="inlineCheckbox4">Rules Not Ran</label>
+              <label class="form-check-label" for="inlineCheckbox4">Validation rule not run</label>
             </div>
           </div>
         </div>
@@ -125,12 +125,6 @@
 
             <div class="col-7 category-row  cursor-pointer category-name"
                  (click)="category.showRules = !category.showRules;">
-              <fa *ngIf="category.lastStatus == 1" name="check-circle" class="fa-large fa-status-success">
-              </fa>
-              <fa *ngIf="category.lastStatus == 2" name="times-circle" class="fa-large fa-status-fail">
-              </fa>
-              <fa *ngIf="category.lastStatus == 3" name="exclamation-circle" class="fa-large fa-status-sql-error">
-              </fa>
               <span style="margin-left: 10px;">{{ category.name }}</span>
             </div>
 
@@ -346,7 +340,8 @@
       <div class="form-group" [ngClass]="{'invalid': server.invalid, 'valid': server.valid}">
         <label for="server"> Server Url:</label>
         <input id="server" name="server" class="form-control" required
-               [(ngModel)]="userSignIn.server" #server="ngModel" type="url" url>
+               [(ngModel)]="userSignIn.server" #server="ngModel" type="url" url
+               (keydown.enter)="signIngForm.valid ? signInToRepository(downloadCommunityContent) : ''">
 
         <div *ngIf="server.invalid" class="form-feedback">
           <div *ngIf="server.errors.required">
@@ -361,7 +356,8 @@
       <div class="form-group" [ngClass]="{'invalid': email.invalid, 'valid': email.valid}">
         <label for="email"> Email:</label>
         <input id="email" name="email" class="form-control" required minlength="4"
-               [(ngModel)]="userSignIn.email" #email="ngModel" type="email" email>
+               [(ngModel)]="userSignIn.email" #email="ngModel" type="email" email
+               (keydown.enter)="signIngForm.valid ? signInToRepository(downloadCommunityContent) : ''">
 
         <div *ngIf="email.invalid" class="form-feedback">
           <div *ngIf="email.errors.required">
@@ -376,7 +372,8 @@
       <div class="form-group" [ngClass]="{'invalid': password.invalid, 'valid': password.valid}">
         <label for="password"> Password:</label>
         <input id="password" name="password" class="form-control" required
-               [(ngModel)]="userSignIn.password" #password="ngModel" type="password">
+               [(ngModel)]="userSignIn.password" #password="ngModel" type="password"
+               (keydown.enter)="signIngForm.valid ? signInToRepository(downloadCommunityContent) : ''">
 
         <div *ngIf="password.invalid" class="form-feedback">
           <div *ngIf="password.errors.required">

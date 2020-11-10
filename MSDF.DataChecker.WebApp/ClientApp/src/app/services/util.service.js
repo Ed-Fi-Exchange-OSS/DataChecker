@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UtilService = void 0;
-//import { HttpHeaders } from "@angular/common/http";
 var environment_1 = require("./../../environments/environment");
 var UtilService = /** @class */ (function () {
     function UtilService() {
@@ -9,7 +8,8 @@ var UtilService = /** @class */ (function () {
     UtilService.tokenInformation = null;
     UtilService.communityUrlUser = null;
     UtilService.apiUrl = function () {
-        return environment_1.environment.apiUrl;
+        var url = window.location.href + 'api/';
+        return url;
     };
     UtilService.communityUrl = function () {
         if (UtilService.communityUrlUser == null || UtilService.communityUrlUser == environment_1.environment.communityUrl)

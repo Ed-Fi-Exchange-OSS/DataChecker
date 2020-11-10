@@ -92,4 +92,10 @@ export class ContainerService {
       .post(this.url + "/GetByName", collection)
       .pipe(map((result: any) => result));
   }
+
+  public validateDestinationTable(info: any): Observable<any> {
+    return this.http
+      .post(this.url + "/ValidateDestinationTable", info)
+      .pipe(map((result: any) => result));
+  }
 }

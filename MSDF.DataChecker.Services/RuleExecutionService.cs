@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -23,7 +23,7 @@ namespace MSDF.DataChecker.Services
         Task<List<RuleTestResult>> ExecuteRulesByEnvironmentIdAsync(List<RuleBO> rules, DatabaseEnvironmentBO databaseEnvironment);
         Task<RuleTestResult> ExecuteRuleByEnvironmentIdAsync(Guid ruleId,DatabaseEnvironmentBO databaseEnvironment);
         Task<TableResult> ExecuteRuleDiagnosticByRuleLogIdAndEnvironmentIdAsync(int ruleLogId, DatabaseEnvironmentBO databaseEnvironment);
-        Task<RuleTestResult> ExecuteRuleAsync(RuleBO rule, string connectionString, List<UserParamBO> userParams);
+        Task<RuleTestResult> ExecuteRuleAsync(RuleBO rule, string connectionString, List<UserParamBO> userParams, int? timeout);
     }
 
     public class RuleExecutionService : IRuleExecutionService
@@ -62,7 +62,7 @@ namespace MSDF.DataChecker.Services
 
             foreach (var rule in rules)
             {
-                results.Add(await ExecuteRuleAsync(rule, connectionString, databaseEnvironment.UserParams));
+                results.Add(await ExecuteRuleAsync(rule, connectionString, databaseEnvironment.UserParams, databaseEnvironment.TimeoutInMinutes));
             }
             return results;
         }
@@ -77,7 +77,7 @@ namespace MSDF.DataChecker.Services
                 
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
 
-            RuleTestResult testResult = await ExecuteRuleAsync(rule, connectionString,databaseEnvironment.UserParams);
+            RuleTestResult testResult = await ExecuteRuleAsync(rule, connectionString, databaseEnvironment.UserParams, databaseEnvironment.TimeoutInMinutes);
 
             var containerParent = await _collectionQueries.GetAsync(rule.ContainerId);
             if (containerParent.ParentContainerId != null)
@@ -141,15 +141,17 @@ namespace MSDF.DataChecker.Services
             return testResult;
         }
 
-        public async Task<RuleTestResult> ExecuteRuleAsync(RuleBO rule, string connectionString, List<UserParamBO> userParams)
+        public async Task<RuleTestResult> ExecuteRuleAsync(RuleBO rule, string connectionString, List<UserParamBO> userParams, int? timeout)
         {
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
             RuleTestResult testResult;
 
             try
             {
-                if(!connectionString.ToLower().Contains("timeout"))
-                    connectionString += " Connection Timeout = 10";
+                if (!connectionString.ToLower().Contains("timeout") && timeout == null)
+                    connectionString += " Connection Timeout = 60";
+                else if (timeout != null)
+                    connectionString += " Connection Timeout = " + (timeout.Value * 60).ToString();
 
                 using (var conn = new SqlConnection(connectionString))
                 {
@@ -165,6 +167,9 @@ namespace MSDF.DataChecker.Services
                             sqlToRun = rule.DiagnosticSql;
                             using (var cmd = new SqlCommand(sqlToRun, conn))
                             {
+                                if (timeout != null)
+                                    cmd.CommandTimeout = (timeout.Value * 60);
+
                                 AddParameters(sqlToRun, cmd, userParams);
                                 var reader = await cmd.ExecuteReaderAsync();
                                 if (reader.HasRows)
@@ -178,6 +183,9 @@ namespace MSDF.DataChecker.Services
                         {
                             using (var cmd = new SqlCommand(sqlToRun, conn))
                             {
+                                if (timeout != null)
+                                    cmd.CommandTimeout = (timeout.Value * 60);
+
                                 AddParameters(sqlToRun, cmd, userParams);
                                 execution = Convert.ToInt32(cmd.ExecuteScalar());
                             }
@@ -188,6 +196,9 @@ namespace MSDF.DataChecker.Services
                         sqlToRun = rule.DiagnosticSql;
                         using (var cmd = new SqlCommand(sqlToRun, conn))
                         {
+                            if (timeout != null)
+                                cmd.CommandTimeout = (timeout.Value * 60);
+
                             AddParameters(sqlToRun, cmd, userParams);
                             var reader = await cmd.ExecuteReaderAsync();
                             if (reader.HasRows)
@@ -238,12 +249,20 @@ namespace MSDF.DataChecker.Services
 
             try
             {
+                if (!connectionString.ToLower().Contains("timeout") && databaseEnvironment.TimeoutInMinutes == null)
+                    connectionString += " Connection Timeout = 60";
+                else if (databaseEnvironment.TimeoutInMinutes != null)
+                    connectionString += " Connection Timeout = " + (databaseEnvironment.TimeoutInMinutes.Value * 60).ToString();
+
                 using (var conn = new SqlConnection(connectionString))
                 {
                     await conn.OpenAsync();
 
                     using (var cmd = new SqlCommand(existLog.DiagnosticSql, conn))
                     {
+                        if (databaseEnvironment.TimeoutInMinutes != null)
+                            cmd.CommandTimeout = (databaseEnvironment.TimeoutInMinutes.Value * 60);
+
                         AddParameters(existLog.DiagnosticSql, cmd, databaseEnvironment.UserParams);
                         var getReader = await cmd.ExecuteReaderAsync();
                         DataTable dt = new DataTable();

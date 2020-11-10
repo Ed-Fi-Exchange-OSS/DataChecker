@@ -71,10 +71,10 @@ namespace MSDF.DataChecker.Services.Models
                         break;
                     case JobType.Container:
                         var containerType = await _containerService.GetAsync(job.ContainerId.Value);
-                        if (containerType.ContainerTypeId == 1)
+                        if(containerType.ContainerTypeId == 1)
                             collections.Add(job.ContainerId.Value);
                         else
-                            containers.Add(job.ContainerId.Value);
+                            containers.Add(job.ContainerId.Value);                       
                         break;
                 }
 

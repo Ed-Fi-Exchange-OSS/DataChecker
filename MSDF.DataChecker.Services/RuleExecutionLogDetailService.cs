@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace MSDF.DataChecker.Services
         Task<RuleExecutionLogDetailBO> GetByRuleExecutionLogIdAsync(int id);
         Task<int> GetLastRuleExecutionLogByEnvironmentAndRuleAsync(Guid environmentId, Guid ruleId);
         Task<RuleExecutionLogDetailExportToTableBO> ExportToTableByRuleExecutionLogIdAsync(int id);
+        Task<RuleExecutionLogDetailBO> ExecutionDiagnosticSqlByLogIdAsync(int id);
     }
 
     public class RuleExecutionLogDetailService : IRuleExecutionLogDetailService
@@ -198,6 +200,90 @@ namespace MSDF.DataChecker.Services
                 var existLog = listLogs.OrderByDescending(rec => rec.ExecutionDate).FirstOrDefault();
                 if (existLog != null)
                     result = existLog.Id;
+            }
+            return result;
+        }
+
+        public async Task<RuleExecutionLogDetailBO> ExecutionDiagnosticSqlByLogIdAsync(int id)
+        {
+            RuleExecutionLogDetailBO result = new RuleExecutionLogDetailBO
+            {
+                Columns = new List<string>(),
+                Rows = new List<Dictionary<string, string>>()
+            };
+
+            var ruleExecutionLog = await _queriesRuleExecutionLog.GetAsync(id);
+            if (ruleExecutionLog != null)
+            {
+                var existDatabaseEnvironment = await _queriesDatabaseEnvironments.GetAsync(ruleExecutionLog.DatabaseEnvironmentId);
+                DatabaseEnvironmentBO envBO = new DatabaseEnvironmentBO
+                {
+                    Database = existDatabaseEnvironment.Database,
+                    DataSource = existDatabaseEnvironment.DataSource,
+                    ExtraData = existDatabaseEnvironment.ExtraData,
+                    Password = existDatabaseEnvironment.Password,
+                    SecurityIntegrated = existDatabaseEnvironment.SecurityIntegrated,
+                    TimeoutInMinutes = existDatabaseEnvironment.TimeoutInMinutes,
+                    User = existDatabaseEnvironment.User
+                };
+
+                string connectionString = envBO.GetConnectionString();
+                if (!connectionString.ToLower().Contains("timeout") && envBO.TimeoutInMinutes == null)
+                    connectionString += " Connection Timeout = 60";
+                else if (envBO.TimeoutInMinutes != null)
+                    connectionString += " Connection Timeout = " + (envBO.TimeoutInMinutes.Value * 60).ToString();
+
+                try
+                {
+                    using (var conn = new SqlConnection(connectionString))
+                    {
+                        conn.Open();
+
+                        using (var cmd = new SqlCommand(ruleExecutionLog.DiagnosticSql, conn))
+                        {
+                            if (envBO.TimeoutInMinutes != null)
+                                cmd.CommandTimeout = (envBO.TimeoutInMinutes.Value * 60);
+
+                            result.RuleDiagnosticSql = ruleExecutionLog.DiagnosticSql;
+
+                            var reader = await cmd.ExecuteReaderAsync();
+                            if (reader.HasRows)
+                            {
+                                DataTable dt = new DataTable();
+                                dt.Load(reader);
+
+                                if (dt != null)
+                                {
+                                    List<string> columnsToExport = new List<string>();
+
+                                    foreach (DataColumn column in dt.Columns)
+                                    {
+                                        string columnName = column.ColumnName.ToLower();
+                                        columnsToExport.Add(columnName);
+                                    }
+
+                                    List<Dictionary<string, string>> rowsToExport = new List<Dictionary<string, string>>();
+
+                                    foreach (DataRow row in dt.Rows)
+                                    {
+                                        Dictionary<string, string> newRow = new Dictionary<string, string>();
+                                        foreach (var column in columnsToExport)
+                                        {
+                                            newRow.Add(column, row[column].ToString());
+                                        }
+                                        rowsToExport.Add(newRow);
+                                    }
+                                    result.RuleExecutionLogId = id;
+                                    result.Columns = columnsToExport;
+                                    result.Rows = rowsToExport;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                }
             }
             return result;
         }

@@ -1,6 +1,12 @@
 import { Rule } from "./rule.model";
 import { Tag } from "./tag.model"
 
+export class DestinationTableStructure {
+  type: string;
+  name: string;
+  isNullable: boolean;
+}
+
 export class Category {
   id: string;
   rules: Rule[];
@@ -49,4 +55,10 @@ export class Category {
   administrator: string;
 
   checked: string;
+  containerDestination: {
+    destinationStructure: string;
+  };
+
+  containerDestinationStructure: DestinationTableStructure[];
+  showDestinationStructure: boolean;
 }

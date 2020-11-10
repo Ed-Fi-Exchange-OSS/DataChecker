@@ -9,7 +9,7 @@
 
   <div class="col-md-12">
 
-    <form #jobForm="ngForm" (ngSubmit)="saveJob(jobForm)">
+    <form #jobForm="ngForm" (ngSubmit)="saveJob(jobForm, jobMessageModal)">
 
       <div class="row">
 
@@ -136,3 +136,25 @@
   </div>
 
 </div>
+
+<ng-template #jobMessageModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">
+      Job Scheduler Warning
+    </h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    Already exist a job scheduled with that cron expression, do you want to continue?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info btn-lg btn_standar" (click)="continueSaveJob()">
+      <i class=" icon ion-md-checkmark-circle-outline"></i> Continue
+    </button>
+    <button type="button" class="btn btn-danger btn-lg btn_standar" (click)="modal.dismiss('Cross click')">
+      <i class=" icon ion-md-remove-circle-outline"></i> Cancel
+    </button>
+  </div>
+</ng-template>

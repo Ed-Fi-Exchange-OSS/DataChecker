@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -45,7 +45,7 @@ namespace MSDF.DataChecker.Persistence.DatabaseEnvironments
                 .FirstOrDefaultAsync();
 
             if (model.SecurityIntegrated == null || !model.SecurityIntegrated.Value)
-                entity.Password = Tools.CryptoTools.EncryptString(entity.Password);
+                entity.Password = Tools.CryptoTools.EncryptString(model.Password);
 
             entity.Database = model.Database;
             entity.DataSource = model.DataSource;
@@ -54,6 +54,7 @@ namespace MSDF.DataChecker.Persistence.DatabaseEnvironments
             entity.SecurityIntegrated = model.SecurityIntegrated;
             entity.User = model.User;
             entity.Version = model.Version;
+            entity.TimeoutInMinutes = model.TimeoutInMinutes;
 
             var result = _db.DatabaseEnvironments.Update(entity);
             await _db.SaveChangesAsync();

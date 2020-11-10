@@ -81,4 +81,18 @@ export class CommunityService {
       .post(this.url + "oauth/IsAuthenticated", { email: 'test1', password: 'test2' }, { headers })
       .pipe(map((result: any) => result));
   }
+
+  public validateDestinationTable(info: any, tokenInfo: any): Observable<any> {
+
+    this.url = UtilService.communityUrl();
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': tokenInfo.type + ' ' + tokenInfo.token
+    });
+
+    return this.http
+      .post(this.url + "container/ValidateDestinationTable", info, { headers })
+      .pipe(map((result: any) => result));
+  }
 }

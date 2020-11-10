@@ -605,7 +605,8 @@
       <div class="form-group" [ngClass]="{'invalid': server.invalid, 'valid': server.valid}">
         <label for="server"> Server Url:</label>
         <input id="server" name="server" class="form-control" required
-               [(ngModel)]="userSignIn.server" #server="ngModel" type="url" url>
+               [(ngModel)]="userSignIn.server" #server="ngModel" type="url" url
+               (keydown.enter)="signIngForm.valid ? signInToRepository(uploadCollectionMessageContent) : ''">
 
         <div *ngIf="server.invalid" class="form-feedback">
           <div *ngIf="server.errors.required">
@@ -620,7 +621,8 @@
       <div class="form-group" [ngClass]="{'invalid': email.invalid, 'valid': email.valid}">
         <label for="email"> Email:</label>
         <input id="email" name="email" class="form-control" required minlength="4"
-               [(ngModel)]="userSignIn.email" #email="ngModel" type="email" email>
+               [(ngModel)]="userSignIn.email" #email="ngModel" type="email" email
+               (keydown.enter)="signIngForm.valid ? signInToRepository(uploadCollectionMessageContent) : ''">
 
         <div *ngIf="email.invalid" class="form-feedback">
           <div *ngIf="email.errors.required">
@@ -635,7 +637,8 @@
       <div class="form-group" [ngClass]="{'invalid': password.invalid, 'valid': password.valid}">
         <label for="password"> Password:</label>
         <input id="password" name="password" class="form-control" required
-               [(ngModel)]="userSignIn.password" #password="ngModel" type="password">
+               [(ngModel)]="userSignIn.password" #password="ngModel" type="password"
+               (keydown.enter)="signIngForm.valid ? signInToRepository(uploadCollectionMessageContent) : ''">
 
         <div *ngIf="password.invalid" class="form-feedback">
           <div *ngIf="password.errors.required">

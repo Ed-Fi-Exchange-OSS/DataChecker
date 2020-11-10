@@ -34,6 +34,7 @@ namespace MSDF.DataChecker.Services
         Task<ContainerBO> GetToCommunityAsync(Guid containerId);
         Task<ContainerBO> GetByNameAsync(ContainerBO model);
         Task<string> AddFromCommunityAsync(ContainerBO model);
+        Task<bool> ValidateDestinationTableAsync(ContainerDestinationBO container);
     }
     public class ContainerService : IContainerService
     {
@@ -840,6 +841,37 @@ namespace MSDF.DataChecker.Services
                 result = ex.Message;
             }
             return result;
+        }
+
+        public async Task<bool> ValidateDestinationTableAsync(ContainerDestinationBO container)
+        {
+            try
+            {
+                var columnsLocal = await _edFiRuleExecutionLogDetailQueries.GetColumnsByTableAsync(container.DestinationName, "destination");
+                List<DestinationTableColumn> columnsCommunity = JsonConvert.DeserializeObject<List<DestinationTableColumn>>(container.DestinationStructure);
+
+                if (columnsLocal == null || columnsLocal.Count == 0)
+                    return true;
+
+                if (columnsCommunity.Count != columnsLocal.Count)
+                    return false;
+
+                foreach (var column in columnsLocal)
+                {
+                    var existColumnCommunity = columnsCommunity
+                        .FirstOrDefault(rec =>
+                        rec.Name.ToLower() == column.Name.ToLower() &&
+                        rec.Type.ToLower() == column.Type.ToLower() &&
+                        rec.IsNullable == column.IsNullable);
+
+                    if (existColumnCommunity == null) return false;
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

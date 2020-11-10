@@ -19,4 +19,6 @@ export class DatabaseEnvironment {
   userParams: UserParam[];
 
   maxNumberResults: number;
+
+  timeoutInMinutes: number;
 }

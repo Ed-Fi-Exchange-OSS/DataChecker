@@ -367,6 +367,16 @@
           </div>
         </div>
 
+        <div class="col-4">
+          <div class="form-group row ">
+            <label for="timeoutInMinutes" class="col-4 align-self-center">Timeout In Minutes:</label>
+            <div class="col-8">
+              <input id="timeoutInMinutes" name="timeoutInMinutes" class="form-control" type="number"
+                     [(ngModel)]="newDatabaseEnvironment.timeoutInMinutes" #timeoutInMinutes="ngModel">
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </form>

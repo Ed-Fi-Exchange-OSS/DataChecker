@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -97,6 +97,18 @@ namespace MSDF.DataChecker.WebApp.Controllers
                 return Ok(model);
 
             return NotFound();
+        }
+
+        [HttpGet("ExecuteDiagnosticSqlFromLog/{id}")]
+        public async Task<ActionResult> ExecuteDiagnosticSqlFromLog(int id)
+        {
+            var model = await _ruleExecutionLogDetailService
+                .ExecutionDiagnosticSqlByLogIdAsync(id);
+
+            if (model != null && model.Columns != null && model.Columns.Count > 0)
+                return Ok(model);
+
+            return Ok(null);
         }
     }
 }

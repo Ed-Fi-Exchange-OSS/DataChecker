@@ -159,4 +159,24 @@ export class RuleExecutionComponentComponent implements OnInit {
       });
     }
   }
+
+  executeSqlDiagnostic(ruleExecutionDiagnosticLogDetailsContent:any, result: any) {
+    this.ruleDetailsLogResult = null;
+    let idExecutionLog = result.id;
+    this.apiService.ruleExecutionLogDetail.executeDiagnosticSqlFromLogIdAsync(idExecutionLog).subscribe(
+      infoResult => {
+        if (infoResult != null) {
+          this.ruleDetailsLogResult = infoResult;
+          this.modalService.open(ruleExecutionDiagnosticLogDetailsContent, {
+            ariaLabelledBy: "modal-basic-title",
+            size: "xl",
+            windowClass: "modal-custom-xl",
+            backdrop: "static"
+          });
+        }
+        else {
+          this.toastr.info("No information.", "Information");
+        }
+      });
+  }
 }

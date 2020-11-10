@@ -37,7 +37,8 @@ export class NavCommunityCollectionComponent implements OnInit {
     private modalService: NgbModal,
     private toastr: ToastrService) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+  }
 
   validDownloadCollection(downloadCollectionMessageContent) {
     this.apiService.container.getContainerByName(this.category).subscribe(result => {
@@ -55,17 +56,28 @@ export class NavCommunityCollectionComponent implements OnInit {
 
   downloadCollection(newCollection) {
     this.category.createNewCollection = newCollection;
-    this.apiService.container.addContainerFromCommunity(this.category).subscribe(result => {
-      if (this.downloadCollectionMessageModal != null) {
-        this.downloadCollectionMessageModal.close();
-        this.downloadCollectionMessageModal = null;
-      }
-      if (result == '' || result == null) {
-        this.notifyDownloadedCollection.emit(true);
-        this.toastr.success("Collection downloaded successfully.", "Collection Download");
+    this.apiService.container.validateDestinationTable(this.category.containerDestination).subscribe(resultValidation => {
+      if (resultValidation) {
+        this.apiService.container.addContainerFromCommunity(this.category).subscribe(result => {
+          if (this.downloadCollectionMessageModal != null) {
+            this.downloadCollectionMessageModal.close();
+            this.downloadCollectionMessageModal = null;
+          }
+          if (result == '' || result == null) {
+            this.notifyDownloadedCollection.emit(true);
+            this.toastr.success("Collection downloaded successfully.", "Collection Download");
+          }
+          else {
+            this.toastr.error(result, "Collection Download Error");
+          }
+        });
       }
       else {
-        this.toastr.error(result, "Collection Download Error");
+        if (this.downloadCollectionMessageModal != null) {
+          this.downloadCollectionMessageModal.close();
+          this.downloadCollectionMessageModal = null;
+        }
+        this.toastr.error("You can't download a collection if the DestinationTable does not have the same structure.", "Collection Download Failed");
       }
     });
   }

@@ -173,15 +173,10 @@
                       <strong>Resolution: </strong>
                       <div> {{rule.resolution}}</div>
                     </div>
-                    <div class="error-detail col-12" *ngIf="result.result >= 0">
-                      <strong>Diagnostics: </strong>
-                      <span>
-                        Run this SQL against ODS
-                        <i class="fa fa-copy icon-medium-size" style="cursor:pointer" (click)="copyDiagnostic(result);"></i>
-                      </span>
-                    </div>
-                    <div class="error-detail col-12 diagnostic-div" *ngIf="result.result > 0 && result.ruleDetailsDestinationId != null && result.ruleDetailsDestinationId > 0">
-                      <button type="button" class="btn btn-warning" (click)="viewRuleExecutionLogDetails(ruleLogDetailsContent, result);">Log Details</button>
+                    <div class="error-detail col-12 diagnostic-div" style="margin-top:10px;text-align:center">
+                      <button *ngIf="result.result >= 0" type="button" class="btn btn-primary" (click)="copyDiagnostic(result)">Copy Diagnostic SQL to clipboard</button>
+                      <button style="margin-left:10px" type="button" class="btn btn-secondary" (click)="executeSqlDiagnostic(ruleExecutionDiagnosticLogDetailsContent, result)">Run Diagnostic Sql</button>
+                      <button style="margin-left:10px" *ngIf="result.result > 0 && result.ruleDetailsDestinationId != null && result.ruleDetailsDestinationId > 0" type="button" class="btn btn-warning" (click)="viewRuleExecutionLogDetails(ruleLogDetailsContent, result);">Log Details</button>
                     </div>
                   </div>
                 </th>
@@ -278,5 +273,52 @@
     <button type="button" class="btn btn-info btn-lg btn_standar" (click)="exportToTable()">
       <i class=" icon ion-md-arrow-up"></i> Export To Table
     </button>
+  </div>
+</ng-template>
+
+<ng-template #ruleExecutionDiagnosticLogDetailsContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Rule Diagnostic Sql</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label for="diagnosticSql">Diagnostic Sql:</label>
+          <ngx-codemirror [(ngModel)]="ruleDetailsLogResult.ruleDiagnosticSql" [options]="sqlOptions"></ngx-codemirror>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+
+          <div style="overflow: hidden; overflow-x: auto; clear: both; width: 100%;">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th style="text-align:left" *ngFor="let column of ruleDetailsLogResult.columns; index as i">{{column}}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of ruleDetailsLogResult.rows; index as i">
+                  <td *ngFor="let column of ruleDetailsLogResult.columns; index as iColumn">
+                    {{ item[column] }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+
   </div>
 </ng-template>

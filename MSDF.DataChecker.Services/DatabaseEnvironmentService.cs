@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -135,6 +135,7 @@ namespace MSDF.DataChecker.Services
             environment.SecurityIntegrated = model.SecurityIntegrated;
             environment.MapTables= model.MapTables;
             environment.Version = model.Version;
+            environment.TimeoutInMinutes = model.TimeoutInMinutes;
 
             if (environment.SecurityIntegrated != null && environment.SecurityIntegrated.Value)
             {
@@ -226,7 +227,10 @@ namespace MSDF.DataChecker.Services
                 ExtraData = model.ExtraData,
                 Name = string.Format("{0}_Dup", model.Name),
                 Version = model.Version,
-                MapTables = model.MapTables
+                MapTables = model.MapTables,
+                MaxNumberResults = model.MaxNumberResults,
+                SecurityIntegrated=model.SecurityIntegrated,
+                TimeoutInMinutes=model.TimeoutInMinutes
             };
 
             var result = await this._databaseEnvironmentCommands.AddAsync(databaseEnvironment);
@@ -261,7 +265,8 @@ namespace MSDF.DataChecker.Services
                 SecurityIntegrated = model.SecurityIntegrated == null ? false : model.SecurityIntegrated.Value,
                 User = model.User,
                 Version = model.Version,
-                MaxNumberResults=model.MaxNumberResults
+                MaxNumberResults=model.MaxNumberResults,
+                TimeoutInMinutes = model.TimeoutInMinutes
             };
 
             if (model.UserParams != null)
@@ -291,7 +296,8 @@ namespace MSDF.DataChecker.Services
                 SecurityIntegrated = entity.SecurityIntegrated == null ? false : entity.SecurityIntegrated.Value,
                 User = entity.User,
                 Version = entity.Version,
-                MaxNumberResults=entity.MaxNumberResults
+                MaxNumberResults=entity.MaxNumberResults,
+                TimeoutInMinutes = entity.TimeoutInMinutes
             };
 
             if (entity.UserParams != null)

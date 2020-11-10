@@ -782,16 +782,31 @@ export class NavCollectionComponent implements OnInit {
 
   continueUploadCollection() {
     this.apiService.container.getContainerToCommunity(this.category.id).subscribe(result => {
-      this.apiService.community.uploadCollection(result, this.tokenInformation).subscribe(result => {
-        if (this.signInModal != null) {
-          this.signInModal.close();
-          this.signInModal = null;
+      this.apiService.community.validateDestinationTable(result.containerDestination, this.tokenInformation).subscribe(resultValidation => {
+        if (resultValidation) {
+          this.apiService.community.uploadCollection(result, this.tokenInformation).subscribe(result => {
+            if (this.signInModal != null) {
+              this.signInModal.close();
+              this.signInModal = null;
+            }
+            if (this.uploadCollectionMessageModal != null) {
+              this.uploadCollectionMessageModal.close();
+              this.uploadCollectionMessageModal = null;
+            }
+            this.toastr.success("Collection uploaded successfully.", "Upload Collection");
+          });
         }
-        if (this.uploadCollectionMessageModal != null) {
-          this.uploadCollectionMessageModal.close();
-          this.uploadCollectionMessageModal = null;
+        else {
+          if (this.signInModal != null) {
+            this.signInModal.close();
+            this.signInModal = null;
+          }
+          if (this.uploadCollectionMessageModal != null) {
+            this.uploadCollectionMessageModal.close();
+            this.uploadCollectionMessageModal = null;
+          }
+          this.toastr.error("You can't upload a collection if the DestinationTable does not have the same structure.", "Upload Collection Failed");
         }
-        this.toastr.success("Collection uploaded successfully.", "Upload Collection");
       });
     });
   }

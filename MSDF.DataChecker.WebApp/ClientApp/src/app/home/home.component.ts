@@ -413,6 +413,17 @@ export class HomeComponent implements OnInit {
     this.existChangesInDownloadCommunityCollection = false;
 
     this.apiService.community.getCommunityCollections(this.tokenInformation).subscribe(result => {
+
+      if (result != null && result != undefined && result.length > 0) {
+        result.forEach(rec => {
+          rec.showDestinationStructure = false;
+          if (rec.containerDestination != null && rec.containerDestination != undefined &&
+            rec.containerDestination.destinationStructure != null && rec.containerDestination.destinationStructure != undefined) {
+            rec.containerDestinationStructure = JSON.parse(rec.containerDestination.destinationStructure);
+          }
+        });
+      }
+
       if (this.signInModal != null) {
         this.signInModal.close();
         this.signInModal = null;

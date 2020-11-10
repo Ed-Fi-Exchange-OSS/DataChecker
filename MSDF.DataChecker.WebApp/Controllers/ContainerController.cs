@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -144,6 +144,14 @@ namespace MSDF.DataChecker.WebApi.Controllers
         public async Task<ActionResult> GetByNameAsync([FromBody] ContainerBO container)
         {
             ContainerBO result = await _containerService.GetByNameAsync(container);
+            return Ok(result);
+        }
+
+        [HttpPost("ValidateDestinationTable")]
+        public async Task<ActionResult> ValidateDestinationTableAsync([FromBody] ContainerDestinationBO model)
+        {
+            if (model == null) return Ok(true);
+            bool result = await _containerService.ValidateDestinationTableAsync(model);
             return Ok(result);
         }
     }

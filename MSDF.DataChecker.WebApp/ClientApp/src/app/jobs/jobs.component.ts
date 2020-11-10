@@ -6,7 +6,7 @@ import { Category } from "../models/category.model";
 import { Job } from "../models/job.model";
 import { DatabaseEnvironment } from "../models/databaseEnvironment.model";
 import { FormGroup } from '@angular/forms';
-import { Container } from "@angular/compiler/src/i18n/i18n_ast";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'jobs',
@@ -19,10 +19,13 @@ export class JobsComponent implements OnInit {
   tags: Tag[] = [];
   jobs: Job[] = [];
   containers: Category[] = [];
+  jobMessageModalObj: any;
+  jobFormObj: FormGroup;
 
   constructor(
     private apiService: ApiService,
-    private toastr: ToastrService) {
+    private toastr: ToastrService,
+    private modalService: NgbModal) {
   }
 
   ngOnInit() {
@@ -98,7 +101,7 @@ export class JobsComponent implements OnInit {
     return null;
   }
 
-  saveJob(jobForm: FormGroup) {
+  saveJob(jobForm: FormGroup, jobMessageModal) {
 
     if (!jobForm.valid) {
       this.markFormGroupTouched(jobForm);
@@ -121,10 +124,29 @@ export class JobsComponent implements OnInit {
     if (this.newJob.type == 1)
       this.newJob.tagId = parseInt(this.newJob.tagId.toString());
 
+    let existJobSameCron = null;
+    if (this.jobs != null && this.jobs.length > 0) {
+      existJobSameCron = this.jobs.find(rec => rec.cron == this.newJob.cron && rec.id != this.newJob.id);
+    }
+
+    this.jobFormObj = jobForm;
+
+    if (existJobSameCron != null) {
+      this.jobMessageModalObj = this.modalService.open(jobMessageModal, {
+        ariaLabelledBy: "modal-basic-title",
+        backdrop: "static"
+      });
+      return;
+    }
+
+    this.continueSaveJob();
+  }
+
+  continueSaveJob() {
     if (this.newJob.id == 0)
       this.apiService.job.addJob(this.newJob).subscribe(result => {
         if (result != null) {
-          jobForm.reset();
+          this.jobFormObj.reset();
           this.setInitialValues();
           this.loadJobs();
           this.toastr.success('Job created', 'Success');
@@ -132,11 +154,16 @@ export class JobsComponent implements OnInit {
       });
     else
       this.apiService.job.modifyJob(this.newJob).subscribe(result => {
-        jobForm.reset();
+        this.jobFormObj.reset();
         this.setInitialValues();
         this.loadJobs();
         this.toastr.success('Job updated', 'Success');
       });
+
+    if (this.jobMessageModalObj != null) {
+      this.jobMessageModalObj.close();
+      this.jobMessageModalObj = null;
+    }
   }
 
   edit(job) {

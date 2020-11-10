@@ -33,4 +33,10 @@ export class RuleExecutionLogDetailService {
       .get(this.url + "/ExportToTableAsync/" + id, { responseType: "json" })
       .pipe(map((result: any[]) => result));
   }
+
+  public executeDiagnosticSqlFromLogIdAsync(id: number): Observable<any> {
+    return this.http
+      .get(this.url + "/ExecuteDiagnosticSqlFromLog/" + id, { responseType: "json" })
+      .pipe(map((result: any[]) => result));
+  }
 }
