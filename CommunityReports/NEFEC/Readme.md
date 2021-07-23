@@ -12,5 +12,8 @@ Power BI
 
 1) Using Power BI Desktop, open the Power BI file named "DataChecker.pbix"
 2) In the Power BI Desktop application, select File > Options and settings > Data source settings.
-3) Choose the "Change Source..." button and update the fields with your Data Checker instance environment details.
-4) Select the Home tab and choose the "Refresh" icon from the menu bar.
+
+![image](https://user-images.githubusercontent.com/85459544/126850029-10c18a57-e54c-4d69-aa81-0464cb18a740.png)
+
+4) Choose the "Change Source..." button and update the fields with your Data Checker instance environment details.
+5) Select the Home tab and choose the "Refresh" icon from the menu bar.
