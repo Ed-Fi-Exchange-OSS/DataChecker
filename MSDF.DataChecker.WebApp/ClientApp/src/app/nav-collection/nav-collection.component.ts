@@ -76,6 +76,8 @@ export class NavCollectionComponent implements OnInit {
   ruleToMove: Rule;
   containerSelectedToMove: string;
 
+  warningSqlInjectModal: any;
+
   constructor(
     private apiService: ApiService,
     private modalService: NgbModal,
@@ -549,7 +551,7 @@ export class NavCollectionComponent implements OnInit {
     return "";
   }
 
-  runSqlRule(runType: string) {
+  runSqlRule(runType: string, warningSqlInjectMessageContent: any) {
     this.runSqlTest = false;
     this.messageSqlTest = '';
     if (runType == 'sql') {
@@ -558,16 +560,43 @@ export class NavCollectionComponent implements OnInit {
         return;
       }
 
-      this.apiService.rule.executeRuleTest({ diagnosticSql: this.newRule.diagnosticSql }, this.selectedDatabaseEnvironment.id).subscribe(result => {
-        if (result.result >= 0) {
-          this.messageSqlTest = 'Counts returned: ' + result.result;
-        }
-        else {
-          this.messageSqlTest = 'Error: ' + result.errorMessage;
-        }
-        this.runSqlTest = true;
-      });
+      if (this.newRule.diagnosticSql.toLowerCase().indexOf('insert') >= 0 || this.newRule.diagnosticSql.toLowerCase().indexOf('update') >= 0
+        || this.newRule.diagnosticSql.toLowerCase().indexOf('delete') >= 0 || this.newRule.diagnosticSql.toLowerCase().indexOf('drop') >= 0
+        || this.newRule.diagnosticSql.toLowerCase().indexOf('alter') >= 0 || this.newRule.diagnosticSql.toLowerCase().indexOf('commit') >= 0) {
+
+        this.warningSqlInjectModal = this.modalService.open(warningSqlInjectMessageContent, {
+          ariaLabelledBy: "modal-basic-title",
+          backdrop: "static"
+        });
+        return;
+      }
+
+      this.executeRunSqlRule();
     }
+  }
+
+  executeRunSqlRule() {
+    this.apiService.rule.executeRuleTest({ diagnosticSql: this.newRule.diagnosticSql }, this.selectedDatabaseEnvironment.id).subscribe(result => {
+      if (result.result >= 0) {
+        this.messageSqlTest = 'Counts returned: ' + result.result;
+      }
+      else {
+        this.messageSqlTest = 'Error: ' + result.errorMessage;
+      }
+      this.runSqlTest = true;
+    });
+  }
+
+  continueWarningSqlInject() {
+    if (this.warningSqlInjectModal != null)
+      this.warningSqlInjectModal.close();
+    this.executeRunSqlRule();
+  }
+
+  cancelWarningSqlInject() {
+    this.runSqlTest = true;
+    if (this.warningSqlInjectModal != null)
+      this.warningSqlInjectModal.close();
   }
 
   copyRule(ruleChild: Rule, categoryChild: Category) {
