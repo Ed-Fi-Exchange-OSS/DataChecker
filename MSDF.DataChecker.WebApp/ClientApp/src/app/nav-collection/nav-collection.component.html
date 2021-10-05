@@ -45,8 +45,8 @@
         <button class="btn_popup" [ngbPopover]="popContent" popoverTitle="Confirm Delete?" placement="bottom" (click)="setDeleteCollectionMessage()">
           <i class=" icon ion-md-trash"></i> Delete
         </button>
-        <button ngbDropdownItem (click)="showSignInToRepository(signInContent, uploadCollectionMessageContent)">
-          <i class=" icon ion-md-cloud-upload"></i> Upload
+        <button ngbDropdownItem (click)="downloadCollection()">
+          <i class=" icon ion-md-cloud-download"></i> Download
         </button>
       </div>
     </div>
@@ -477,7 +477,6 @@
       <i class=" icon ion-md-remove-circle-outline"></i> Close
     </button>
   </div>
-
 </ng-template>
 
 <ng-template #ruleCopyRulesEditToContent let-modal>

@@ -892,6 +892,20 @@ export class NavCollectionComponent implements OnInit {
   }
 
   //Move Rule to Container
+
+  //Download Collection
+  downloadCollection() {
+    this.apiService.container.downloadContainerJson(this.category).subscribe(result => {
+      let fileName = this.category.name + '.json';
+      let element = document.createElement('a');
+      element.setAttribute('href', "data:text/json;charset=UTF-8," + encodeURIComponent(result));
+      element.setAttribute('download', fileName);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    });
+  }
 }
 
 

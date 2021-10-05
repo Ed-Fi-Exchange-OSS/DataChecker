@@ -35,6 +35,8 @@ namespace MSDF.DataChecker.Services
         Task<ContainerBO> GetByNameAsync(ContainerBO model);
         Task<string> AddFromCommunityAsync(ContainerBO model);
         Task<bool> ValidateDestinationTableAsync(ContainerDestinationBO container);
+        Task<string> GetCollectionAsJson(Guid collectionId);
+        Task<string> UploadCollectionAsJson(CollectionJson collection);
     }
     public class ContainerService : IContainerService
     {
@@ -871,6 +873,331 @@ namespace MSDF.DataChecker.Services
             catch
             {
                 return false;
+            }
+        }
+
+        public async Task<string> GetCollectionAsJson(Guid containerId)
+        {
+            CollectionJson collection = new CollectionJson();
+            Container container = await this._collectionQueries.GetAsync(containerId);
+            var environmentCatalog = await _catalogQueries.GetAsync(container.EnvironmentType);
+
+            collection.Name = container.Name;
+            collection.Description = container.Description;
+            collection.EnvironmentType = environmentCatalog.Name;
+            collection.Tags = (await _tagQueries.GetByContainerIdAsync(container.Id)).Where(rec => rec.IsPublic).Select(rec => new TagJson {
+                Name = rec.Name
+            }).ToList();
+
+            if (container.RuleDetailsDestinationId != null)
+            {
+                var existCatalog = await _catalogQueries.GetAsync(container.RuleDetailsDestinationId.Value);
+                if (existCatalog != null)
+                {
+                    var listColumns = await _edFiRuleExecutionLogDetailQueries.GetColumnsByTableAsync(existCatalog.Name, "destination");
+                    if (listColumns != null)
+                    {
+                        collection.DestinationTable = existCatalog.Name;
+                        collection.DestinationStructure = JsonConvert.SerializeObject(listColumns);
+                    }
+                }
+            }
+
+            foreach (var itemContainer in container.ChildContainers)
+            {
+                var category = new ContainerJson
+                {
+                    Name = itemContainer.Name,
+                    Description = itemContainer.Description
+                };
+
+                category.Tags = (await _tagQueries.GetByContainerIdAsync(itemContainer.Id)).Where(rec => rec.IsPublic).Select(rec => new TagJson {
+                    Name = rec.Name
+                }).ToList();
+
+                category.Rules = (await _ruleService.GetWithLogsByContainerIdAsync(itemContainer.Id)).Select(rec=> new RuleJson {
+                    Description = rec.Description,
+                    Sql = rec.DiagnosticSql,
+                    ErrorMessage = rec.ErrorMessage,
+                    SeverityLevel = rec.ErrorSeverityLevel,
+                    Name = rec.Name,
+                    Resolution = rec.Resolution,
+                    Version = rec.Version,
+                    ExternalRuleId = rec.RuleIdentification,
+                    MaxNumberResults = rec.MaxNumberResults
+                }).ToList();
+
+                foreach (var rule in category.Rules)
+                {
+                    rule.Tags = (await _tagQueries.GetByRuleIdAsync(itemContainer.Id)).Where(rec=> rec.IsPublic).Select(rec => new TagJson
+                    {
+                        Name = rec.Name
+                    }).ToList();
+                }
+
+                collection.Containers.Add(category);
+            }
+
+            return JsonConvert.SerializeObject(collection, Formatting.Indented);
+        }
+
+        public async Task<string> UploadCollectionAsJson(CollectionJson collection)
+        {
+            try
+            {
+                int environmentId = 0;
+                int? destinationTableId = null;
+
+                var existCollection = await _collectionQueries.GetByNameAsync(collection.Name);
+                if (existCollection != null)
+                    await _collectionCommands.DeleteAsync(existCollection.Id);
+
+                //Create Environment Type if does not exist
+                var catalogsInformation = await _catalogQueries.GetAsync();
+                var existEnvironment = catalogsInformation.FirstOrDefault(rec => rec.CatalogType == "EnvironmentType" && rec.Name.ToLower() == collection.EnvironmentType.ToLower());
+                if (existEnvironment != null)
+                    environmentId = existEnvironment.Id;
+                else
+                {
+                    var newEnvironmentType = await _catalogService.AddAsync(new CatalogBO
+                    {
+                        CatalogType = "EnvironmentType",
+                        Description = collection.EnvironmentType,
+                        Name = collection.EnvironmentType
+                    });
+                    environmentId = newEnvironmentType.Id;
+                }
+
+                //Search or Create Destination Table
+                if (!string.IsNullOrEmpty(collection.DestinationTable) && !string.IsNullOrEmpty(collection.DestinationStructure))
+                {
+                    bool createDestinationTable = true;
+                    var existDestinationTable = catalogsInformation.FirstOrDefault(rec => rec.CatalogType == "RuleDetailsDestinationType" &&
+                    rec.Name.ToLower() == collection.DestinationTable.ToLower());
+
+                    if (existDestinationTable != null)
+                    {
+                        List<DestinationTableColumn> destinationTableInDbColumns = JsonConvert.DeserializeObject<List<DestinationTableColumn>>(collection.DestinationStructure);
+                        var listColumnsFromDestination = await _edFiRuleExecutionLogDetailQueries.GetColumnsByTableAsync(collection.DestinationTable, "destination");
+
+                        if (destinationTableInDbColumns.Count == listColumnsFromDestination.Count)
+                        {
+                            createDestinationTable = false;
+                            foreach (var columnInDestinationTable in destinationTableInDbColumns)
+                            {
+                                var existColumn = listColumnsFromDestination.FirstOrDefault(rec =>
+                                rec.Name.ToLower() == columnInDestinationTable.Name.ToLower() &&
+                                rec.Type == columnInDestinationTable.Type.ToLower() &&
+                                rec.IsNullable == columnInDestinationTable.IsNullable);
+
+                                if (existColumn == null)
+                                {
+                                    createDestinationTable = true;
+                                    break;
+                                }
+                            }
+
+                            if (!createDestinationTable)
+                                destinationTableId = existDestinationTable.Id;
+                            else
+                            {
+                                int counterTable = 1;
+                                string newDestinationTableName = $"{collection.DestinationTable}_{counterTable}";
+                                while (true)
+                                {
+                                    existDestinationTable = catalogsInformation.FirstOrDefault(rec =>
+                                    rec.CatalogType == "RuleDetailsDestinationType" &&
+                                    rec.Name.ToLower() == newDestinationTableName.ToLower());
+                                    if (existDestinationTable == null) break;
+                                    counterTable++;
+                                    newDestinationTableName = $"{collection.DestinationTable}_{counterTable}";
+                                }
+                                collection.DestinationTable = newDestinationTableName;
+                            }
+                        }
+                    }
+
+                    if (createDestinationTable)
+                    {
+                        var newDestinationTable = await _catalogService.AddAsync(new CatalogBO
+                        {
+                            CatalogType = "RuleDetailsDestinationType",
+                            Description = collection.DestinationTable,
+                            Name = collection.DestinationTable
+                        });
+                        destinationTableId = newDestinationTable.Id;
+
+                        bool existDestinationTableInDb = await _edFiRuleExecutionLogDetailQueries.ExistExportTableFromRuleExecutionLogAsync(collection.DestinationTable, "destination");
+                        if (!existDestinationTableInDb)
+                        {
+                            List<DestinationTableColumn> destinationTableInDbColumns = JsonConvert.DeserializeObject<List<DestinationTableColumn>>(collection.DestinationStructure);
+                            List<string> sqlColumns = new List<string>();
+                            foreach (var column in destinationTableInDbColumns)
+                            {
+                                string isNull = column.IsNullable ? "NULL" : "NOT NULL";
+                                if (column.Name == "id" && column.Type == "int")
+                                    sqlColumns.Add("[Id] [int] IDENTITY(1,1) NOT NULL");
+                                else if (column.Type.Contains("varchar"))
+                                    sqlColumns.Add($"[{column.Name}] [{column.Type}](max) {isNull}");
+                                else if (column.Type.Contains("datetime"))
+                                    sqlColumns.Add($"[{column.Name}] [{column.Type}](7) {isNull}");
+                                else
+                                    sqlColumns.Add($"[{column.Name}] [{column.Type}] {isNull}");
+                            }
+                            string sqlCreate = $"CREATE TABLE [destination].[{collection.DestinationTable}]({string.Join(",", sqlColumns)}) ";
+                            await _edFiRuleExecutionLogDetailCommands.ExecuteSqlAsync(sqlCreate);
+                        }
+                    }
+                }
+
+                //Creation of new collection
+                Container newCollection = new Container
+                {
+                    ContainerTypeId = 1,
+                    Description = collection.Description,
+                    Name = collection.Name,
+                    IsDefault = false,
+                    EnvironmentType = environmentId,
+                    RuleDetailsDestinationId = destinationTableId,
+                    ChildContainers = new List<Container>()
+                };
+
+                //Adding containers
+                if (collection.Containers != null && collection.Containers.Any())
+                {
+                    collection.Containers.ForEach(rec => {
+                        Container newChildContainer = new Container
+                        {
+                            ContainerTypeId = 2,
+                            Description = rec.Description,
+                            Name = rec.Name,
+                            IsDefault = false,
+                            EnvironmentType = 0,
+                            RuleDetailsDestinationId = null,
+                            Rules = new List<Rule>()
+                        };
+
+                        if (rec.Rules != null && rec.Rules.Any())
+                        {
+                            rec.Rules.ForEach(recRule =>
+                            {
+                                newChildContainer.Rules.Add(new Rule
+                                {
+                                    Description = recRule.Description,
+                                    DiagnosticSql = recRule.Sql,
+                                    ErrorMessage = recRule.ErrorMessage,
+                                    MaxNumberResults = recRule.MaxNumberResults,
+                                    Name = recRule.Name,
+                                    ErrorSeverityLevel = recRule.SeverityLevel,
+                                    Resolution = recRule.Resolution,
+                                    RuleIdentification = recRule.ExternalRuleId,
+                                    Version = recRule.Version
+                                });
+                            });
+                        }
+
+                        newCollection.ChildContainers.Add(newChildContainer);
+                    });
+                }
+
+                //Updating information in the database
+                var newCollectionFromDatabase = await _collectionCommands.AddAsync(newCollection);
+                if (newCollectionFromDatabase != null)
+                {
+                    var listTags = await _tagQueries.GetAsync();
+
+                    if (collection.Tags != null && collection.Tags.Any())
+                    {
+                        foreach (var tag in collection.Tags)
+                        {
+                            var existTag = listTags.FirstOrDefault(rec => rec.Name.ToLower() == tag.Name.ToLower());
+                            if (existTag == null)
+                            {
+                                existTag = await _tagCommands.AddAsync(new Tag
+                                {
+                                    Description = tag.Name,
+                                    IsPublic = true,
+                                    Name = tag.Name.ToUpper()
+                                });
+                                listTags.Add(existTag);
+                            }
+
+                            await _tagCommands.AddTagToEntityAsync(new TagEntity
+                            {
+                                ContainerId = newCollectionFromDatabase.Id,
+                                TagId = existTag.Id
+                            });
+                        }
+                    }
+
+                    if (collection.Containers != null && collection.Containers.Any())
+                    {
+                        foreach (var childContainer in collection.Containers)
+                        {
+                            var newChildContainer = newCollectionFromDatabase.ChildContainers.FirstOrDefault(rec => rec.Name == childContainer.Name);
+                            if (childContainer.Tags != null && childContainer.Tags.Any())
+                            {
+                                foreach (var tag in childContainer.Tags)
+                                {
+                                    var existTag = listTags.FirstOrDefault(rec => rec.Name.ToLower() == tag.Name.ToLower());
+                                    if (existTag == null)
+                                    {
+                                        existTag = await _tagCommands.AddAsync(new Tag
+                                        {
+                                            Description = tag.Name,
+                                            IsPublic = true,
+                                            Name = tag.Name.ToUpper()
+                                        });
+                                        listTags.Add(existTag);
+                                    }
+
+                                    await _tagCommands.AddTagToEntityAsync(new TagEntity
+                                    {
+                                        ContainerId = newChildContainer.Id,
+                                        TagId = existTag.Id
+                                    });
+                                }
+                            }
+
+                            if (childContainer.Rules != null && childContainer.Rules.Any())
+                            {
+                                foreach (var rule in childContainer.Rules)
+                                {
+                                    var newRule = newChildContainer.Rules.FirstOrDefault(rec => rec.Name == rule.Name);
+                                    if (rule.Tags != null && rule.Tags.Any())
+                                    {
+                                        foreach (var tag in rule.Tags)
+                                        {
+                                            var existTag = listTags.FirstOrDefault(rec => rec.Name.ToLower() == tag.Name.ToLower());
+                                            if (existTag == null)
+                                            {
+                                                existTag = await _tagCommands.AddAsync(new Tag
+                                                {
+                                                    Description = tag.Name,
+                                                    IsPublic = true,
+                                                    Name = tag.Name.ToUpper()
+                                                });
+                                                listTags.Add(existTag);
+                                            }
+
+                                            await _tagCommands.AddTagToEntityAsync(new TagEntity
+                                            {
+                                                RuleId = newRule.Id,
+                                                TagId = existTag.Id
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
             }
         }
     }
