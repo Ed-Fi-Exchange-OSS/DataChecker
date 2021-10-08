@@ -32,9 +32,10 @@
       </button>
     </div>
     <div class="col">
-      <button class="main-btn btn-primary btn-addon btn-block" style="font-size: 16px;" (click)="showSignInToRepository(signInContent, downloadCommunityContent)">
-        <fa name="download"></fa> Community Collections
+      <button class="main-btn btn-primary btn-addon btn-block" style="font-size: 16px;" (click)="uploader.click()">
+        <fa name="upload"></fa> Upload Collection
       </button>
+      <input hidden type="file" #uploader (change)="uploadFile($event, uploadCollectionExist, warningSqlInjectMessageContentHome)" accept=".json"/>
     </div>
   </div>
 
@@ -416,5 +417,50 @@
 
   </div>
   <div class="modal-footer">
+  </div>
+</ng-template>
+
+<ng-template #uploadCollectionExist let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Warning</h4>
+    <button type="button" class="close" aria-label="Close" (click)="cancelWarningSqlInjectHome()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p style="text-align:center;margin-bottom:0px">
+      The collection you are trying to upload already exist, do you want to overwrite it?
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info btn-lg btn_standar" (click)="uploadOverwriteCollection(warningSqlInjectMessageContentHome)">
+      <i class=" icon ion-md-checkmark-circle-outline"></i> Yes
+    </button>
+
+    <button type="button" class="btn btn-danger btn-lg btn_standar" (click)="cancelWarningSqlInjectHome()">
+      <i class=" icon ion-md-remove-circle-outline"></i> No
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #warningSqlInjectMessageContentHome let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Warning SQL Inject</h4>
+    <button type="button" class="close" aria-label="Close" (click)="cancelWarningSqlInjectHome()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p style="text-align:center;margin-bottom:0px">
+      The collection you are trying to upload contains keywords that could damage the integrity of the database, Are you sure you want to continue?
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success btn-lg btn_standar" (click)="uploadOverwriteCollection(null)">
+      <i class=" icon ion-md-checkmark-circle"></i> Continue
+    </button>
+    <button type="button" class="btn btn-danger btn-lg btn_standar" (click)="cancelWarningSqlInjectHome()">
+      <i class=" icon ion-md-remove-circle-outline"></i> Cancel
+    </button>
   </div>
 </ng-template>

@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -6,11 +6,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MSDF.DataChecker.cmd.ExtensionMethods;
 using MSDF.DataChecker.Services;
 using MSDF.DataChecker.Services.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -22,151 +22,165 @@ namespace MSDF.DataChecker.cmd
 
         static void Main(string[] args)
         {
-            string ruleId = string.Empty, containerId = string.Empty, environmentId = string.Empty, environmentName = string.Empty;
-
-            if (args == null)
+            try
             {
-                Console.WriteLine("Parameters are needed");
-                return;
-            }
+                string containerName = string.Empty, environmentName = string.Empty, collectionName = string.Empty, tagsName = string.Empty;
 
-            if (args.Length != 8)
-            {
-                Console.WriteLine("All parameters need to be provided");
-                return;
-            }
-
-            for(int i=0; i< args.Length; i++)
-            {
-                string arg = args[i].ToLower();
-                switch (arg)
+                if (args == null)
                 {
-                    case "--ruleid":
-                        ruleId = args[i + 1];
-                        break;
-
-                    case "--containerid":
-                        containerId = args[i + 1];
-                        break;
-
-                    case "--environmentid":
-                        environmentId = args[i + 1];
-                        break;
-
-                    case "--environmentname":
-                        environmentName = args[i + 1];
-                        break;
+                    Console.WriteLine("Parameters are needed");
+                    return;
                 }
-            }
 
-            Guid environmentGUID;
-            if (!Guid.TryParse(environmentId, out environmentGUID))
-            {
-                Console.WriteLine("Please provide a valid environmentId");
-                return;
-            }
-
-            // IoC
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            var environmentService = serviceProvider.GetService<IDatabaseEnvironmentService>();
-            var ruleService = serviceProvider.GetService<IRuleService>();
-            var dataChecker = serviceProvider.GetService<IRuleExecutionService>();            
-
-            var getEnvironment = environmentService.GetAsync(environmentGUID).GetAwaiter().GetResult();
-            if (getEnvironment == null || string.IsNullOrEmpty(getEnvironment.GetConnectionString()))
-            {
-                Console.WriteLine("Please provide a valid environmentId");
-                return;
-            }
-
-            if (getEnvironment.Name.ToLower() != environmentName)
-            {
-                Console.WriteLine("environmentName does not match, review it");
-                return;
-            }
-
-            Console.WriteLine($"Running Data Checker V{getEnvironment.Version} Session ({Guid.NewGuid()})");
-            Console.WriteLine("");
-
-            List<RuleBO> rules = new List<RuleBO>();
-
-            // Get all rules to execute
-            Console.Write("Loading rules ...");
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-
-            if (!string.IsNullOrEmpty(containerId))
-            {
-                string[] listContainers = containerId.Split(",");
-                foreach (string currentContainer in listContainers)
+                for (int i = 0; i < args.Length; i++)
                 {
-                    Guid containerGUID;
-                    if (!Guid.TryParse(currentContainer, out containerGUID))
+                    string arg = args[i];
+                    switch (arg)
                     {
-                        Console.WriteLine("Please provide a valid containerId");
+                        case "--Collection":
+                            collectionName = args[i + 1];
+                            break;
+
+                        case "--Container":
+                            containerName = args[i + 1];
+                            break;
+
+                        case "--Tag":
+                            tagsName = args[i + 1];
+                            break;
+
+                        case "--Environment":
+                            environmentName = args[i + 1];
+                            break;
+                    }
+                }
+
+                Process[] localByName = Process.GetProcesses();
+                var totalOfProcess = localByName.Where(rec => rec.ProcessName.Contains("DataChecker")).ToList();
+
+                if (totalOfProcess.Count > 5)
+                {
+                    Console.WriteLine("No more than 5 process should be running at the same time.");
+                    return;
+                }
+
+                //Validations
+                if (string.IsNullOrEmpty(environmentName))
+                {
+                    Console.WriteLine("Environment should be defined");
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(tagsName) && string.IsNullOrEmpty(collectionName) && string.IsNullOrEmpty(containerName))
+                {
+                    Console.WriteLine("Collection, Container or Tag should be defined");
+                    return;
+                }
+
+                if (!string.IsNullOrEmpty(containerName) && string.IsNullOrEmpty(collectionName))
+                {
+                    Console.WriteLine("Collection should be defined");
+                    return;
+                }
+
+                // IoC
+                var serviceCollection = new ServiceCollection();
+                ConfigureServices(serviceCollection);
+                var serviceProvider = serviceCollection.BuildServiceProvider();
+                var _databaseEnvironmentService = serviceProvider.GetService<IDatabaseEnvironmentService>();
+                var containerService = serviceProvider.GetService<IContainerService>();
+                var tagService = serviceProvider.GetService<ITagService>();
+                var _ruleService = serviceProvider.GetService<IRuleService>();
+                var _executionService = serviceProvider.GetService<IRuleExecutionService>();
+
+                List<RuleBO> toRun = new List<RuleBO>();
+
+                var listEnvironments = _databaseEnvironmentService.GetAsync().GetAwaiter().GetResult();
+                var databaseEnvironment = listEnvironments.FirstOrDefault(rec => rec.Name == environmentName);
+
+                if (databaseEnvironment == null)
+                {
+                    Console.WriteLine("Environment does not exist.");
+                    return;
+                }
+
+                List<Guid> collections = new List<Guid>();
+                List<Guid> containers = new List<Guid>();
+                List<int> tags = new List<int>();
+
+                if (!string.IsNullOrEmpty(tagsName))
+                {
+                    var listTags = tagService.GetAsync().GetAwaiter().GetResult();
+                    var existTag = listTags.FirstOrDefault(rec => rec.Name == tagsName);
+                    if (existTag == null)
+                    {
+                        Console.WriteLine("Tag does not exist.");
                         return;
                     }
-                    Console.WriteLine($"Getting rules from containerId:{currentContainer}");
-                    rules.AddRange(ruleService.GetWithLogsByContainerIdAsync(containerGUID).GetAwaiter().GetResult());
+                    else
+                    {
+                        tags.Add(existTag.Id);
+                    }
                 }
-                rules = rules.Distinct().ToList();
-            }
-
-            if (!string.IsNullOrEmpty(ruleId))
-            {
-                if (rules.Count == 0)
-                    rules = ruleService.GetAsync().GetAwaiter().GetResult();
-
-                Guid ruleGUID;
-                if (!Guid.TryParse(ruleId, out ruleGUID))
-                {
-                    Console.WriteLine("Please provide a valid ruleId");
-                    return;
-                }
-                rules = rules.Where(p => p.Id == ruleGUID).ToList();
-
-                if (rules.Count == 0)
-                {
-                    Console.WriteLine($"Rule with Id {ruleId} not found");
-                    return;
-                }
-            }
-
-            sw.Stop();
-            Console.WriteLine($" Loaded {rules.Count()} in {sw.ElapsedMilliseconds}ms");
-            Console.WriteLine("");
-
-            // Execute the rules
-            var testReuslts = dataChecker.ExecuteRulesByEnvironmentIdAsync(rules,getEnvironment).GetAwaiter().GetResult();
-
-            foreach (var result in testReuslts)
-            {
-                if (result.Evaluation)
-                    ConsoleX.WriteLineSuccess($"Test {result.Rule.Id} \"{result.Rule.Name}\" executed SUCCESSFULLY! Found {result.Result} records in {result.ExecutionTimeMs} ms.");
                 else
                 {
-                    ConsoleX.WriteLineError($"Test {result.Rule.Id} \"{result.Rule.Name}\" FAILED! {result.Rule.ErrorMessage.Replace("{TestResult.Result}", result.Result.ToString())}");
+                    var listCollections = containerService.GetAsync().GetAwaiter().GetResult();
+                    var listContainers = containerService.GetChildContainersAsync().GetAwaiter().GetResult();
 
-                    if (!string.IsNullOrEmpty(result.Rule.DiagnosticSql))
-                        ConsoleX.WriteLineInfo($"For diagnostics data run: {result.Rule.DiagnosticSql}");
+                    if (!string.IsNullOrEmpty(collectionName) && !string.IsNullOrEmpty(containerName))
+                    {
+                        var existContainer = listContainers.FirstOrDefault(rec => rec.Name == containerName && rec.ParentContainerName == collectionName);
+                        if (existContainer == null)
+                        {
+                            Console.WriteLine("Collection or Container does not exist.");
+                            return;
+                        }
+                        else
+                        {
+                            containers.Add(existContainer.Id);
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(collectionName))
+                    {
+                        var existCollection = listCollections.FirstOrDefault(rec => rec.Name == collectionName);
+                        if (existCollection == null)
+                        {
+                            Console.WriteLine("Collection does not exist.");
+                            return;
+                        }
+                        else
+                        {
+                            collections.Add(existCollection.Id);
+                        }
+                    }
                 }
+
+                var result = _ruleService.SearchRulesAsync(collections, containers, tags, string.Empty, string.Empty, null, null).GetAwaiter().GetResult();
+                toRun.AddRange(result.Rules);
+                toRun = toRun.Where(r => r.Id != Guid.Empty).ToList();
+
+                foreach (var r in toRun)
+                {
+                    _executionService.ExecuteRuleByEnvironmentIdAsync(r.Id, databaseEnvironment).GetAwaiter().GetResult();
+                }
+
+                Console.WriteLine("Finished.");
+                Console.SetOut(Console.Out);
             }
-
-            // TODO: Use a logging framework like the one in .net core or Log4net
-            WriteErrorsToFile(testReuslts);
-
-            Console.WriteLine("Press any key to exit.");
-            Console.ReadKey();
-
-            Console.SetOut(Console.Out);
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception:");
+                Console.WriteLine(ex.Message);
+            }
         }
 
         private static void ConfigureServices(IServiceCollection serviceCollection)
         {
             // Add logging
             serviceCollection.AddLogging(c => c.AddConsole())
+                .AddTransient<ContainerService>()
                 .AddTransient<RuleService>()
+                .AddTransient<TagService>()
                 .AddTransient<RuleExecutionService>()
                 .AddTransient<DatabaseEnvironmentService>();
 
@@ -184,26 +198,10 @@ namespace MSDF.DataChecker.cmd
             serviceCollection.AddTransient<IRuleService, RuleService>();
             serviceCollection.AddTransient<IRuleExecutionService, RuleExecutionService>();
             serviceCollection.AddTransient<IDatabaseEnvironmentService, DatabaseEnvironmentService>();
+            serviceCollection.AddTransient<IContainerService, ContainerService>();
+            serviceCollection.AddTransient<ITagService, TagService>();
 
             Services.Infrastructure.IoC.IoCConfig.RegisterDependencies(serviceCollection, configuration);
-        }
-
-        private static void WriteErrorsToFile(List<RuleTestResult> allResults)
-        {
-            var errors = allResults.Where(x => x.Evaluation == false);
-
-            using (var fileStream = new FileStream("./log.txt",FileMode.OpenOrCreate, FileAccess.Write))
-                using (var streamWriter = new StreamWriter(fileStream))
-                {
-                    foreach (var error in errors)
-                    {
-                        var rule = error.Rule;
-                        streamWriter.WriteLine($"[Error] - Test {rule.Id} FAILED! { rule.ErrorMessage.Replace("{TestResult.Result}", error.Result.ToString())}");
-
-                        if (!string.IsNullOrEmpty(rule.DiagnosticSql))
-                            streamWriter.WriteLine($"          For diagnostics data run: {rule.DiagnosticSql}");
-                    }
-                }
         }
     }
 }

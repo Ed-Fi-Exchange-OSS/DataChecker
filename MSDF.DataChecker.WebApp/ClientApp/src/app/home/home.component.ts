@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
 import { ApiService } from "../services/api.service";
 import { Rule } from "../models/rule.model";
 import { RuleFilter } from "../models/rule.model";
@@ -40,8 +40,12 @@ export class HomeComponent implements OnInit {
   uploadCollectionMessageModal: any;
   tokenInformation: any;
   allCommunityCollections: Category[];
-
   rulesFilter: RuleFilter;
+  collectionToUpload: any;
+  collectionSqlInjectModal: any;
+
+  @ViewChild('uploader', { static: false })
+  myFileInput: ElementRef;
 
   constructor(
     private apiService: ApiService,
@@ -502,5 +506,104 @@ export class HomeComponent implements OnInit {
       this.categories.forEach(rec => rec.showRules = false);
       this.categoriesFilter.forEach(rec => rec.showRules = false);
     }
+  }
+
+  //upload Collection
+
+  uploadFile($event, uploadCollectionExist, warningSqlInjectMessageContentHome) {
+
+    this.collectionSqlInjectModal = null;
+    this.uploadCollectionMessageModal = null;
+    this.collectionToUpload = null;
+
+    if ($event.target.files.length > 0) {
+      if ($event.target.files[0].name.indexOf('.json') > 0) {
+        const fileReader = new FileReader();
+        fileReader.readAsText($event.target.files[0], "UTF-8");
+        fileReader.onload = () => {
+          let jsonToUpload = fileReader.result as string;
+          let currentCollection = JSON.parse(jsonToUpload);
+          this.collectionToUpload = currentCollection;
+          if (this.collections != null && this.collections != undefined && this.collections.length > 0 &&
+            this.collections.filter(rec => rec.name == currentCollection.Name).length > 0) {
+            this.uploadCollectionMessageModal = this.modalService.open(uploadCollectionExist, {
+              backdrop: "static",
+              ariaLabelledBy: "modal-basic-title",
+            });
+          }
+          else {
+            this.uploadOverwriteCollection(warningSqlInjectMessageContentHome);
+          }
+        }
+        fileReader.onerror = (error) => {
+          console.log(error);
+          this.toastr.error("Error uploading json file", "Error");
+          this.myFileInput.nativeElement.value = '';
+        }
+      }
+      else {
+        this.toastr.error("You can only upload json files.", "Error");
+      }
+    }
+  }
+
+  uploadOverwriteCollection(warningSqlInjectMessageContentHome) {
+
+    if (warningSqlInjectMessageContentHome != null) {
+      for (let i = 0; i < this.collectionToUpload.Containers.length; i++) {
+        let container = this.collectionToUpload.Containers[i];
+        for (let j = 0; j < container.Rules.length; j++) {
+          let rule = container.Rules[j];
+          console.log(rule);
+          if (rule.Sql.toLowerCase().indexOf('insert') >= 0 || rule.Sql.toLowerCase().indexOf('update') >= 0
+            || rule.Sql.toLowerCase().indexOf('delete') >= 0 || rule.Sql.toLowerCase().indexOf('drop') >= 0
+            || rule.Sql.toLowerCase().indexOf('alter') >= 0 || rule.Sql.toLowerCase().indexOf('commit') >= 0) {
+
+            this.collectionSqlInjectModal = this.modalService.open(warningSqlInjectMessageContentHome, {
+              ariaLabelledBy: "modal-basic-title",
+              backdrop: "static"
+            });
+            return;
+          }
+        }
+      }
+    }
+
+    if (this.collectionSqlInjectModal != null)
+      this.collectionSqlInjectModal.close();
+
+    if (this.uploadCollectionMessageModal != null)
+      this.uploadCollectionMessageModal.close();
+
+    this.apiService.container.uploadContainerJson(this.collectionToUpload).subscribe(result => {
+      if (result == null || result == '') {
+        this.apiService.container.getAllCollections().subscribe(collections => {
+          this.collections = [];
+          if (collections != null) {
+            collections.forEach(rec => rec.isDefault = false);
+            this.collections = collections;
+          }
+        });
+        this.selectedCategory = null;
+        this.collectionName = null;
+        this.categories = [];
+        this.filterRulesOfCategories();
+        this.toastr.success("Uploading Completed", "Success");
+      }
+      else {
+        this.toastr.error("Error uploading json file:" + result, "Error");
+      }
+      this.myFileInput.nativeElement.value = '';
+    });
+  }
+
+  cancelWarningSqlInjectHome() {
+    if (this.collectionSqlInjectModal != null)
+      this.collectionSqlInjectModal.close();
+
+    if (this.uploadCollectionMessageModal != null)
+      this.uploadCollectionMessageModal.close();
+
+    this.myFileInput.nativeElement.value = '';
   }
 }

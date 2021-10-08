@@ -45,8 +45,8 @@
         <button class="btn_popup" [ngbPopover]="popContent" popoverTitle="Confirm Delete?" placement="bottom" (click)="setDeleteCollectionMessage()">
           <i class=" icon ion-md-trash"></i> Delete
         </button>
-        <button ngbDropdownItem (click)="showSignInToRepository(signInContent, uploadCollectionMessageContent)">
-          <i class=" icon ion-md-cloud-upload"></i> Upload
+        <button ngbDropdownItem (click)="downloadCollection()">
+          <i class=" icon ion-md-cloud-download"></i> Download
         </button>
       </div>
     </div>
@@ -417,7 +417,7 @@
 
             <div class="testRunSql">
               <div style="display:inline-block">
-                <button type="button" class="btn btn-info btn-lg btn_standar" (click)="runSqlRule('sql')">
+                <button type="button" class="btn btn-info btn-lg btn_standar" (click)="runSqlRule('sql', warningSqlInjectMessageContent)">
                   <i class=" icon ion-md-play-circle"></i> Test SQL
                 </button>
               </div>
@@ -477,7 +477,6 @@
       <i class=" icon ion-md-remove-circle-outline"></i> Close
     </button>
   </div>
-
 </ng-template>
 
 <ng-template #ruleCopyRulesEditToContent let-modal>
@@ -744,3 +743,27 @@
     </button>
   </div>
 </ng-template>
+
+<ng-template #warningSqlInjectMessageContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Warning SQL Inject</h4>
+    <button type="button" class="close" aria-label="Close" (click)="cancelWarningSqlInject()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p style="text-align:center;margin-bottom:0px">
+      The current sql contains keywords that could damage the integrity of the database, Are you sure you want to continue?
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success btn-lg btn_standar" (click)="continueWarningSqlInject()">
+      <i class=" icon ion-md-checkmark-circle"></i> Continue
+    </button>
+    <button type="button" class="btn btn-danger btn-lg btn_standar" (click)="cancelWarningSqlInject()">
+      <i class=" icon ion-md-remove-circle-outline"></i> Cancel
+    </button>
+  </div>
+
+</ng-template>
+
