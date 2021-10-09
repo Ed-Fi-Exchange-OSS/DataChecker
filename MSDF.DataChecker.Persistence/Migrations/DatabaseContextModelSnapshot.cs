@@ -27,13 +27,15 @@ namespace MSDF.DataChecker.Persistence.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("CatalogType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(350)")
+                        .HasMaxLength(350);
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(350)")
+                        .HasMaxLength(350);
 
                     b.Property<DateTime>("Updated")
                         .HasColumnType("datetime2");
@@ -54,6 +56,9 @@ namespace MSDF.DataChecker.Persistence.Migrations
 
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DateUpdated")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -281,6 +286,9 @@ namespace MSDF.DataChecker.Persistence.Migrations
 
                     b.Property<Guid>("ContainerId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DateUpdated")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
