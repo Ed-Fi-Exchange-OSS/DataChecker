@@ -50,6 +50,8 @@ namespace MSDF.DataChecker.Persistence.Migrations
                 oldClrType: typeof(string),
                 oldMaxLength: 350,
                 oldNullable: true);
+
+            migrationBuilder.Sql("DROP INDEX [IX_CatalogsUC] ON [Core].[Catalogs];");
         }
     }
 }
