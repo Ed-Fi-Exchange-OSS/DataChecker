@@ -4,6 +4,7 @@
 // See the LICENSE and NOTICES files in the project root for more information.
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MSDF.DataChecker.Persistence.Catalogs
@@ -13,7 +14,9 @@ namespace MSDF.DataChecker.Persistence.Catalogs
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+        [MaxLength(350)]
         public string CatalogType { get; set; }
+        [MaxLength(350)]
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime Updated { get; set; }

@@ -1019,6 +1019,23 @@ namespace MSDF.DataChecker.Services
 
                     if (createDestinationTable)
                     {
+                        var existCatalogName = (await _catalogService.GetAsync()).FirstOrDefault(p => p.CatalogType == "RuleDetailsDestinationType" && p.Name.ToLower() == collection.DestinationTable.ToLower());
+                        if (existCatalogName != null)
+                        {
+                            int counterTable = 1;
+                            string newDestinationTableName = $"{collection.DestinationTable}_{counterTable}";
+                            while (true)
+                            {
+                                existDestinationTable = catalogsInformation.FirstOrDefault(rec =>
+                                rec.CatalogType == "RuleDetailsDestinationType" &&
+                                rec.Name.ToLower() == newDestinationTableName.ToLower());
+                                if (existDestinationTable == null) break;
+                                counterTable++;
+                                newDestinationTableName = $"{collection.DestinationTable}_{counterTable}";
+                            }
+                            collection.DestinationTable = newDestinationTableName;
+                        }
+
                         var newDestinationTable = await _catalogService.AddAsync(new CatalogBO
                         {
                             CatalogType = "RuleDetailsDestinationType",
