@@ -61,4 +61,7 @@ export class Category {
 
   containerDestinationStructure: DestinationTableStructure[];
   showDestinationStructure: boolean;
+
+  dateUpdated?: Date;
+  strDateUpdated?: string;
 }

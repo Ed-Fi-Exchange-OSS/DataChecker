@@ -295,6 +295,7 @@ namespace MSDF.DataChecker.Services
                 ParentContainerId = model.ParentContainerId,
                 EnvironmentType = model.EnvironmentType,
                 RuleDetailsDestinationId = model.RuleDetailsDestinationId == 0 ? null : model.RuleDetailsDestinationId,
+                DateUpdated = model.DateUpdated
             };
 
             if (model.ContainerType != null)
@@ -355,6 +356,7 @@ namespace MSDF.DataChecker.Services
                 EnvironmentType = entity.EnvironmentType,
                 Tags = new List<TagBO>(),
                 RuleDetailsDestinationId = entity.RuleDetailsDestinationId == 0 ? null : entity.RuleDetailsDestinationId,
+                DateUpdated = entity.DateUpdated
             };
 
             model.Tags = _tagQueries.GetByContainerIdAsync(model.Id).Result.Select(rec => new TagBO(rec)).ToList();
@@ -366,19 +368,6 @@ namespace MSDF.DataChecker.Services
                     Id = entity.ContainerType.Id,
                     Name = entity.ContainerType.Name
                 };
-
-            //if (entity.CommunityUser != null)
-            //    model.CommunityUser = new CommunityUserBO
-            //    {
-            //        CommunityOrganizationId = entity.CommunityUser.CommunityOrganizationId,
-            //        CreateByUserId = entity.CommunityUser.CreateByUserId,
-            //        CreatedDate = entity.CommunityUser.CreatedDate,
-            //        Email = entity.CommunityUser.Email,
-            //        Id = entity.CommunityUser.Id,
-            //        LastUpdatedDate = entity.CommunityUser.LastUpdatedDate,
-            //        LastUpdatedUserId = entity.CommunityUser.LastUpdatedUserId,
-            //        Name = entity.Name
-            //    };
 
             if (entity.Rules != null)
                 model.Rules = entity.Rules.Select(rec => new RuleBO
@@ -1076,7 +1065,8 @@ namespace MSDF.DataChecker.Services
                     IsDefault = false,
                     EnvironmentType = environmentId,
                     RuleDetailsDestinationId = destinationTableId,
-                    ChildContainers = new List<Container>()
+                    ChildContainers = new List<Container>(),
+                    DateUpdated = DateTime.Now
                 };
 
                 //Adding containers
@@ -1091,7 +1081,8 @@ namespace MSDF.DataChecker.Services
                             IsDefault = false,
                             EnvironmentType = 0,
                             RuleDetailsDestinationId = null,
-                            Rules = new List<Rule>()
+                            Rules = new List<Rule>(),
+                            DateUpdated = DateTime.Now
                         };
 
                         if (rec.Rules != null && rec.Rules.Any())
@@ -1108,7 +1099,8 @@ namespace MSDF.DataChecker.Services
                                     ErrorSeverityLevel = recRule.SeverityLevel,
                                     Resolution = recRule.Resolution,
                                     RuleIdentification = recRule.ExternalRuleId,
-                                    Version = recRule.Version
+                                    Version = recRule.Version,
+                                    DateUpdated = DateTime.Now
                                 });
                             });
                         }

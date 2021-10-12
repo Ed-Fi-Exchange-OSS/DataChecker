@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -31,6 +31,7 @@ namespace MSDF.DataChecker.Services.Models
         public ContainerDestinationBO ContainerDestination { get; set; }
         public CatalogBO CatalogEnvironmentType { get; set; }
         public bool CreateNewCollection { get; set; }
+        public DateTime? DateUpdated { get; set; }
     }
 
     public class ContainerTypeBO
@@ -62,6 +63,17 @@ namespace MSDF.DataChecker.Services.Models
         public List<TagBO> Tags { get; set; }
         public int? RuleDetailsDestinationId { get; set; }
 
+        public DateTime? DateUpdated { get; set; }
+
+        public string StrDateUpdated
+        {
+            get
+            {
+                if (DateUpdated == null) return string.Empty;
+                return DateUpdated.Value.ToString("MM/dd/yyyy HH:mm");
+            }
+        }
+
         public CollectionCategory()
         {
 
@@ -85,6 +97,7 @@ namespace MSDF.DataChecker.Services.Models
 
             Description = container.Description;
             OrganizationDescription = "";
+            DateUpdated = container.DateUpdated;
             //if (container.CommunityUser != null)
             //{
             //    Email = container.CommunityUser.Email;
@@ -99,6 +112,7 @@ namespace MSDF.DataChecker.Services.Models
                     Description = m.Description,
                     OrganizationDescription = "",
                     ContainerTypeId=m.ContainerTypeId,
+                    DateUpdated = m.DateUpdated
                     //CreatedByUserId = m.CreatedByUserId
                 }).ToList() : new List<CollectionCategory>();
         }

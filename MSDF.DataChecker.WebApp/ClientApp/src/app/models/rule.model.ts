@@ -42,6 +42,9 @@ export class Rule {
 
   collectionName: string;
   containerName: string;
+
+  dateUpdated?: Date;
+  strDateUpdated?: string;
 }
 
 export class RuleFilter {
