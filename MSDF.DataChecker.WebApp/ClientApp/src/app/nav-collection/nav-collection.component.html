@@ -223,6 +223,12 @@
         </select>
       </div>
 
+      <div class="form-group">
+        <label for="name"> Updated:</label>
+        <input id="updated" name="updated" class="form-control" disabled
+               [(ngModel)]="newCollection.strDateUpdated" #strDateUpdated="ngModel">
+      </div>
+
     </form>
   </div>
   <div class="modal-footer">
@@ -269,6 +275,15 @@
                 <div>
                   <label>Environment type:</label>
                   <label style="margin-left: 10px; font-weight: bolder;">{{newRule.environmentTypeText}}</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="form-group">
+                <div>
+                  <label>Updated:</label>
+                  <label style="margin-left: 10px; font-weight: bolder;">{{newRule.strDateUpdated}}</label>
                 </div>
               </div>
             </div>
@@ -433,6 +448,7 @@
         </div>
 
       </div>
+
     </form>
   </div>
   <div class="modal-footer">
