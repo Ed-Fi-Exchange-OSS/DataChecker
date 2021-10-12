@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -41,6 +41,8 @@ namespace MSDF.DataChecker.Services.Models
         public string CollectionName { get; set; }
         public string ContainerName { get; set; }
 
+        public DateTime? DateUpdated { get; set; }
+
 
         public RuleBO()
         {
@@ -60,6 +62,7 @@ namespace MSDF.DataChecker.Services.Models
             this.Version = rule.Version;
             this.RuleIdentification = rule.RuleIdentification;
             this.MaxNumberResults = rule.MaxNumberResults;
+            this.DateUpdated = rule.DateUpdated;
         }
     }
 

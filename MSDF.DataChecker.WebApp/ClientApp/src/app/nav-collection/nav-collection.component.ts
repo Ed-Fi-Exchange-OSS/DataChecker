@@ -132,6 +132,20 @@ export class NavCollectionComponent implements OnInit {
     if (this.newCollection.ruleDetailsDestinationId == undefined || this.newCollection.ruleDetailsDestinationId == null)
       this.newCollection.ruleDetailsDestinationId = 0;
 
+    if (this.newCollection.dateUpdated != null && this.newCollection.dateUpdated != undefined) {
+      if (this.newCollection.dateUpdated instanceof Date) {
+        let date = new Date(this.newCollection.dateUpdated);
+        this.newCollection.dateUpdated = date;
+        this.newCollection.strDateUpdated = this.getFormatDate(this.newCollection.dateUpdated);
+      }
+      else {
+        let date = new Date(this.newCollection.dateUpdated);
+        let userTimezoneOffset = date.getTimezoneOffset() * 60000;
+        this.newCollection.dateUpdated = new Date(date.getTime() - userTimezoneOffset);
+        this.newCollection.strDateUpdated = this.getFormatDate(this.newCollection.dateUpdated);
+      }
+    }
+
     this.modalService
       .open(content, { ariaLabelledBy: "modal-basic-title", backdrop: "static" })
       .result.then(
@@ -146,6 +160,7 @@ export class NavCollectionComponent implements OnInit {
               this.newCollection.ruleDetailsDestinationId = null;
           }
 
+          this.newCollection.dateUpdated = new Date();
           this.newCollection.environmentType = parseInt(this.newCollection.environmentType.toString());
           this.apiService.container
             .updateContainer(this.newCollection)
@@ -155,6 +170,7 @@ export class NavCollectionComponent implements OnInit {
               this.category.environmentType = this.newCollection.environmentType;
               this.category.ruleDetailsDestinationId = this.newCollection.ruleDetailsDestinationId;
               this.category.tags = Object.assign([], this.newCollection.tags);
+              this.category.dateUpdated = this.newCollection.dateUpdated;
               if (this.category.isDefault) this.selectCategoryFromChild.emit(this.category);
               this.toastr.success("Collection " + this.newCollection.name + " updated", "Success");
             });
@@ -210,6 +226,9 @@ export class NavCollectionComponent implements OnInit {
     this.newCollection.containerTypeId = 2;
     this.newCollection.tags = [];
 
+    this.newCollection.dateUpdated = new Date();
+    this.newCollection.strDateUpdated = this.getFormatDate(this.newCollection.dateUpdated);
+
     this.modalService
       .open(content, { ariaLabelledBy: "modal-basic-title", backdrop: "static" })
       .result.then(
@@ -217,6 +236,7 @@ export class NavCollectionComponent implements OnInit {
           this.apiService.container
             .addContainer(this.newCollection)
             .subscribe(addedContainer => {
+              addedContainer.dateUpdated = this.newCollection.dateUpdated;
               this.category.childContainers.push(Object.assign({}, addedContainer));
               if (this.category.isDefault) this.selectCategoryFromChild.emit(this.category);
               this.toastr.success("Container " + addedContainer.name + " added", "Success");
@@ -233,16 +253,32 @@ export class NavCollectionComponent implements OnInit {
     this.newCollection.tags = Object.assign([], categoryChild.tags);
     this.newCollection.ruleDetailsDestinationId = null;
 
+    if (this.newCollection.dateUpdated != null && this.newCollection.dateUpdated != undefined) {
+      if (this.newCollection.dateUpdated instanceof Date) {
+        let date = new Date(this.newCollection.dateUpdated);
+        this.newCollection.dateUpdated = date;
+        this.newCollection.strDateUpdated = this.getFormatDate(this.newCollection.dateUpdated);
+      }
+      else {
+        let date = new Date(this.newCollection.dateUpdated);
+        let userTimezoneOffset = date.getTimezoneOffset() * 60000;
+        this.newCollection.dateUpdated = new Date(date.getTime() - userTimezoneOffset);
+        this.newCollection.strDateUpdated = this.getFormatDate(this.newCollection.dateUpdated);
+      }
+    }
+
     this.modalService
       .open(content, { ariaLabelledBy: "modal-basic-title", backdrop: "static" })
       .result.then(
         result => {
+          this.newCollection.dateUpdated = new Date();
           this.apiService.container
             .updateContainer(this.newCollection)
             .subscribe(localUser => {
               categoryChild.name = this.newCollection.name;
               categoryChild.description = this.newCollection.description;
               categoryChild.tags = Object.assign([], this.newCollection.tags);
+              categoryChild.dateUpdated = this.newCollection.dateUpdated;
               if (this.category.isDefault) this.selectCategoryFromChild.emit(this.category);
               this.toastr.success("Collection " + this.newCollection.name + " updated", "Success");
             });
@@ -295,7 +331,6 @@ export class NavCollectionComponent implements OnInit {
       let sqlDiagnostic = this.newRule.diagnosticSql.toLowerCase();
       if (sqlDiagnostic.indexOf('select') == 0) {
         let sqlSplit = sqlDiagnostic.split('from');
-        //console.log(sqlSplit);
         if (sqlSplit.length > 1) {
           if (sqlSplit[0].indexOf('educationorganizationid') > 0) {
             result = true;
@@ -340,6 +375,10 @@ export class NavCollectionComponent implements OnInit {
     this.newRule.containerId = categoryChild.id;
     this.newRule.tags = [];
     this.newRule.diagnosticSql = '';
+
+    this.newRule.dateUpdated = new Date();
+    this.newRule.strDateUpdated = this.getFormatDate(this.newRule.dateUpdated);
+
     this.setEnvironmentTypeFromCollection();
 
     this.ruleCategoryChild = categoryChild;
@@ -388,6 +427,20 @@ export class NavCollectionComponent implements OnInit {
     this.oldRule.containerId = this.newRule.containerId;
 
     this.ruleCategoryChild = categoryChild;
+
+    if (this.newRule.dateUpdated != null && this.newRule.dateUpdated != undefined) {
+      if (this.newRule.dateUpdated instanceof Date) {
+        let date = new Date(this.newRule.dateUpdated);
+        this.newRule.dateUpdated = date;
+        this.newRule.strDateUpdated = this.getFormatDate(this.newRule.dateUpdated);
+      }
+      else {
+        let date = new Date(this.newRule.dateUpdated);
+        let userTimezoneOffset = date.getTimezoneOffset() * 60000;
+        this.newRule.dateUpdated = new Date(date.getTime() - userTimezoneOffset);
+        this.newRule.strDateUpdated = this.getFormatDate(this.newRule.dateUpdated);
+      }
+    }
 
     this.apiService.ruleExecutionLogDetail
       .getLastRuleExecutionLogByEnvironmentAndRuleAsync(this.selectedDatabaseEnvironment.id, this.newRule.id)
@@ -440,10 +493,12 @@ export class NavCollectionComponent implements OnInit {
     }
 
     if (this.modalRuleDescription == 'Add Sql Data Check') {
+      this.newRule.dateUpdated = new Date();
       this.apiService.rule.addRule(this.newRule).subscribe(data => {
         this.ruleModal.close();
         if (this.ruleWarningModal != null)
           this.ruleWarningModal.close();
+        data.dateUpdated = this.newRule.dateUpdated;
         this.ruleCategoryChild.rules.push(data);
         this.setCategoryCounters();
         if (this.category.isDefault) this.selectCategoryFromChild.emit(this.category);
@@ -461,6 +516,7 @@ export class NavCollectionComponent implements OnInit {
         this.ruleIncreaseVersionModal = null;
       }
 
+      this.newRule.dateUpdated = new Date();
       this.apiService.rule.modifyRule(this.newRule).subscribe(data => {
         this.ruleModal.close();
         if (this.ruleWarningModal != null)
@@ -492,7 +548,8 @@ export class NavCollectionComponent implements OnInit {
         let countDifferences = 0;
         let existDifferences = UtilService.compareObj(this.newRule, this.oldRule);
         for (let key in existDifferences) {
-          if (key != 'environmentTypeText' && key != 'id' && key != 'idLastRuleExecutionLog') {
+          if (key != 'environmentTypeText' && key != 'id' && key != 'idLastRuleExecutionLog'
+            && key != 'dateUpdated' && key != 'strDateUpdated') {
             countDifferences++;
           }
         }
@@ -905,6 +962,34 @@ export class NavCollectionComponent implements OnInit {
       element.click();
       document.body.removeChild(element);
     });
+  }
+
+  getFormatDate(currentDate: Date) {
+    let currentMonth = '0';
+    if (currentDate.getMonth() + 1 >= 10)
+      currentMonth = (currentDate.getMonth() + 1).toString();
+    else
+      currentMonth += (currentDate.getMonth() + 1).toString();
+
+    let currentDay = '0';
+    if (currentDate.getDate() >= 10)
+      currentDay = currentDate.getDate().toString();
+    else
+      currentDay += currentDate.getDate().toString();
+
+    let currentHours = '0';
+    if (currentDate.getHours() >= 10)
+      currentHours = currentDate.getHours().toString();
+    else
+      currentHours += currentDate.getHours().toString();
+
+    let currentMinutes = '0';
+    if (currentDate.getMinutes() >= 10)
+      currentMinutes = currentDate.getMinutes().toString();
+    else
+      currentMinutes += currentDate.getMinutes().toString();
+
+    return currentMonth + '/' + currentDay + '/' + currentDate.getFullYear().toString() + ' ' + currentHours + ':' + currentMinutes;
   }
 }
 

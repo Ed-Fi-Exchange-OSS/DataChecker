@@ -297,6 +297,11 @@
           </select>
         </div>
 
+        <div class="form-group">
+          <label for="name"> Updated:</label>
+          <input id="updated" name="updated" class="form-control" disabled
+                 [(ngModel)]="newCollection.strDateUpdated" #strDateUpdated="ngModel">
+        </div>
       </form>
     </div>
 

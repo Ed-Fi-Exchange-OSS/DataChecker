@@ -102,6 +102,22 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  getFormatDate(currentDate: Date) {
+    let currentMonth = '0';
+    if (currentDate.getMonth() + 1 >= 10)
+      currentMonth = (currentDate.getMonth()+1).toString();
+    else
+      currentMonth += (currentDate.getMonth() + 1).toString();
+
+    let currentDay = '0';
+    if (currentDate.getDate() >= 10)
+      currentDay = currentDate.getDate().toString();
+    else
+      currentDay += currentDate.getDate().toString();
+
+    return currentMonth + '/' + currentDay + '/' + currentDate.getFullYear().toString() + ' ' + currentDate.getHours().toString() + ':' + currentDate.getMinutes().toString();
+  }
+
   addCollection(content) {
 
     this.loadTags();
@@ -110,6 +126,8 @@ export class HomeComponent implements OnInit {
     this.newCollection.description = '';
     this.newCollection.tags = [];
     this.newCollection.ruleDetailsDestinationId = 0;
+    this.newCollection.dateUpdated = new Date();
+    this.newCollection.strDateUpdated = this.getFormatDate(this.newCollection.dateUpdated);
 
     this.addCollectionObjModal = this.modalService.open(content, { ariaLabelledBy: "modal-basic-title", backdrop: "static" });
     this.addCollectionObjModal.result.then(
@@ -554,7 +572,6 @@ export class HomeComponent implements OnInit {
         let container = this.collectionToUpload.Containers[i];
         for (let j = 0; j < container.Rules.length; j++) {
           let rule = container.Rules[j];
-          console.log(rule);
           if (rule.Sql.toLowerCase().indexOf('insert') >= 0 || rule.Sql.toLowerCase().indexOf('update') >= 0
             || rule.Sql.toLowerCase().indexOf('delete') >= 0 || rule.Sql.toLowerCase().indexOf('drop') >= 0
             || rule.Sql.toLowerCase().indexOf('alter') >= 0 || rule.Sql.toLowerCase().indexOf('commit') >= 0) {

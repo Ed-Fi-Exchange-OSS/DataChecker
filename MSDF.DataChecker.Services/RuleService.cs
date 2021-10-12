@@ -460,7 +460,8 @@ namespace MSDF.DataChecker.Services
                 RuleIdentification = entity.RuleIdentification,
                 Version = entity.Version,
                 Tags = new List<TagBO>(),
-                MaxNumberResults = entity.MaxNumberResults
+                MaxNumberResults = entity.MaxNumberResults,
+                DateUpdated = entity.DateUpdated
             };
 
             model.Tags = _tagQueries.GetByRuleIdAsync(model.Id).Result.Select(rec => new TagBO(rec)).ToList();
@@ -502,7 +503,8 @@ namespace MSDF.DataChecker.Services
                 Resolution = model.Resolution,
                 RuleIdentification = model.RuleIdentification,
                 Version = model.Version,
-                MaxNumberResults = model.MaxNumberResults
+                MaxNumberResults = model.MaxNumberResults,
+                DateUpdated = model.DateUpdated
             };
 
             if (model.RuleExecutionLogs != null)
