@@ -10,24 +10,26 @@ Setup
 
 ### Prerequisites ###
 
-* Basic knowledge of compiling .net Core applications.  
-* Basic to mid skills on hosting application on Windows IIS Server
-* Visual Studio 2019 Community edition. ([https://visualstudio.microsoft.com/downloads/](https://visualstudio.microsoft.com/downloads/))
-* .Net Core 3.1
-* .Net core 3.1 hosting bundle ( [https://dotnet.microsoft.com/download/dotnet-core/3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1) , [https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-3.1.3-windows-hosting-bundle-installer](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-3.1.3-windows-hosting-bundle-installer) )
-* NodeJs LTS ([https://nodejs.org/en/](https://nodejs.org/en/))
-* Angular CLI ([https://cli.angular.io/](https://cli.angular.io/)) npm install -g @angular/cli
-* Acquiring the codebase: [https://github.com/Ed-Fi-Alliance/Ed-Fi-X-DataChecker/](https://github.com/Ed-Fi-Alliance/Ed-Fi-X-DataChecker/)
-    
+* Install the IIS Features to enable the IIS Server:  ![](https://drive.google.com/file/d/1QIiweGLsmqEqRTRRY0X_u0P_ohRnHK1I/view?usp=sharing)
+* Install .Net Core 2.2.5 Hosting Bundle (https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-aspnetcore-2.2.5-windows-hosting-bundle-installer)
+* Install .Net Core 3.1 Hosting Bundle (https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-aspnetcore-3.1.20-windows-hosting-bundle-installer)
+* SQL Server (https://www.microsoft.com/sql-server/sql-server-downloads)
+* SQL Server Management Studio (SSMS) (https://aka.ms/ssmsfullsetup)
 
 ### Download Binaries ###
 
 * Download the file Binaries.rar: https://github.com/Ed-Fi-Exchange-OSS/DataChecker/tree/main/Installer 
 * You can validate if you have all your prerequisites installed running the powershell script VerifyPreReqs.ps1
 * Uncompress the file and copy the folder DataChecker in the path: C:\inetpub\wwwroot\DataChecker
-* Restore the database structure dacpac file in MSQL Server
+* Restore the database structure bacpac file in MSQL Server
 * Update the connection string of the file appsettings.Production.json
 * Open IIS and convert the folder DataChecker from the path C:\inetpub\wwwroot\DataChecker to a WebApplication.
+* If you have an error regarding the login of the IIS APPPOOL\DefaultAppPool you could do the following steps:
+    * In SQL Server Management Studio, look for the Security folder (the security folder at the same level as the Databases, Server Objects, etc. folders...not the security folder within each individual database)
+    * Right click logins and select "New Login"
+    * In the Login name field, type IIS APPPOOL\DefaultAppPool - do not click search
+    * Fill whatever other values you like (i.e., authentication type, default database, etc.)
+    * Click OK
 
 ## License
 
