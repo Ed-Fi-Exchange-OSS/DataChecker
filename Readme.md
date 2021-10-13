@@ -16,7 +16,7 @@ Setup By Binaries
 ### Prerequisites ###
 
 * Install the IIS Features to enable the IIS Server:  
-![](https://drive.google.com/file/d/1QIiweGLsmqEqRTRRY0X_u0P_ohRnHK1I/view?usp=sharing)
+![](https://drive.google.com/uc?export=view&id=1QIiweGLsmqEqRTRRY0X_u0P_ohRnHK1I)
 * Install .Net Core 2.2.5 Hosting Bundle (https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-aspnetcore-2.2.5-windows-hosting-bundle-installer)
 * Install .Net Core 3.1 Hosting Bundle (https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-aspnetcore-3.1.20-windows-hosting-bundle-installer)
 * SQL Server (https://www.microsoft.com/sql-server/sql-server-downloads)
