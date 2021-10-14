@@ -904,24 +904,24 @@ namespace MSDF.DataChecker.Services
                     Name = rec.Name
                 }).ToList();
 
-                category.Rules = (await _ruleService.GetWithLogsByContainerIdAsync(itemContainer.Id)).Select(rec=> new RuleJson {
-                    Description = rec.Description,
-                    Sql = rec.DiagnosticSql,
-                    ErrorMessage = rec.ErrorMessage,
-                    SeverityLevel = rec.ErrorSeverityLevel,
-                    Name = rec.Name,
-                    Resolution = rec.Resolution,
-                    Version = rec.Version,
-                    ExternalRuleId = rec.RuleIdentification,
-                    MaxNumberResults = rec.MaxNumberResults
-                }).ToList();
-
-                foreach (var rule in category.Rules)
+                var rules = await _ruleService.GetWithLogsByContainerIdAsync(itemContainer.Id);
+                foreach (var rec in rules)
                 {
-                    rule.Tags = (await _tagQueries.GetByRuleIdAsync(itemContainer.Id)).Where(rec=> rec.IsPublic).Select(rec => new TagJson
-                    {
-                        Name = rec.Name
-                    }).ToList();
+                    category.Rules.Add(new RuleJson {
+                        Description = rec.Description,
+                        Sql = rec.DiagnosticSql,
+                        ErrorMessage = rec.ErrorMessage,
+                        SeverityLevel = rec.ErrorSeverityLevel,
+                        Name = rec.Name,
+                        Resolution = rec.Resolution,
+                        Version = rec.Version,
+                        ExternalRuleId = rec.RuleIdentification,
+                        MaxNumberResults = rec.MaxNumberResults,
+                        Tags = (await _tagQueries.GetByRuleIdAsync(rec.Id)).Where(rec => rec.IsPublic).Select(rec => new TagJson
+                        {
+                            Name = rec.Name
+                        }).ToList()
+                    });
                 }
 
                 collection.Containers.Add(category);
