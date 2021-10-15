@@ -28,7 +28,7 @@ Setup By Binaries
 * You can validate if you have all your prerequisites installed running the powershell script VerifyPreReqs.ps1
 * Uncompress the file and copy the folder DataChecker in the path: C:\inetpub\wwwroot\DataChecker
 * Restore the database structure bacpac file in MSQL Server
-* Update the connection string of the file appsettings.Production.json
+* Update the connection string of the file appsettings.json
 * Open IIS and convert the folder DataChecker from the path C:\inetpub\wwwroot\DataChecker to a WebApplication.
 * If you have an error regarding the login of the IIS APPPOOL\DefaultAppPool you could do the following steps:
     * In SQL Server Management Studio, look for the Security folder (the security folder at the same level as the Databases, Server Objects, etc. folders...not the security folder within each individual database)
