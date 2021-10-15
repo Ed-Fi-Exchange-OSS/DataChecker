@@ -113,9 +113,9 @@ Function Verify-DataCheckPrerequisites() {
 
     # Ensure the following are installed.
     Verify-IISPrerequisites    
-    Verify-NodeJS
+    #Verify-NodeJS
 	Verify-DotNetCore
-	Verify-AngularCli    
+	#Verify-AngularCli    
 
     # If not all Pre Reqs installed halt!
     if(!$allPreReqsInstalled){ 
