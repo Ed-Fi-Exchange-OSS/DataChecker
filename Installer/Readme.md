@@ -33,6 +33,15 @@ Setup
     * Fill whatever other values you like (i.e., authentication type, default database, etc.)
     * Click OK
 
+### Instructions for upgrading from previous versions ###
+
+* Uncompress the file Binaries.rar and copy the folder DataChecker in the path: C:\inetpub\wwwroot\DataChecker
+* Open IIS and convert the folder DataChecker from the path C:\inetpub\wwwroot\DataChecker to a WebApplication.
+* This version introduced the "Updated" column on the "core.Catalogs" table. If you are updating from a previous version that does not have this column run the following:
+```sql
+  alter table datachecker.containers
+  add  DateUpdated datetime2
+  ```
 ## License
 
 Licensed under the [Ed-Fi
