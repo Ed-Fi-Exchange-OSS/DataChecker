@@ -18,7 +18,7 @@ Binary Install
 * SQL Server Management Studio (SSMS) (https://aka.ms/ssmsfullsetup)
 
 ### Fresh Install From Binaries ###
-* Download the file Binaries.zip: <TBD>
+* Download the file Binaries.zip from the latest release here: https://github.com/Ed-Fi-Exchange-OSS/DataChecker/releases
 * Unzip Binaries.zip to a local folder
 * Validate if you have all your prerequisites installed running the powershell script VerifyPreReqs.ps1
 * Copy the folder DataChecker in the path: C:\inetpub\wwwroot\DataChecker
@@ -35,7 +35,7 @@ Binary Install
     * Click OK
 
 ### Upgrade from version 1.0 with Binaries ###
-* Download the file Binaries.zip: <TBD>
+* Download the file Binaries.zip from the latest release here: https://github.com/Ed-Fi-Exchange-OSS/DataChecker/releases
 * Unzip Binaries.zip to a local folder
 * Validate if you have all your prerequisites installed running the powershell script VerifyPreReqs.ps1
 * Copy the folder DataChecker in the path: C:\inetpub\wwwroot\DataChecker (presumedly replacing the old version)
