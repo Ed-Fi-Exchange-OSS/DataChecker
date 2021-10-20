@@ -1,0 +1,221 @@
+{
+  "Name": "3x initial turnup checks",
+  "Description": "High level checks to see what resources have published for each LEA",
+  "EnvironmentType": "Ed-Fi v3.X",
+  "Containers": [
+    {
+      "Name": "LEA checks",
+      "Description": "checks by LEA",
+      "Rules": [
+        {
+          "Name": "LEAs missing bell schedules",
+          "Description": "Find all LEAs that do not have schools associated with Bell Schedules",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "\n--leas no bell schedules\nSELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.BellSchedule\n\ton BellSchedule.schoolId = school.SchoolId) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;\n",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing calendar days",
+          "Description": "Find LEAs that do not have any schools with calendar days",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "-- LEAs no calendar days\nSELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.Calendar\n\t\ton Calendar.schoolId = school.SchoolId\n\tJOIN Edfi.CalendarDate\n\t\ton CalendarDate.CalendarCode = Calendar.CalendarCode\n\t\tand CalendarDate.SchoolId = Calendar.SchoolId\n\t\tand CalendarDate.SchoolYear = Calendar.SchoolYear\n\t\t) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;\n\n",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing discipline incidents",
+          "Description": "Show all LEAs that do not have a discipline incident",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "-- LEAs no discipline incidents\nSELECT\n  LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n  'edfi.LocalEducationAgency' Discriminator,\n  EducationOrganization.NameOfInstitution\nFROM\n  edfi.educationorganization\n  JOIN edfi.LocalEducationAgency on LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\n  LEFT JOIN (\n    SELECT\n      school.LocalEducationAgencyId\n    FROM\n      edfi.school\n      JOIN edfi.DisciplineIncident on DisciplineIncident.schoolId = school.SchoolId\n  ) tab on tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE\n  LocalEducationAgency.LocalEducationAgencyId not in (255901)\n  AND tab.LocalEducationAgencyId is null;",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing discipline behaviors",
+          "Description": "Show LEAs that do not have any discipline behaviors",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "-- LEAs no discipline behavors\nSELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.DisciplineIncidentBehavior\n\t\ton DisciplineIncidentBehavior.schoolId = school.SchoolId\n\t) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;\n",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing grades",
+          "Description": "Find LEAs that do not have any schools with grades asscoiated",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "-- LEAs no GRADES\nSELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.Grade\n\t\ton Grade.schoolId = school.SchoolId\n\t\t) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;\n\n",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing academic records",
+          "Description": "Find LEAs that do not have students associated with academic records",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "-- LEAs no student academic record\nSELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.studentSchoolAssociation\n\t\ton studentSchoolAssociation.schoolId = school.SchoolId\n\tJOIN edfi.StudentAcademicRecord\n\t\ton StudentAcademicRecord.StudentUSI = studentSchoolAssociation.StudentUSI) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;\n\n",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing assessments",
+          "Description": "Find LEAs that do not have students with assessment results",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "\n-- LEAs no student assessments\nSELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.studentSchoolAssociation\n\t\ton studentSchoolAssociation.schoolId = school.SchoolId\n\tJOIN edfi.StudentAssessment\n\t\ton StudentAssessment.StudentUSI = studentSchoolAssociation.StudentUSI) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;\n",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing sections",
+          "Description": "Find all LEAs that do not have sections",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "SELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.Section\n\ton Section.schoolId = school.SchoolId) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;\n",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing sessions",
+          "Description": "Find all LEAs missing sessions",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "-- LEAs no Sessions\nSELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.Session\n\ton Session.schoolId = school.SchoolId) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;\n",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing schools",
+          "Description": "Find all LEAs that do not have a single school",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "SELECT\n  EducationOrganization.EducationOrganizationId,\n  'edfi.LocalEducationAgency' Discriminator,\n  EducationOrganization.NameOfInstitution\nFROM\n  edfi.educationorganization\n  JOIN edfi.LocalEducationAgency on LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\n  LEFT JOIN edfi.school on school.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE\n  LocalEducationAgency.LocalEducationAgencyId not in (255901)\n  AND school.schoolId is null;",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing cohorts",
+          "Description": "Find LEAs that do not have students associated with cohorts",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "-- LEAs no student cohorts\nSELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.studentSchoolAssociation\n\t\ton studentSchoolAssociation.schoolId = school.SchoolId\n\tJOIN edfi.StudentCohortAssociation\n\t\ton StudentCohortAssociation.StudentUSI = studentSchoolAssociation.StudentUSI) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;\n\n",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing student program associations",
+          "Description": "LEAs missing student program associations",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "-- LEAs no student program associations\nSELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.studentSchoolAssociation\n\t\ton studentSchoolAssociation.schoolId = school.SchoolId\n\tJOIN edfi.StudentProgramAssociation\n\t\ton StudentProgramAssociation.StudentUSI = studentSchoolAssociation.StudentUSI) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;\n",
+          "Version": "1",
+          "ExternalRuleId": "",
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing student session associations",
+          "Description": "Find all LEAs that do not have students associated with sessions",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "-- LEAs no student session associations\nSELECT\n  LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n  'edfi.LocalEducationAgency' Discriminator,\n  EducationOrganization.NameOfInstitution\nFROM\n  edfi.educationorganization\n  JOIN edfi.LocalEducationAgency on LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\n  LEFT JOIN (\n    SELECT\n      school.LocalEducationAgencyId\n    FROM\n      edfi.school\n      JOIN edfi.StudentSectionAssociation on StudentSectionAssociation.schoolId = school.SchoolId\n  ) tab on tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE\n  LocalEducationAgency.LocalEducationAgencyId not in (255901)\n  AND tab.LocalEducationAgencyId is null;",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing students",
+          "Description": "Find LEAs that do not have students associated",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "-- LEAs no students\nSELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.studentSchoolAssociation\n\ton studentSchoolAssociation.schoolId = school.SchoolId) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;\n\n\n",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing student attendance ",
+          "Description": "Find all LEAs that do NOT have student attendance",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "-- LEAs no student attendance\nSELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.StudentSchoolAttendanceEvent\n\ton StudentSchoolAttendanceEvent.schoolId = school.SchoolId) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;\n",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing staff employment ",
+          "Description": "find all LEAs missing staff employment ",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "SELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN edfi.StaffEducationOrganizationEmploymentAssociation\n\ton StaffEducationOrganizationEmploymentAssociation.EducationOrganizationId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   StaffEducationOrganizationEmploymentAssociation.EducationOrganizationId is null;\n\n",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        },
+        {
+          "Name": "LEAs missing parents",
+          "Description": "FInd LEAs that do not have students associated with parents",
+          "ErrorMessage": null,
+          "SeverityLevel": 1,
+          "Resolution": null,
+          "Sql": "-- LEAs no student parents\nSELECT LocalEducationAgency.LocalEducationAgencyId EducationOrganizationid,\n'edfi.LocalEducationAgency' Discriminator,\nEducationOrganization.NameOfInstitution\nFROM edfi.educationorganization\nJOIN edfi.LocalEducationAgency \n\ton LocalEducationAgency.LocalEducationAgencyId = educationorganization.EducationOrganizationId\nLEFT JOIN\n\t(SELECT school.LocalEducationAgencyId\n\tFROM edfi.school\n\tJOIN edfi.studentSchoolAssociation\n\t\ton studentSchoolAssociation.schoolId = school.SchoolId\n\tJOIN edfi.StudentParentAssociation\n\t\ton StudentParentAssociation.StudentUSI = studentSchoolAssociation.StudentUSI) tab\n\ton tab.LocalEducationAgencyId = LocalEducationAgency.LocalEducationAgencyId\nWHERE  LocalEducationAgency.LocalEducationAgencyId not in (255901)\nAND   tab.LocalEducationAgencyId is null;",
+          "Version": "1",
+          "ExternalRuleId": null,
+          "MaxNumberResults": null,
+          "Tags": []
+        }
+      ],
+      "Tags": []
+    }
+  ],
+  "Tags": [],
+  "DestinationTable": "EdFiRuleExecutionLogDetails",
+  "DestinationStructure": "[{\"Name\":\"id\",\"Type\":\"int\",\"IsNullable\":false},{\"Name\":\"educationorganizationid\",\"Type\":\"int\",\"IsNullable\":true},{\"Name\":\"studentuniqueid\",\"Type\":\"nvarchar\",\"IsNullable\":true},{\"Name\":\"coursecode\",\"Type\":\"nvarchar\",\"IsNullable\":true},{\"Name\":\"discriminator\",\"Type\":\"nvarchar\",\"IsNullable\":true},{\"Name\":\"programname\",\"Type\":\"nvarchar\",\"IsNullable\":true},{\"Name\":\"staffuniqueid\",\"Type\":\"nvarchar\",\"IsNullable\":true},{\"Name\":\"otherdetails\",\"Type\":\"nvarchar\",\"IsNullable\":true},{\"Name\":\"ruleexecutionlogid\",\"Type\":\"int\",\"IsNullable\":false}]"
+}
