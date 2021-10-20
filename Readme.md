@@ -1,33 +1,31 @@
 ﻿Ed-Fi ODS Data Checker
 ============
 
-test
-
 Description
 ------------
 A very simple data checker that will have a set of files defining SQL statements to do level 2 validations on the ODS database
 
-
-Setup By Binaries
+Binary Install
 ------------
 
 ### Prerequisites ###
 
 * Install the IIS Features to enable the IIS Server:  
 ![](https://drive.google.com/uc?export=view&id=1QIiweGLsmqEqRTRRY0X_u0P_ohRnHK1I)
-* Install 7z to uncompress files (https://www.7-zip.org/download.html)
 * Install .Net Core 2.2.5 Hosting Bundle (https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-aspnetcore-2.2.5-windows-hosting-bundle-installer)
 * Install .Net Core 3.1 Hosting Bundle (https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-aspnetcore-3.1.20-windows-hosting-bundle-installer)
 * SQL Server (https://www.microsoft.com/sql-server/sql-server-downloads)
 * SQL Server Management Studio (SSMS) (https://aka.ms/ssmsfullsetup)
 
-### Download Binaries ###
-
-* Download the file Binaries.rar: https://github.com/Ed-Fi-Exchange-OSS/DataChecker/tree/main/Installer 
-* You can validate if you have all your prerequisites installed running the powershell script VerifyPreReqs.ps1
-* Uncompress the file and copy the folder DataChecker in the path: C:\inetpub\wwwroot\DataChecker
+### Fresh Install From Binaries ###
+* Download the file Binaries.zip: <TBD>
+* Unzip Binaries.zip to a local folder
+* Validate if you have all your prerequisites installed running the powershell script VerifyPreReqs.ps1
+* Copy the folder DataChecker in the path: C:\inetpub\wwwroot\DataChecker
 * Restore the database structure bacpac file in MSQL Server
-* Update the connection string of the file appsettings.json
+* Open the file C:\inetpub\wwwroot\DataChecker\appsettings.json
+	* Change the value "DataCheckerStore" to a valid connection string for the datachecker database
+	* Change the value of "EncryptionKey" from "CHANGE_ME_PLEASE!" to a random text string. This will impact how ODS connection string passwords are st
 * Open IIS and convert the folder DataChecker from the path C:\inetpub\wwwroot\DataChecker to a WebApplication.
 * If you have an error regarding the login of the IIS APPPOOL\DefaultAppPool you could do the following steps:
     * In SQL Server Management Studio, look for the Security folder (the security folder at the same level as the Databases, Server Objects, etc. folders...not the security folder within each individual database)
@@ -36,8 +34,30 @@ Setup By Binaries
     * Fill whatever other values you like (i.e., authentication type, default database, etc.)
     * Click OK
 
+### Upgrade from version 1.0 with Binaries ###
+* Download the file Binaries.zip: <TBD>
+* Unzip Binaries.zip to a local folder
+* Validate if you have all your prerequisites installed running the powershell script VerifyPreReqs.ps1
+* Copy the folder DataChecker in the path: C:\inetpub\wwwroot\DataChecker (presumedly replacing the old version)
+* Run the following command in the data checker database:
+	```sql  alter table datachecker.containers add DateUpdated datetime2```
+* Update the connection string of the file C:\inetpub\wwwroot\DataChecker\appsettings.json
+* Change the value of "EncryptionKey" from "CHANGE_ME_PLEASE!" to a random text string. This will impact how ODS connection string passwords are st
+* Open IIS and convert the folder DataChecker from the path C:\inetpub\wwwroot\DataChecker to a WebApplication.
+* If you have an error regarding the login of the IIS APPPOOL\DefaultAppPool you could do the following steps:
+    * In SQL Server Management Studio, look for the Security folder (the security folder at the same level as the Databases, Server Objects, etc. folders...not the security folder within each individual database)
+    * Right click logins and select "New Login"
+    * In the Login name field, type IIS APPPOOL\DefaultAppPool - do not click search
+    * Fill whatever other values you like (i.e., authentication type, default database, etc.)
+    * Click OK
 
-Setup With Visual Studio
+### Quick start guide ###
+* Set up an environment that connects to an ODS you want to manage. It is highly recommended that the credentials used to connect to that ODS have read-only access.
+* Pull in an existing collections of rules from https://github.com/Ed-Fi-Exchange-OSS/DataChecker-Collections
+* More detailed user instructions can be found at: [Data Checker Overview and User Guide](https://docs.google.com/document/d/17FkjSqg55-MOvFxpmbAZ06okIdxyjXhHoN4DnxgIC8A/)
+ 
+
+Build from source with Visual Studio
 ------------
 
 There are 2 ways of running the *Data Checker*. In development or production mode. The main difference is that Development will run from your Visual Studio in IIS Express. While Production we will deploy to a local IIS.
@@ -167,7 +187,16 @@ We provide a Console application that you can schedule with "Windows Task Schedu
 **Example of Use:**
 MSDF.DataChecker.cmd.exe --environmentid "1451E793-F100-4A91-845E-4E45130DCF31" --environmentname "V25 Douglas" --ruleid "8D7363E5-A98B-BB74-5179-1207FFC18A1F"
 
-## License
 
-Licensed under the [Ed-Fi
-License](https://www.ed-fi.org/getting-started/license-ed-fi-technology/).
+## Legal Information
+
+Copyright (c) 2021 Ed-Fi Alliance, LLC and contributors.
+
+Licensed under the [Apache License, Version 2.0](LICENSE) (the "License").
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
+
+See [NOTICES](NOTICES.md) for additional copyright and license notifications.
