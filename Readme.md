@@ -55,7 +55,9 @@ Binary Install
 * Set up an environment that connects to an ODS you want to manage. It is highly recommended that the credentials used to connect to that ODS have read-only access.
 * Pull in an existing collections of rules from https://github.com/Ed-Fi-Exchange-OSS/DataChecker-Collections
 * More detailed user instructions can be found at: [Data Checker Overview and User Guide](https://docs.google.com/document/d/17FkjSqg55-MOvFxpmbAZ06okIdxyjXhHoN4DnxgIC8A/)
- 
+
+### Support ###
+* Questions, comments, bug reports, features requests, or general feedback please use the #users-datachecker channel on the Ed-Fi Alliance Slack workspace or send an email to jon <at> redglobeinc.com
 
 Build from source with Visual Studio
 ------------
