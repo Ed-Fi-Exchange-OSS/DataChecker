@@ -5,7 +5,7 @@ Description
 ------------
 A very simple data checker that will have a set of files defining SQL statements to do level 2 validations on the ODS database
 
-Binary Install
+Binary Installs and upgrades
 ------------
 
 ### Prerequisites ###
@@ -17,7 +17,7 @@ Binary Install
 * SQL Server (https://www.microsoft.com/sql-server/sql-server-downloads)
 * SQL Server Management Studio (SSMS) (https://aka.ms/ssmsfullsetup)
 
-### Fresh Install From Binaries ###
+### Fresh Installation from binaries ###
 * Download the file Binaries.zip from the latest release here: https://github.com/Ed-Fi-Exchange-OSS/DataChecker/releases
 * Unzip Binaries.zip to a local folder
 * Validate if you have all your prerequisites installed running the powershell script VerifyPreReqs.ps1
@@ -55,9 +55,6 @@ Binary Install
 * Set up an environment that connects to an ODS you want to manage. It is highly recommended that the credentials used to connect to that ODS have read-only access.
 * Pull in an existing collections of rules from https://github.com/Ed-Fi-Exchange-OSS/DataChecker-Collections
 * More detailed user instructions can be found at: [Data Checker Overview and User Guide](https://docs.google.com/document/d/17FkjSqg55-MOvFxpmbAZ06okIdxyjXhHoN4DnxgIC8A/)
-
-### Support ###
-* Questions, comments, bug reports, features requests, or general feedback please use the #users-datachecker channel on the Ed-Fi Alliance Slack workspace or send an email to jon <at> redglobeinc.com
 
 Build from source with Visual Studio
 ------------
@@ -189,6 +186,8 @@ We provide a Console application that you can schedule with "Windows Task Schedu
 **Example of Use:**
 MSDF.DataChecker.cmd.exe --environmentid "1451E793-F100-4A91-845E-4E45130DCF31" --environmentname "V25 Douglas" --ruleid "8D7363E5-A98B-BB74-5179-1207FFC18A1F"
 
+### Support ###
+* Questions, comments, bug reports, features requests, or general feedback please use the #users-datachecker channel on the Ed-Fi Alliance Slack workspace or send an email to jon -at- redglobeinc.com
 
 ## Legal Information
 
