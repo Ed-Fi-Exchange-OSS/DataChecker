@@ -40,7 +40,10 @@ Binary Installs and upgrades
 * Validate if you have all your prerequisites installed running the powershell script VerifyPreReqs.ps1
 * Copy the folder DataChecker in the path: C:\inetpub\wwwroot\DataChecker (presumedly replacing the old version)
 * Run the following command in the data checker database:
-	```sql  alter table datachecker.containers add DateUpdated datetime2```
+	```sql  alter table datachecker.containers add DateUpdated datetime2;
+    alter table datachecker.databaseEnvironments add TimeoutInMinutes int;
+alter table datachecker.Rules add DateUpdated datetime2;
+```
 * Update the connection string of the file C:\inetpub\wwwroot\DataChecker\appsettings.json
 * Change the value of "EncryptionKey" from "CHANGE_ME_PLEASE!" to a random text string. This will impact how ODS connection string passwords are st
 * Open IIS and convert the folder DataChecker from the path C:\inetpub\wwwroot\DataChecker to a WebApplication.
