@@ -43,7 +43,7 @@ Binary Installs and upgrades
 
     alter table datachecker.containers add DateUpdated datetime2;
     alter table datachecker.databaseEnvironments add TimeoutInMinutes int;
-    alter table datachecker.Rules add DateUpdated datetime2; ```
+    alter table datachecker.Rules add DateUpdated datetime2;
 
 * Update the connection string of the file C:\inetpub\wwwroot\DataChecker\appsettings.json
 * Change the value of "EncryptionKey" from "CHANGE_ME_PLEASE!" to a random text string. This will impact how ODS connection string passwords are st
