@@ -76,23 +76,20 @@ For both environments you will need to complete the following common prerequisit
 * .Net core 3.1 hosting bundle ( [https://dotnet.microsoft.com/download/dotnet-core/3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1) , [https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-3.1.3-windows-hosting-bundle-installer](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-3.1.3-windows-hosting-bundle-installer) )
 * NodeJs LTS ([https://nodejs.org/en/](https://nodejs.org/en/))
 * Angular CLI ([https://cli.angular.io/](https://cli.angular.io/)) npm install -g @angular/cli
-* Acquiring the codebase: [https://github.com/Ed-Fi-Alliance/Ed-Fi-X-DataChecker/](https://github.com/Ed-Fi-Alliance/Ed-Fi-X-DataChecker/)
+* Acquiring the codebase: [https://github.com/Ed-Fi-Exchange-OSS/DataChecker/](https://github.com/Ed-Fi-Exchange-OSS/DataChecker/)
     
 **NOTE VERY IMPORTANT: The user that you will use to configure the execution environment should be read only.**
 
 ### Download or Clone the code to your machine ###
 
-Clone or download the code located in the github repository: https://github.com/Ed-Fi-Alliance/Ed-Fi-X-DataChecker/ 
+Clone or download the code located in the github repository: https://github.com/Ed-Fi-Exchange-OSS/DataChecker/
 
 *We recommend that you download the code in the following path: c:\Projects\edfi\DataChecker*
 
-To download click on this link and save to the folder where you wish to download. https://github.com/Ed-Fi-Alliance/Ed-Fi-X-DataChecker/archive/master.zip
-
-![](https://drive.google.com/uc?export=view&id=1NVUFnVZCpyAOkraOdNqlrpVV5QjFZb8Z)
 
 To clone open your favorite shell, navigate to the path above or folder where you wish to download and then type in the following command: 
 
-*c:\projects\edfi\> git clone https://github.com/Ed-Fi-Alliance/Ed-Fi-X-DataChecker.git*
+*c:\projects\edfi\> git clone https://github.com/Ed-Fi-Exchange-OSS/DataChecker*
 
 ![](https://drive.google.com/uc?export=view&id=1jYAZpnSJcNego1bb2JnuIOetO03t2Vua)
 
