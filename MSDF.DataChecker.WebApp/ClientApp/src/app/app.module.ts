@@ -38,7 +38,9 @@ import { TagInputModule } from 'ngx-chips';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 var routes = [
-  { path: "", component: HomeComponent, pathMatch: "full" }
+  { path: "", component: HomeComponent, pathMatch: "full" },
+  { path: '*path', redirectTo: "" },
+  { path: "**", redirectTo: "" }
   //{ path: "profile", component: UserProfileComponent }
 ];
 
