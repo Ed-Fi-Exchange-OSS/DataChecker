@@ -98,4 +98,16 @@ export class ContainerService {
       .post(this.url + "/ValidateDestinationTable", info)
       .pipe(map((result: any) => result));
   }
+
+  public downloadContainerJson(collection: Category): Observable<any> {
+    return this.http
+      .post(this.url + "/DownloadCollection", collection)
+      .pipe(map((result: any) => result));
+  }
+
+  public uploadContainerJson(collection: any): Observable<any> {
+    return this.http
+      .post(this.url + "/UploadCollection", collection)
+      .pipe(map((result: any) => result));
+  }
 }

@@ -6,7 +6,12 @@
 using Microsoft.AspNetCore.Mvc;
 using MSDF.DataChecker.Services;
 using MSDF.DataChecker.Services.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace MSDF.DataChecker.WebApi.Controllers
@@ -28,8 +33,8 @@ namespace MSDF.DataChecker.WebApi.Controllers
             var model = await _containerService
                 .GetAsync();
 
-            if (model != null) 
-                return Ok(model);
+            if (model != null)
+                return Ok(model.OrderBy(rec=>rec.Name));
 
             return NotFound();
         }
@@ -152,6 +157,20 @@ namespace MSDF.DataChecker.WebApi.Controllers
         {
             if (model == null) return Ok(true);
             bool result = await _containerService.ValidateDestinationTableAsync(model);
+            return Ok(result);
+        }
+
+        [HttpPost("DownloadCollection")]
+        public async Task<ActionResult> DownloadCollectionJson([FromBody] ContainerBO model)
+        {
+            var result = await _containerService.GetCollectionAsJson(model.Id);
+            return Ok(result);
+        }
+
+        [HttpPost("UploadCollection")]
+        public async Task<ActionResult> UploadCollectionJson([FromBody] CollectionJson model)
+        {
+            string result = await _containerService.UploadCollectionAsJson(model);
             return Ok(result);
         }
     }
