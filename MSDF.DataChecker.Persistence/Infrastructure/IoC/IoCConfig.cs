@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -6,38 +6,26 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MSDF.DataChecker.Persistence.EntityFramework;
-using System;
 using System.Linq;
-using Hangfire;
-using Hangfire.SqlServer;
+using MSDF.DataChecker.Persistence.Settings;
+using MSDF.DataChecker.Persistence.Providers;
 
 namespace MSDF.DataChecker.Persistence.Infrastructure.IoC
 {
     public static class IoCConfig
     {
-        public static void RegisterDependencies(IServiceCollection container, IConfiguration configuration)
+        public static void RegisterDependencies(IServiceCollection container, IConfiguration configuration, IDbAccessProvider dataAccessProvider)
         {
-            container.AddDbContext<DatabaseContext>(options =>options.UseSqlServer(configuration.GetConnectionString("DataCheckerStore")),ServiceLifetime.Transient);
-
-            container.AddHangfire(globalConfiguration => globalConfiguration
-                  .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-                  .UseSimpleAssemblyNameTypeSerializer()
-                  .UseRecommendedSerializerSettings()
-                  .UseSqlServerStorage(configuration.GetConnectionString("DataCheckerStore"), new SqlServerStorageOptions
-                  {
-                      CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-                      SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
-                      QueuePollInterval = TimeSpan.Zero,
-                      UseRecommendedIsolationLevel = true,
-                      DisableGlobalLocks = true
-                  }));
-
-            // Add the processing server as IHostedService
-            container.AddHangfireServer();
+            container.Configure<DatabaseSettings>(configuration.GetSection("DatabaseSettings"));
+            var settings = configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>();
+            if (settings.Engine == "SqlServer")
+                dataAccessProvider.SQLServer(container, settings.ConnectionStrings.SqlServer);
+            else
+                dataAccessProvider.PostgresSQL(container, settings.ConnectionStrings.PostgresSql);
 
             RegisterCommandsAndQueriesByConvention<IPersistenceMarker>(container);
         }
+
 
         private static void RegisterCommandsAndQueriesByConvention<TMarker>(IServiceCollection container)
         {
