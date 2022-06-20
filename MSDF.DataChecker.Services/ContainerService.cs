@@ -4,11 +4,13 @@
 // See the LICENSE and NOTICES files in the project root for more information.
 
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Options;
 using MSDF.DataChecker.Persistence.Catalogs;
 using MSDF.DataChecker.Persistence.Collections;
 //using MSDF.DataChecker.Persistence.CommunityUser;
 using MSDF.DataChecker.Persistence.RuleExecutionLogDetails;
 using MSDF.DataChecker.Persistence.Rules;
+using MSDF.DataChecker.Persistence.Settings;
 using MSDF.DataChecker.Persistence.Tags;
 using MSDF.DataChecker.Services.Models;
 using Newtonsoft.Json;
@@ -49,6 +51,7 @@ namespace MSDF.DataChecker.Services
         private IRuleExecutionLogDetailQueries _edFiRuleExecutionLogDetailQueries;
         private IRuleExecutionLogDetailCommands _edFiRuleExecutionLogDetailCommands;
         private ICatalogService _catalogService;
+        private readonly DataBaseSettings _appSettings;
 
         public ContainerService(
             ICollectionQueries collectionQueries,
@@ -59,7 +62,8 @@ namespace MSDF.DataChecker.Services
             ICatalogQueries catalogQueries,
             IRuleExecutionLogDetailQueries edFiRuleExecutionLogDetailQueries,
             ICatalogService catalogService,
-            IRuleExecutionLogDetailCommands edFiRuleExecutionLogDetailCommands)
+            IRuleExecutionLogDetailCommands edFiRuleExecutionLogDetailCommands,
+           IOptionsSnapshot<DataBaseSettings> appSettings)
         {
             _collectionQueries = collectionQueries;
             _ruleService = ruleService;
@@ -70,6 +74,7 @@ namespace MSDF.DataChecker.Services
             _edFiRuleExecutionLogDetailQueries = edFiRuleExecutionLogDetailQueries;
             _catalogService = catalogService;
             _edFiRuleExecutionLogDetailCommands = edFiRuleExecutionLogDetailCommands;
+            _appSettings = appSettings.Value;
         }
 
         public async Task<CollectionCategory> AddAsync(ContainerBO container)
@@ -567,7 +572,7 @@ namespace MSDF.DataChecker.Services
         public async Task<ContainerBO> GetByNameAsync(ContainerBO model)
         {
             var existContainer = await _collectionQueries.GetByNameAsync(model.Name.ToLower());
-            if(existContainer != null)
+            if (existContainer != null)
                 return MapEntityToModel(existContainer);
 
             return null;
@@ -604,8 +609,8 @@ namespace MSDF.DataChecker.Services
                     var newEnvironmentType = await _catalogService.AddAsync(new CatalogBO
                     {
                         CatalogType = "EnvironmentType",
-                        Description=model.CatalogEnvironmentType.Name,
-                        Name=model.CatalogEnvironmentType.Name
+                        Description = model.CatalogEnvironmentType.Name,
+                        Name = model.CatalogEnvironmentType.Name
                     });
                     model.EnvironmentType = newEnvironmentType.Id;
                 }
@@ -643,8 +648,8 @@ namespace MSDF.DataChecker.Services
                                 string newDestinationTableName = $"{model.ContainerDestination.DestinationName}_{counterTable}";
                                 while (true)
                                 {
-                                    existDestinationTable = catalogsInformation.FirstOrDefault(rec => 
-                                    rec.CatalogType == "RuleDetailsDestinationType" && 
+                                    existDestinationTable = catalogsInformation.FirstOrDefault(rec =>
+                                    rec.CatalogType == "RuleDetailsDestinationType" &&
                                     rec.Name.ToLower() == newDestinationTableName.ToLower());
                                     if (existDestinationTable == null) break;
                                     counterTable++;
@@ -655,7 +660,7 @@ namespace MSDF.DataChecker.Services
                         }
                     }
 
-                    if(createDestinationTable)
+                    if (createDestinationTable)
                     {
                         var newDestinationTable = await _catalogService.AddAsync(new CatalogBO
                         {
@@ -710,7 +715,7 @@ namespace MSDF.DataChecker.Services
                             IsDefault = false,
                             EnvironmentType = 0,
                             RuleDetailsDestinationId = null,
-                            Rules= new List<Rule>()
+                            Rules = new List<Rule>()
                         };
 
                         if (rec.Rules != null && rec.Rules.Any())
@@ -749,15 +754,17 @@ namespace MSDF.DataChecker.Services
                             var existTag = listTags.FirstOrDefault(rec => rec.Name.ToLower() == tag.Name.ToLower());
                             if (existTag == null)
                             {
-                                existTag = await _tagCommands.AddAsync(new Tag { 
-                                    Description=tag.Description,
-                                    IsPublic=true,
-                                    Name=tag.Name.ToUpper()
+                                existTag = await _tagCommands.AddAsync(new Tag
+                                {
+                                    Description = tag.Description,
+                                    IsPublic = true,
+                                    Name = tag.Name.ToUpper()
                                 });
                                 listTags.Add(existTag);
                             }
 
-                            await _tagCommands.AddTagToEntityAsync(new TagEntity { 
+                            await _tagCommands.AddTagToEntityAsync(new TagEntity
+                            {
                                 ContainerId = newCollectionFromDatabase.Id,
                                 TagId = existTag.Id
                             });
@@ -797,7 +804,7 @@ namespace MSDF.DataChecker.Services
                             {
                                 foreach (var rule in childContainer.Rules)
                                 {
-                                    var newRule = newChildContainer.Rules.FirstOrDefault(rec=>rec.Name==rule.Name);
+                                    var newRule = newChildContainer.Rules.FirstOrDefault(rec => rec.Name == rule.Name);
                                     if (rule.Tags != null && rule.Tags.Any())
                                     {
                                         foreach (var tag in rule.Tags)
@@ -874,7 +881,8 @@ namespace MSDF.DataChecker.Services
             collection.Name = container.Name;
             collection.Description = container.Description;
             collection.EnvironmentType = environmentCatalog.Name;
-            collection.Tags = (await _tagQueries.GetByContainerIdAsync(container.Id)).Where(rec => rec.IsPublic).Select(rec => new TagJson {
+            collection.Tags = (await _tagQueries.GetByContainerIdAsync(container.Id)).Where(rec => rec.IsPublic).Select(rec => new TagJson
+            {
                 Name = rec.Name
             }).ToList();
 
@@ -900,14 +908,16 @@ namespace MSDF.DataChecker.Services
                     Description = itemContainer.Description
                 };
 
-                category.Tags = (await _tagQueries.GetByContainerIdAsync(itemContainer.Id)).Where(rec => rec.IsPublic).Select(rec => new TagJson {
+                category.Tags = (await _tagQueries.GetByContainerIdAsync(itemContainer.Id)).Where(rec => rec.IsPublic).Select(rec => new TagJson
+                {
                     Name = rec.Name
                 }).ToList();
 
                 var rules = await _ruleService.GetWithLogsByContainerIdAsync(itemContainer.Id);
                 foreach (var rec in rules)
                 {
-                    category.Rules.Add(new RuleJson {
+                    category.Rules.Add(new RuleJson
+                    {
                         Description = rec.Description,
                         Sql = rec.DiagnosticSql,
                         ErrorMessage = rec.ErrorMessage,
@@ -1038,19 +1048,21 @@ namespace MSDF.DataChecker.Services
                         {
                             List<DestinationTableColumn> destinationTableInDbColumns = JsonConvert.DeserializeObject<List<DestinationTableColumn>>(collection.DestinationStructure);
                             List<string> sqlColumns = new List<string>();
-                            foreach (var column in destinationTableInDbColumns)
-                            {
-                                string isNull = column.IsNullable ? "NULL" : "NOT NULL";
-                                if (column.Name == "id" && column.Type == "int")
-                                    sqlColumns.Add("[Id] [int] IDENTITY(1,1) NOT NULL");
-                                else if (column.Type.Contains("varchar"))
-                                    sqlColumns.Add($"[{column.Name}] [{column.Type}](max) {isNull}");
-                                else if (column.Type.Contains("datetime"))
-                                    sqlColumns.Add($"[{column.Name}] [{column.Type}](7) {isNull}");
-                                else
-                                    sqlColumns.Add($"[{column.Name}] [{column.Type}] {isNull}");
-                            }
-                            string sqlCreate = $"CREATE TABLE [destination].[{collection.DestinationTable}]({string.Join(",", sqlColumns)}) ";
+
+                            var sqlCreate = Persistence.Utility.GetNewTableScript(_appSettings.Engine, destinationTableInDbColumns, collection.DestinationTable);
+                            //foreach (var column in destinationTableInDbColumns)
+                            //{
+                            //    string isNull = column.IsNullable ? "NULL" : "NOT NULL";
+                            //    if (column.Name == "id" && column.Type == "int")
+                            //        sqlColumns.Add("[Id] [int] IDENTITY(1,1) NOT NULL");
+                            //    else if (column.Type.Contains("varchar"))
+                            //        sqlColumns.Add($"[{column.Name}] [{column.Type}](max) {isNull}");
+                            //    else if (column.Type.Contains("datetime"))
+                            //        sqlColumns.Add($"[{column.Name}] [{column.Type}](7) {isNull}");
+                            //    else
+                            //        sqlColumns.Add($"[{column.Name}] [{column.Type}] {isNull}");
+                            //}
+                            //string sqlCreate = $"CREATE TABLE [destination].[{collection.DestinationTable}]({string.Join(",", sqlColumns)}) ";
                             await _edFiRuleExecutionLogDetailCommands.ExecuteSqlAsync(sqlCreate);
                         }
                     }
