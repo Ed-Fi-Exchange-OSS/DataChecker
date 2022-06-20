@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace MSDF.DataChecker.Services
 {
-    public interface IRuleExecutionLogDetailService
+    public interface IRuleExecutionLogDetailService1
     { 
         Task<RuleExecutionLogDetailBO> GetByRuleExecutionLogIdAsync(int id);
         Task<int> GetLastRuleExecutionLogByEnvironmentAndRuleAsync(Guid environmentId, Guid ruleId);
@@ -28,7 +28,7 @@ namespace MSDF.DataChecker.Services
         Task<RuleExecutionLogDetailBO> ExecutionDiagnosticSqlByLogIdAsync(int id);
     }
 
-    public class RuleExecutionLogDetailService : IRuleExecutionLogDetailService
+    public class RuleExecutionLogDetailService1 : IRuleExecutionLogDetailService1
     {
         private IRuleExecutionLogDetailQueries _queries;
         private IRuleExecutionLogQueries _queriesRuleExecutionLog;
@@ -38,7 +38,7 @@ namespace MSDF.DataChecker.Services
         private IRuleQueries _queriesRule;
         private IDatabaseEnvironmentQueries _queriesDatabaseEnvironments;
 
-        public RuleExecutionLogDetailService(
+        public RuleExecutionLogDetailService1(
             IRuleExecutionLogDetailQueries queries,
             IRuleExecutionLogQueries queriesRuleExecutionLog,
             ICatalogQueries queriesCatalog,
