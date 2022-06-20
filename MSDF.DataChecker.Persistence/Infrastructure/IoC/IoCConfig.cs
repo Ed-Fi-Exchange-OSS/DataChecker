@@ -16,8 +16,8 @@ namespace MSDF.DataChecker.Persistence.Infrastructure.IoC
     {
         public static void RegisterDependencies(IServiceCollection container, IConfiguration configuration, IDbAccessProvider dataAccessProvider)
         {
-            container.Configure<DatabaseSettings>(configuration.GetSection("DatabaseSettings"));
-            var settings = configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>();
+            container.Configure<DataBaseSettings>(configuration.GetSection("DatabaseSettings"));
+            var settings = configuration.GetSection("DatabaseSettings").Get<DataBaseSettings>();
             if (settings.Engine == "SqlServer")
                 dataAccessProvider.SQLServer(container, settings.ConnectionStrings.SqlServer);
             else
@@ -51,10 +51,24 @@ namespace MSDF.DataChecker.Persistence.Infrastructure.IoC
                 }
             );
 
+            var providers = (
+             from interfaceType in types.Where(t => t.Name.StartsWith("I") && t.Name.EndsWith("Provider"))
+             from serviceType in types.Where(t => t.Name == interfaceType.Name.Substring(1))
+             select new
+             {
+                 InterfaceType = interfaceType,
+                 ServiceType = serviceType
+             }
+         );
+
+
             foreach (var pair in commandsToRegister)
                 container.AddScoped(pair.InterfaceType, pair.ServiceType);
 
             foreach (var pair in queriesToRegister)
+                container.AddScoped(pair.InterfaceType, pair.ServiceType);
+
+            foreach (var pair in providers)
                 container.AddScoped(pair.InterfaceType, pair.ServiceType);
         }
     }
