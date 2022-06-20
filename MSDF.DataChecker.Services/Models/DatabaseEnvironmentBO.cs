@@ -28,8 +28,20 @@ namespace MSDF.DataChecker.Services.Models
         {
             if (SecurityIntegrated != null && SecurityIntegrated.Value)
                 return string.Format("Data Source={0};Database={1};Integrated Security=true;{2}", DataSource, Database, ExtraData);
-
             return string.Format("Data Source={0};Database={1};User Id={2};Password={3};{4}", DataSource, Database, User, Password, ExtraData);
+        }
+        public string GetConnectionString(string Engine)
+        {
+            if (Engine == "SqlServer")
+            {
+                if (SecurityIntegrated != null && SecurityIntegrated.Value)
+                    return string.Format("Data Source={0};Database={1};Integrated Security=true;{2}", DataSource, Database, ExtraData);
+                return string.Format("Data Source={0};Database={1};User Id={2};Password={3};{4}", DataSource, Database, User, Password, ExtraData);
+            }
+            else
+            if (SecurityIntegrated != null && SecurityIntegrated.Value)
+                return string.Format("Server={0};Database={1};Integrated Security=true;{2}", DataSource, Database, ExtraData);
+            return string.Format("Server={0};Database={1};User Id={2};Password={3};", DataSource, Database, User, Password, ExtraData);
         }
     }
 }
