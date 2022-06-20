@@ -4,8 +4,11 @@
 // See the LICENSE and NOTICES files in the project root for more information.
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using MSDF.DataChecker.Persistence.Settings;
 using MSDF.DataChecker.Services;
 using MSDF.DataChecker.Services.Models;
+using MSDF.DataChecker.Services.RuleExecution;
 using MSDF.DataChecker.WebApp.Models;
 using System;
 using System.Linq;
@@ -19,22 +22,24 @@ namespace MSDF.DataChecker.WebApi.Controllers
     {
         private readonly IDatabaseEnvironmentService _databaseEnvironmentService;
         private readonly IRuleService _rulesService;
-        private readonly IRuleExecutionService _executionService;
+        private readonly IRuleExecService _executionService;
 
+        private readonly DataBaseSettings _appSettings;
         public RulesController(IRuleService rulesService,
-            IRuleExecutionService executionService,
-            IDatabaseEnvironmentService databaseEnvironmentService)
+            IRuleExecService executionService,
+            IDatabaseEnvironmentService databaseEnvironmentService,
+            IOptionsSnapshot<DataBaseSettings> appSettings)
         {
             _rulesService = rulesService;
             _databaseEnvironmentService = databaseEnvironmentService;
             _executionService = executionService;
+            _appSettings = appSettings.Value;
         }
 
         [HttpGet]
         public async Task<ActionResult> GetAsync()
         {
-            var model = await _rulesService
-                .GetWithLogsAsync();
+            var model = await _rulesService.GetWithLogsAsync();
 
             if (model != null)
                 return Ok(model);
@@ -45,8 +50,7 @@ namespace MSDF.DataChecker.WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetAsync(Guid id)
         {
-            var model = await _rulesService
-                .GetAsync(id);
+            var model = await _rulesService.GetAsync(id);
 
             if (model != null)
                 return Ok(model);
@@ -57,8 +61,7 @@ namespace MSDF.DataChecker.WebApi.Controllers
         [HttpGet("Results/{id}/{databaseEnvironmentId}")]
         public async Task<ActionResult> GetResultsAsync(Guid id, Guid databaseEnvironmentId)
         {
-            var model = await _rulesService
-                .GetTopResults(id, databaseEnvironmentId);
+            var model = await _rulesService.GetTopResults(id, databaseEnvironmentId);
 
             if (model != null)
                 return Ok(model);
@@ -133,8 +136,8 @@ namespace MSDF.DataChecker.WebApi.Controllers
                 .GetAsync(model.DatabaseEnvironmentId);
 
             string connectionString = databaseEnvironment
-                .GetConnectionString();
-
+                .GetConnectionString(_appSettings.Engine);
+            _executionService.ConnectionString = connectionString;
             var result = await _executionService
                 .ExecuteRuleAsync(model.RuleToTest, connectionString, databaseEnvironment.UserParams, databaseEnvironment.TimeoutInMinutes);
 
