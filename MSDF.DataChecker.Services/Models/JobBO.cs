@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MSDF.DataChecker.Services.RuleExecution;
 
 namespace MSDF.DataChecker.Services.Models
 {
@@ -35,12 +36,12 @@ namespace MSDF.DataChecker.Services.Models
             private readonly ITagService _tagService;
             private readonly IContainerService _containerService;
             private readonly IDatabaseEnvironmentService _databaseEnvironmentService;
-            private readonly IRuleExecutionService _executionService;
+            private readonly IRuleExecService _executionService;
 
             public JobRunner(ITagService tagService,
                              IContainerService containerService,
                              IDatabaseEnvironmentService databaseEnvironmentService,
-                             IRuleExecutionService executionService,
+                             IRuleExecService executionService,
                              IRuleService ruleService)
             {
                 _tagService = tagService;
