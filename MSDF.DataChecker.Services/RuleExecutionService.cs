@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace MSDF.DataChecker.Services
 {
-    public interface IRuleExecutionService1
+    public interface IRuleExecutionService
     {
         Task<List<RuleTestResult>> ExecuteRulesByEnvironmentIdAsync(List<RuleBO> rules, DatabaseEnvironmentBO databaseEnvironment);
         Task<RuleTestResult> ExecuteRuleByEnvironmentIdAsync(Guid ruleId,DatabaseEnvironmentBO databaseEnvironment);
@@ -26,7 +26,7 @@ namespace MSDF.DataChecker.Services
         Task<RuleTestResult> ExecuteRuleAsync(RuleBO rule, string connectionString, List<UserParamBO> userParams, int? timeout);
     }
 
-    public class RuleExecutionService1 : IRuleExecutionService1
+    public class RuleExecutionService : IRuleExecutionService
     {
         private readonly IRuleService _ruleService;
         private readonly IRuleExecutionLogCommands _ruleExecutionLogCommands;
@@ -36,7 +36,7 @@ namespace MSDF.DataChecker.Services
         private readonly ICatalogQueries _catalogQueries;
         private readonly ICollectionQueries _collectionQueries;
 
-        public RuleExecutionService1(
+        public RuleExecutionService(
             IRuleService ruleService
             ,IRuleExecutionLogCommands ruleExecutionLogCommands
             ,IRuleExecutionLogQueries ruleExecutionLogQueries

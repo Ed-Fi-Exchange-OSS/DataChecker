@@ -79,7 +79,6 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
             //    }
             //}
 
-            return null;
         }
 
         public async Task<List<DestinationTableColumn>> GetColumnsByTableAsync(string tableName, string tableSchema)

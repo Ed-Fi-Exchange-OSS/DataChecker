@@ -167,7 +167,7 @@ namespace MSDF.DataChecker.Services
             try
             {
                 if (_appSettings.Engine == "SqlServer")
-                    genericResponse.IsValid = _dataAccessProvider.TestSqlServerConnection(connectionString);
+                    genericResponse.IsValid =  _dataAccessProvider.TestSqlServerConnection(connectionString);
                 else
                     genericResponse.IsValid = _dataAccessProvider.TestPostgresConnection(connectionString);
                 //using (var conn =   new SqlConnection(connectionString))
@@ -181,7 +181,7 @@ namespace MSDF.DataChecker.Services
                 genericResponse.IsValid = false;
                 genericResponse.Message = ex.Message;
             }
-            return genericResponse;
+            return    genericResponse;
         }
 
         public async Task<string> TestConnectionByIdAsync(Guid id)

@@ -63,7 +63,7 @@ namespace MSDF.DataChecker.Persistence.Providers
                     success = true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 success = false;
             }
@@ -83,7 +83,7 @@ namespace MSDF.DataChecker.Persistence.Providers
                     success = true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 success = false;
             }

@@ -20,6 +20,7 @@ namespace MSDF.DataChecker.Services.RuleExecution
     public interface IRuleExecService
     {
         string ConnectionString { get; set; }
+        IDataProvider DataProvider { get; }
         Task<List<RuleTestResult>> ExecuteRulesByEnvironmentIdAsync(List<RuleBO> rules, DatabaseEnvironmentBO databaseEnvironment);
         Task<RuleTestResult> ExecuteRuleByEnvironmentIdAsync(Guid ruleId, DatabaseEnvironmentBO databaseEnvironment);
         Task<TableResult> ExecuteRuleDiagnosticByRuleLogIdAndEnvironmentIdAsync(int ruleLogId, DatabaseEnvironmentBO databaseEnvironment);
@@ -34,12 +35,14 @@ namespace MSDF.DataChecker.Services.RuleExecution
         private readonly IRuleExecutionLogDetailQueries _edFiRuleExecutionLogDetailQueries;
         private readonly ICatalogQueries _catalogQueries;
         private readonly ICollectionQueries _collectionQueries;
-        private readonly IDataProvider _dataProvider;
+        public IDataProvider _dataProvider;
         private readonly DataBaseSettings _appSettings;
         public string ConnectionString
         {
             get => _dataProvider.ConnectionString; set => _dataProvider.ConnectionString = this.ConnectionString;
         }
+
+        public IDataProvider DataProvider { get { return _dataProvider; } }
 
         public RuleExecService(
             IRuleService ruleService

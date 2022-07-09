@@ -105,6 +105,12 @@ namespace MSDF.DataChecker.WebApi.Controllers
             var databaseEnvironment = await _databaseEnvironmentService
                 .GetAsync(model.DatabaseEnvironmentId);
 
+
+            string connectionString = databaseEnvironment
+                .GetConnectionString(_appSettings.Engine);
+            if (string.IsNullOrEmpty(_executionService.ConnectionString))
+                _executionService.ConnectionString = connectionString;
+
             var result = await _executionService
                 .ExecuteRuleByEnvironmentIdAsync(model.RuleId, databaseEnvironment);
 
@@ -119,6 +125,11 @@ namespace MSDF.DataChecker.WebApi.Controllers
         {
             var databaseEnvironment = await _databaseEnvironmentService
                 .GetAsync(model.DatabaseEnvironmentId);
+
+            string connectionString = databaseEnvironment
+              .GetConnectionString(_appSettings.Engine);
+            if (string.IsNullOrEmpty(_executionService.ConnectionString))
+                _executionService.ConnectionString = connectionString;
 
             var result = await _executionService
                 .ExecuteRuleDiagnosticByRuleLogIdAndEnvironmentIdAsync(model.RuleExecutionLogId, databaseEnvironment);
@@ -137,7 +148,9 @@ namespace MSDF.DataChecker.WebApi.Controllers
 
             string connectionString = databaseEnvironment
                 .GetConnectionString(_appSettings.Engine);
-            _executionService.ConnectionString = connectionString;
+            if (string.IsNullOrEmpty(_executionService.ConnectionString))
+                _executionService.ConnectionString = connectionString;
+
             var result = await _executionService
                 .ExecuteRuleAsync(model.RuleToTest, connectionString, databaseEnvironment.UserParams, databaseEnvironment.TimeoutInMinutes);
 

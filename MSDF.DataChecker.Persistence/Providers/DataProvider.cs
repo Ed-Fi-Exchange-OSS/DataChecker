@@ -12,21 +12,19 @@ namespace MSDF.DataChecker.Persistence.Providers
     public interface IDataProvider
     {
         string ConnectionString { get; set; }
+        IDataProvider ProviderData { get; }
         DataTable ExecuteReader(string newConection, string sqlToRun, Dictionary<string, string> parameters = null);
         int ExecuteScalar(string newConection, string sqlToRun, Dictionary<string, string> parameters = null);
-
-
-
-
         Task<NpgsqlDataReader> ExecutePostgresReaderAsync(string connectionString, string sqlToRun, Dictionary<string, string> parameters = null, int? timeout = null);
         int ExecutePostgresScalarAsync(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null, int? timeout = null);
-
         Task<SqlDataReader> ExecuteSqlServerReaderAsync(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null, int? timeout = null);
         int ExecuteSqlServerScalarAsync(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null, int? timeout = null);
 
     }
     public class DataProvider : IDataProvider
     {
+        public IDataProvider _dataProvider;
+        public IDataProvider ProviderData { get { return _dataProvider; } }
         private readonly DatabaseContext _dbCurrent;
         private RuleExecutionContext _dbtoConect;
         private string _connectionType = "NpgsqlConnection";
@@ -46,9 +44,9 @@ namespace MSDF.DataChecker.Persistence.Providers
 
         public DataProvider(DatabaseContext dbCurrent)
         {
-            _dbCurrent = dbCurrent;
-            _dbtoConect = new RuleExecutionContext("", "", new DbContextOptions<RuleExecutionContext>());
-            _connectionType = dbCurrent.Database.GetDbConnection().GetType().Name;
+            //_dbCurrent = dbCurrent;
+            //_dbtoConect = new RuleExecutionContext("", "", new DbContextOptions<RuleExecutionContext>());
+            //_connectionType = dbCurrent.Database.GetDbConnection().GetType().Name;
         }
         public int ExecuteScalar(string newConection, string sqlToRun, Dictionary<string, string> parameters = null)
         {

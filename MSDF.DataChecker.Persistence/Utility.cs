@@ -81,9 +81,12 @@ namespace MSDF.DataChecker.Persistence
         {
             try
             {
-                return Source.Database.GetDbConnection().ConnectionString;
+                if (Source != null)
+                    return Source.Database.GetDbConnection().ConnectionString;
+                else
+                    return "";
             }
-            catch (Exception x)
+            catch (Exception )
             {
                 return "";
             }
@@ -98,7 +101,7 @@ namespace MSDF.DataChecker.Persistence
                     configconnectionstringname = Utility.GetFixedConnectionString(configconnectionstringname);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // set log item if required
             }

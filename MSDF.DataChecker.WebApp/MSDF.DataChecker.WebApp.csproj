@@ -21,6 +21,7 @@
     <Configurations>Debug;Release;Publish</Configurations>
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
     <AspNetCoreModuleName>AspNetCoreModule</AspNetCoreModuleName>
+    <UserSecretsId>a010a5ca-1761-49ec-a08e-a7bceadc7d85</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

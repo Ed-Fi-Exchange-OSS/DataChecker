@@ -6,6 +6,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MSDF.DataChecker.Persistence.Providers;
 using MSDF.DataChecker.Services;
 using MSDF.DataChecker.Services.Models;
 using System;
@@ -19,7 +20,7 @@ namespace MSDF.DataChecker.cmd
     class Program
     {
         public static IConfiguration configuration;
-
+        public static IDbAccessProvider dataAccessProvider { get; set; }
         static void Main(string[] args)
         {
             try
@@ -200,8 +201,8 @@ namespace MSDF.DataChecker.cmd
             serviceCollection.AddTransient<IDatabaseEnvironmentService, DatabaseEnvironmentService>();
             serviceCollection.AddTransient<IContainerService, ContainerService>();
             serviceCollection.AddTransient<ITagService, TagService>();
-
-            Services.Infrastructure.IoC.IoCConfig.RegisterDependencies(serviceCollection, configuration);
+            dataAccessProvider = new DbAccessProvider();
+            Services.Infrastructure.IoC.IoCConfig.RegisterDependencies(serviceCollection, configuration, dataAccessProvider);
         }
     }
 }
