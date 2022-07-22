@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  msdf.datachecker.webapp:
+    image: mjimdev/msdfdatacheckerwebapp:latest 
+    environment:
+      Engine: "SqlServer"
+      ConnectionString: "${CONNECTION_STRING}"    
+    volumes:
+      - vol-datacheckersql:/var/lib/dataCheckerAppSql/
+    ports:
+        - "${WEB_LISTEN_PORT}:80"
+    restart: always
+    hostname: dataCheckerAppSql
+    container_name: DataCheckerAppSql
+volumes:
+  vol-datacheckersql:
+    driver: local
+    name: vol-datacheckersql
+

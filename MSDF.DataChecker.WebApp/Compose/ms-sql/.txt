@@ -1,0 +1,4 @@
+
+1) Install Postgres Database 
+2) Edit the values for CONNECTION_STRING,WEB_LISTEN_PORT (  .env.example )
+3) Execute the next command in PowerShell :   docker compose -f  dataChecker-compose.yml --env-file .env.example up -d
