@@ -6,172 +6,80 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MSDF.DataChecker.cmd.Helpers;
 using MSDF.DataChecker.Persistence.Providers;
 using MSDF.DataChecker.Services;
 using MSDF.DataChecker.Services.Models;
+using MSDF.DataChecker.Services.RuleExecution;
+using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Process = System.Diagnostics.Process;
 
 namespace MSDF.DataChecker.cmd
 {
     class Program
     {
+        public static readonly string _defaultValue = "";
         public static IConfiguration configuration;
         public static IDbAccessProvider dataAccessProvider { get; set; }
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            try
+            var commandLineParameters = CommandLine.GetCommandLineParameters();
+            commandLineParameters.Handler = CommandHandler.Create<string, string, string>(async (connString, sqlRules, ruleName) =>
             {
-                string containerName = string.Empty, environmentName = string.Empty, collectionName = string.Empty, tagsName = string.Empty;
-
-                if (args == null)
-                {
-                    Console.WriteLine("Parameters are needed");
-                    return;
-                }
-
-                for (int i = 0; i < args.Length; i++)
-                {
-                    string arg = args[i];
-                    switch (arg)
-                    {
-                        case "--Collection":
-                            collectionName = args[i + 1];
-                            break;
-
-                        case "--Container":
-                            containerName = args[i + 1];
-                            break;
-
-                        case "--Tag":
-                            tagsName = args[i + 1];
-                            break;
-
-                        case "--Environment":
-                            environmentName = args[i + 1];
-                            break;
-                    }
-                }
-
-                Process[] localByName = Process.GetProcesses();
-                var totalOfProcess = localByName.Where(rec => rec.ProcessName.Contains("DataChecker")).ToList();
-
-                if (totalOfProcess.Count > 5)
-                {
-                    Console.WriteLine("No more than 5 process should be running at the same time.");
-                    return;
-                }
-
-                //Validations
-                if (string.IsNullOrEmpty(environmentName))
-                {
-                    Console.WriteLine("Environment should be defined");
-                    return;
-                }
-
-                if (string.IsNullOrEmpty(tagsName) && string.IsNullOrEmpty(collectionName) && string.IsNullOrEmpty(containerName))
-                {
-                    Console.WriteLine("Collection, Container or Tag should be defined");
-                    return;
-                }
-
-                if (!string.IsNullOrEmpty(containerName) && string.IsNullOrEmpty(collectionName))
-                {
-                    Console.WriteLine("Collection should be defined");
-                    return;
-                }
-
                 // IoC
                 var serviceCollection = new ServiceCollection();
                 ConfigureServices(serviceCollection);
                 var serviceProvider = serviceCollection.BuildServiceProvider();
-                var _databaseEnvironmentService = serviceProvider.GetService<IDatabaseEnvironmentService>();
-                var containerService = serviceProvider.GetService<IContainerService>();
+                var _containerService = serviceProvider.GetService<IContainerService>();
                 var tagService = serviceProvider.GetService<ITagService>();
                 var _ruleService = serviceProvider.GetService<IRuleService>();
-                var _executionService = serviceProvider.GetService<IRuleExecutionService>();
-
-                List<RuleBO> toRun = new List<RuleBO>();
-
+                var _executionService = serviceProvider.GetService<IRuleExecService>();
+                var _catalogService = serviceProvider.GetService<ICatalogService>();
+                var _databaseEnvironmentService = serviceProvider.GetService<IDatabaseEnvironmentService>();
                 var listEnvironments = _databaseEnvironmentService.GetAsync().GetAwaiter().GetResult();
-                var databaseEnvironment = listEnvironments.FirstOrDefault(rec => rec.Name == environmentName);
-
+                var collection = CommandLine.BuildCollectionJsonRule(sqlRules, ruleName);
+                var dbEnvironment = CommandLine.BuildDatabaseEnvironment(connString);
+                
+                var databaseEnvironment = listEnvironments.FirstOrDefault(rec => rec.Name == dbEnvironment.Database && rec.DataSource == dbEnvironment.DataSource);
                 if (databaseEnvironment == null)
                 {
-                    Console.WriteLine("Environment does not exist.");
-                    return;
+                    var _catalogResult = await _catalogService.GetByTypeAsync("EnvironmentType");
+                    dbEnvironment.Version = _catalogResult.LastOrDefault().Id;
+                    databaseEnvironment = await _databaseEnvironmentService.AddAsync(dbEnvironment);
+                    databaseEnvironment = await _databaseEnvironmentService.GetAsync(databaseEnvironment.Id);
                 }
 
-                List<Guid> collections = new List<Guid>();
-                List<Guid> containers = new List<Guid>();
-                List<int> tags = new List<int>();
+                await _containerService.UploadCollectionAsJson(collection);
+                var rulesToExecute = CommandLine.RulesToExecute(_containerService, _ruleService, collection);
 
-                if (!string.IsNullOrEmpty(tagsName))
+                foreach (var r in rulesToExecute)
                 {
-                    var listTags = tagService.GetAsync().GetAwaiter().GetResult();
-                    var existTag = listTags.FirstOrDefault(rec => rec.Name == tagsName);
-                    if (existTag == null)
-                    {
-                        Console.WriteLine("Tag does not exist.");
-                        return;
-                    }
-                    else
-                    {
-                        tags.Add(existTag.Id);
-                    }
+                    var result = await _executionService.ExecuteRuleByEnvironmentIdAsync(r.Id, databaseEnvironment);
                 }
-                else
-                {
-                    var listCollections = containerService.GetAsync().GetAwaiter().GetResult();
-                    var listContainers = containerService.GetChildContainersAsync().GetAwaiter().GetResult();
+                return;
 
-                    if (!string.IsNullOrEmpty(collectionName) && !string.IsNullOrEmpty(containerName))
-                    {
-                        var existContainer = listContainers.FirstOrDefault(rec => rec.Name == containerName && rec.ParentContainerName == collectionName);
-                        if (existContainer == null)
-                        {
-                            Console.WriteLine("Collection or Container does not exist.");
-                            return;
-                        }
-                        else
-                        {
-                            containers.Add(existContainer.Id);
-                        }
-                    }
-                    else if (!string.IsNullOrEmpty(collectionName))
-                    {
-                        var existCollection = listCollections.FirstOrDefault(rec => rec.Name == collectionName);
-                        if (existCollection == null)
-                        {
-                            Console.WriteLine("Collection does not exist.");
-                            return;
-                        }
-                        else
-                        {
-                            collections.Add(existCollection.Id);
-                        }
-                    }
-                }
+            });
 
-                var result = _ruleService.SearchRulesAsync(collections, containers, tags, string.Empty, string.Empty, null, null).GetAwaiter().GetResult();
-                toRun.AddRange(result.Rules);
-                toRun = toRun.Where(r => r.Id != Guid.Empty).ToList();
-
-                foreach (var r in toRun)
-                {
-                    _executionService.ExecuteRuleByEnvironmentIdAsync(r.Id, databaseEnvironment).GetAwaiter().GetResult();
-                }
-
-                Console.WriteLine("Finished.");
-                Console.SetOut(Console.Out);
-            }
-            catch (Exception ex)
+            try
             {
-                Console.WriteLine("Exception:");
-                Console.WriteLine(ex.Message);
+                return commandLineParameters.Invoke(args);
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Error.Write(e.Message);
+                Console.ResetColor();
+                return -1;
             }
         }
 
