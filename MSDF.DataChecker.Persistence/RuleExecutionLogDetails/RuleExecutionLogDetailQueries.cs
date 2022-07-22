@@ -35,7 +35,7 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
             if (_appSettings.Engine == "Postgres")
             {
                 connectionString = _db.Database.GetDbConnection().ConnectionString;
-                connectionString = Utility.GetFixedConnectionString(connectionString);
+                connectionString = Utility.ParseConnectionString(connectionString, _appSettings.Engine);
             }
             else
                 connectionString = _db.Database.GetDbConnection().ConnectionString;

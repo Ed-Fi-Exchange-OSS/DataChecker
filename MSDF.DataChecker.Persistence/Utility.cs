@@ -7,26 +7,52 @@ using MSDF.DataChecker.Persistence.RuleExecutionLogDetails;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using MSDF.DataChecker.Persistence.EntityFramework;
+using MSDF.DataChecker.Persistence.Settings;
+using Microsoft.Extensions.Options;
 
 namespace MSDF.DataChecker.Persistence
 {
     public static class Utility
     {
-        public static string GetFixedConnectionString(string connectionString)
-        {
+        public static string ParseConnectionString(string connectionString, string Engine)
+        {           
             connectionString = connectionString.Replace("Host=", "Server=");
-            var port = Regex.Match(connectionString, $@"Port(.+?)(?=;)").Groups[1].Value;
-            return connectionString.Replace($"Port{port};", "");
+            var RUNNING_IN_CONTAINER = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
+            if (!string.IsNullOrEmpty(RUNNING_IN_CONTAINER))
+            {
+                if (connectionString.ToLower().Contains("localhost"))
+                    connectionString = connectionString.Replace("localhost", "host.docker.internal");
+            }
+            else
+            {
+                if (connectionString.ToLower().Contains("host.docker.internal"))
+                    connectionString = connectionString.Replace("host.docker.internal", "localhost");
+            }
+            if (Engine== "SqlServer" || Engine =="sqlconnection")
+            {
+                var port = Regex.Match(connectionString, $@"Port(.+?)(?=;)").Groups[1].Value;
+                  connectionString.Replace($"Port{port};", "");
+            }
+            return connectionString;
         }
 
         public static DbCommand AddDbCommandParameters(this DbCommand dBCommand, string connectionType, Dictionary<string, string> parameters = null)
         {
             foreach (KeyValuePair<string, string> parameter in parameters)
             {
-                if (connectionType.ToLower().Contains("npgsql"))
+                if (connectionType.ToLower().Contains("postgres"))
                 {
-                    var sqlParameter = new Npgsql.NpgsqlParameter(parameter.Key.Contains("@") ? parameter.Key : $"@{parameter.Key}", parameter.Value);
-                    dBCommand.Parameters.Add(sqlParameter);
+                    int value = 0;
+                    if (int.TryParse(parameter.Value, out value))
+                    {
+                        var sqlParameter = new Npgsql.NpgsqlParameter(parameter.Key.Contains("@") ? parameter.Key : $"@{parameter.Key}", value);
+                        dBCommand.Parameters.Add(sqlParameter);
+                    }
+                    else
+                    {
+                        var sqlParameter = new Npgsql.NpgsqlParameter(parameter.Key.Contains("@") ? parameter.Key : $"@{parameter.Key}", parameter.Value);
+                        dBCommand.Parameters.Add(sqlParameter);
+                    }
 
                 }
                 else
@@ -77,6 +103,46 @@ namespace MSDF.DataChecker.Persistence
             return sqlCreate;
         }
 
+
+        public static List<DestinationTableColumn> ParseColumns(string connectionType, List<DestinationTableColumn> sourceTableInDbColumns)
+        {
+            foreach (var column in sourceTableInDbColumns)
+            {   // from SQL to Postgres
+                if (connectionType.ToLower().Contains("postgres"))
+                {
+                    switch (column.Type)
+                    {
+                        case "int":
+                            column.Type = "integer";
+                            break;
+                        case "nvarchar":
+                            column.Type = "text";
+                            break;
+                        default:
+                            // Default stuff
+                            break;
+                    }
+                }
+                else
+                {// from Postgres to SQL
+                    switch (column.Type)
+                    {
+                        case "integer":
+                            column.Type = "int";
+                            break;
+                        case "text":
+                            column.Type = "nvarchar";
+                            break;
+                        default:
+                            // Default stuff
+                            break;
+                    }
+                }
+
+            }
+            return sourceTableInDbColumns;
+        }
+
         public static string GetConnectionString(this RuleExecutionContext Source)
         {
             try
@@ -96,9 +162,9 @@ namespace MSDF.DataChecker.Persistence
         {
             try
             {
-                if (engine.ToLower().Contains("npgsqlconnection"))
+                if (engine.ToLower().Contains("postgres"))
                 {
-                    configconnectionstringname = Utility.GetFixedConnectionString(configconnectionstringname);
+                    configconnectionstringname = Utility.ParseConnectionString(configconnectionstringname, engine);
                 }
             }
             catch (Exception)

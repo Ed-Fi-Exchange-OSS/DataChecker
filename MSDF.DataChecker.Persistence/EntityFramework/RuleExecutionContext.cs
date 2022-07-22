@@ -14,9 +14,9 @@ namespace MSDF.DataChecker.Persistence.EntityFramework
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!string.IsNullOrEmpty(_connectionString))
-                if (_engine.ToLower().Contains("npgsqlconnection"))
+                if (_engine.ToLower().Contains("postgres"))
                 {
-                    _connectionString = Utility.GetFixedConnectionString(_connectionString);
+                    _connectionString = Utility.ParseConnectionString(_connectionString, _engine);
                     optionsBuilder.UseNpgsql(_connectionString, builder => { });
                 }
                 else
