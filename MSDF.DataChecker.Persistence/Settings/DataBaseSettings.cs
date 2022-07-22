@@ -3,6 +3,7 @@ namespace MSDF.DataChecker.Persistence.Settings
     public class DataBaseSettings
     {
         public string Engine { get; set; }
+        public bool RunningInDockerContainer { get; set; }
         public ConnectionStrings ConnectionStrings { get; set; }
     }
 

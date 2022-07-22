@@ -9,6 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using MSDF.DataChecker.Persistence.Settings;
 using MSDF.DataChecker.Persistence.Providers;
+using System;
+using System.Data.SqlClient;
+using Npgsql;
 
 namespace MSDF.DataChecker.Persistence.Infrastructure.IoC
 {
@@ -16,13 +19,37 @@ namespace MSDF.DataChecker.Persistence.Infrastructure.IoC
     {
         public static void RegisterDependencies(IServiceCollection container, IConfiguration configuration, IDbAccessProvider dataAccessProvider)
         {
+            var DOTNET_RUNNING_IN_CONTAINER = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
+            var dockerEngine = Environment.GetEnvironmentVariable("Engine");
+            if (!string.IsNullOrEmpty(DOTNET_RUNNING_IN_CONTAINER))
+                configuration.GetSection("DataBaseSettings:RunningInDockerContainer").Value = "true";
+
+            if (!string.IsNullOrEmpty(dockerEngine))
+                configuration.GetSection("DataBaseSettings:Engine").Value = dockerEngine;
+
             container.Configure<DataBaseSettings>(configuration.GetSection("DatabaseSettings"));
             var settings = configuration.GetSection("DatabaseSettings").Get<DataBaseSettings>();
-            if (settings.Engine == "SqlServer")
-                dataAccessProvider.SQLServer(container, settings.ConnectionStrings.SqlServer);
-            else
-                dataAccessProvider.PostgresSQL(container, settings.ConnectionStrings.PostgresSql);
-
+            // Check if is running in Docker
+            if (settings.RunningInDockerContainer)
+            {
+                var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+                  //connectionString = Utility.GetFixedConnectionString(connectionString, dockerEngine);
+                Console.WriteLine($"Engine: { dockerEngine}   ...     ConnectionString:{connectionString} ");
+                if (dockerEngine == "SqlServer")
+                    dataAccessProvider.SQLServer(container, connectionString ?? settings.ConnectionStrings.SqlServer);
+                else
+                {
+                   // Console.WriteLine("ConnectionString --> " + connectionString);
+                    dataAccessProvider.PostgresSQL(container, connectionString ?? settings.ConnectionStrings.PostgresSql);
+                }
+                    
+            } else
+            {
+                if (settings.Engine == "SqlServer")
+                    dataAccessProvider.SQLServer(container, settings.ConnectionStrings.SqlServer);
+                else
+                    dataAccessProvider.PostgresSQL(container, settings.ConnectionStrings.PostgresSql);
+            }
             RegisterCommandsAndQueriesByConvention<IPersistenceMarker>(container);
         }
 
