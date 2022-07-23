@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using MSDF.DataChecker.Persistence.EntityFramework;
+using MSDF.DataChecker.Persistence.Settings;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -15,7 +17,8 @@ namespace MSDF.DataChecker.Persistence.Providers
         IDataProvider ProviderData { get; }
         DataTable ExecuteReader(string newConection, string sqlToRun, Dictionary<string, string> parameters = null);
         int ExecuteScalar(string newConection, string sqlToRun, Dictionary<string, string> parameters = null);
-        Task<NpgsqlDataReader> ExecutePostgresReaderAsync(string connectionString, string sqlToRun, Dictionary<string, string> parameters = null, int? timeout = null);
+        Task<NpgsqlDataReader> ExecutePostgresReaderAsync(string connectionString, string sqlToRun, Dictionary<string, string> parameters = null);
+        NpgsqlDataReader ExecutePostgresReader(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null);
         int ExecutePostgresScalarAsync(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null, int? timeout = null);
         Task<SqlDataReader> ExecuteSqlServerReaderAsync(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null, int? timeout = null);
         int ExecuteSqlServerScalarAsync(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null, int? timeout = null);
@@ -25,9 +28,9 @@ namespace MSDF.DataChecker.Persistence.Providers
     {
         public IDataProvider _dataProvider;
         public IDataProvider ProviderData { get { return _dataProvider; } }
-        private readonly DatabaseContext _dbCurrent;
         private RuleExecutionContext _dbtoConect;
-        private string _connectionType = "NpgsqlConnection";
+        private readonly DataBaseSettings _appSettings;
+        private string _connectionType = "Postgres";
         private string _connectionString; // field
         public string ConnectionString   // property
         {
@@ -42,11 +45,9 @@ namespace MSDF.DataChecker.Persistence.Providers
             }
         }
 
-        public DataProvider(DatabaseContext dbCurrent)
+        public DataProvider(DatabaseContext dbCurrent, IOptionsSnapshot<DataBaseSettings> appSettings)
         {
-            //_dbCurrent = dbCurrent;
-            //_dbtoConect = new RuleExecutionContext("", "", new DbContextOptions<RuleExecutionContext>());
-            //_connectionType = dbCurrent.Database.GetDbConnection().GetType().Name;
+            _connectionType = appSettings.Value.Engine;
         }
         public int ExecuteScalar(string newConection, string sqlToRun, Dictionary<string, string> parameters = null)
         {
@@ -87,21 +88,38 @@ namespace MSDF.DataChecker.Persistence.Providers
             return dt;
         }
 
-        public Task<NpgsqlDataReader> ExecutePostgresReaderAsync(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null, int? timeout = null)
+        public Task<NpgsqlDataReader> ExecutePostgresReaderAsync(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null)
         {
             using (var conn = new NpgsqlConnection(connectionString))
             {
                 conn.OpenAsync();
                 using (var cmd = new NpgsqlCommand(sqlToRun, conn))
                 {
-                    if (timeout != null)
-                        cmd.CommandTimeout = (timeout.Value * 60);
-                    AddParameters(sqlToRun, cmd, parameters);
-                    return cmd.ExecuteReaderAsync();
+                    if (parameters != null)
+                        cmd.AddDbCommandParameters(_connectionType, parameters);
+                    var reader=  cmd.ExecuteReaderAsync();
+                    return   reader;
                 }
             }
 
         }
+
+        public NpgsqlDataReader ExecutePostgresReader(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null)
+        {
+            using (var conn = new NpgsqlConnection(connectionString))
+            {
+                conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand(sqlToRun, conn))
+                {
+                    if (parameters != null)
+                        cmd.AddDbCommandParameters(_connectionType, parameters);
+                    var reader = cmd.ExecuteReader();
+                    return reader;
+                }
+            }
+
+        }
+
 
         public int ExecutePostgresScalarAsync(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null, int? timeout = null)
         {
@@ -113,7 +131,7 @@ namespace MSDF.DataChecker.Persistence.Providers
                 {
                     if (timeout != null)
                         cmd.CommandTimeout = (timeout.Value * 60);
-                    AddParameters(sqlToRun, cmd, parameters);
+                    cmd.AddDbCommandParameters(_connectionType, parameters);
                     rows = Convert.ToInt32(cmd.ExecuteScalar());
                 }
                 conn.Close();
@@ -131,7 +149,7 @@ namespace MSDF.DataChecker.Persistence.Providers
                 {
                     if (timeout != null)
                         cmd.CommandTimeout = (timeout.Value * 60);
-                    AddParameters(sqlToRun, cmd, parameters);
+                    cmd.AddDbCommandParameters(_connectionType, parameters);
                     return cmd.ExecuteReaderAsync();
                 }
             }
@@ -148,7 +166,7 @@ namespace MSDF.DataChecker.Persistence.Providers
                 {
                     if (timeout != null)
                         cmd.CommandTimeout = (timeout.Value * 60);
-                    AddParameters(sqlToRun, cmd, parameters);
+                    cmd.AddDbCommandParameters(_connectionType, parameters);
                     rows = Convert.ToInt32(cmd.ExecuteScalar());
                 }
                 conn.Close();
@@ -156,30 +174,6 @@ namespace MSDF.DataChecker.Persistence.Providers
 
             return rows;
         }
-
-        private void AddParameters(string sql, NpgsqlCommand sqlCommand, Dictionary<string, string> parameters)
-        {
-            if (parameters != null)
-            {
-                foreach (KeyValuePair<string, string> param in parameters)
-                {
-                    if (sql.Contains("@" + param.Key))
-                        sqlCommand.Parameters.AddWithValue("@" + param.Key, param.Value);
-                }
-            }
-        }
-        private void AddParameters(string sql, SqlCommand sqlCommand, Dictionary<string, string> parameters)
-        {
-            if (parameters != null)
-            {
-                foreach (KeyValuePair<string, string> param in parameters)
-                {
-                    if (sql.Contains("@" + param.Key))
-                        sqlCommand.Parameters.AddWithValue("@" + param.Key, param.Value);
-                }
-            }
-        }
-
 
     }
 }

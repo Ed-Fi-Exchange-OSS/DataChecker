@@ -44,11 +44,12 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
         public async Task<DataTable> GetByRuleExecutionLogIdAsync(int id, string tableName)
         {
             //string connectionString = _db.Database.GetDbConnection().ConnectionString;
-            string sql = string.Format(
+            string sql = _appSettings.Engine == "Postgres"? string.Format("SELECT * FROM destination.\"{0}\" WHERE \"RuleExecutionLogId\" = @Id ORDER BY \"Id\"", tableName) :
+                 string.Format(
                  "SELECT * " +
                  "FROM destination.{0} " +
                  "WHERE RuleExecutionLogId = @Id " +
-                 "ORDER BY Id", tableName);
+                 "ORDER BY Id", tableName)  ;
             var parameters = new Dictionary<string, string>();
             parameters.Add("Id", id.ToString());
             if (string.IsNullOrEmpty(_dataProvider.ConnectionString))

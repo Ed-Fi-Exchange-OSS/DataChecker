@@ -7,14 +7,16 @@ using MSDF.DataChecker.Persistence.EntityFramework;
 using Npgsql;
 using System;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
+
 namespace MSDF.DataChecker.Persistence.Providers
 {
     public interface IDbAccessProvider
     {
         public void SQLServer(IServiceCollection configuration, string ConnectionStrings);
         public void PostgresSQL(IServiceCollection configuration, string ConnectionStrings);
-        public bool TestPostgresConnection(string ConnectionStrings);
-        public bool TestSqlServerConnection(string ConnectionStrings);
+        public string TestPostgresConnection(string ConnectionStrings);
+        public  Task<string> TestSqlServerConnection(string ConnectionStrings);
 
     }
     public class DbAccessProvider : IDbAccessProvider
@@ -28,7 +30,8 @@ namespace MSDF.DataChecker.Persistence.Providers
                  .UseRecommendedSerializerSettings()
                  .UsePostgreSqlStorage(ConnectionStrings, new PostgreSqlStorageOptions
                  {
-                     InvisibilityTimeout = TimeSpan.FromMinutes(5)
+                     InvisibilityTimeout = TimeSpan.FromMinutes(5),
+                     
                  }));
             configuration.AddHangfireServer();
         }
@@ -52,42 +55,40 @@ namespace MSDF.DataChecker.Persistence.Providers
         }
 
 
-        public bool TestPostgresConnection(string ConnectionStrings)
+        public  string TestPostgresConnection(string ConnectionStrings)
         {
-            var success = false;
+            string result = string.Empty;
             try
             {
                 using (var conn = new NpgsqlConnection(ConnectionStrings))
                 {
                     conn.Open();
-                    success = true;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                success = false;
+                result = ex.Message;
             }
-            return success;
+            return result;
         }
 
-        public bool TestSqlServerConnection(string ConnectionStrings)
+        public async Task<string> TestSqlServerConnection(string ConnectionStrings)
         {
-            var success = false;
+            string result = string.Empty;
             try
             {
                 using (var conn = new SqlConnection(ConnectionStrings))
                 {
-                    conn.OpenAsync();
-                    conn.CloseAsync();
-                    conn.DisposeAsync();
-                    success = true;
+                  await  conn.OpenAsync();
+                  await conn.CloseAsync();
+                  await conn.DisposeAsync();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                success = false;
+                result = ex.Message;
             }
-            return success;
+            return result;
 
         }
     }
