@@ -976,7 +976,8 @@ namespace MSDF.DataChecker.Services
 
                     if (existDestinationTable != null)
                     {
-                        List<DestinationTableColumn> destinationTableInDbColumns = JsonConvert.DeserializeObject<List<DestinationTableColumn>>(collection.DestinationStructure);
+                        var  destinationTableInDbColumns = JsonConvert.DeserializeObject<List<DestinationTableColumn>>(collection.DestinationStructure);
+                        destinationTableInDbColumns = Persistence.Utility.ParseColumns(_appSettings.Engine, destinationTableInDbColumns);
                         var listColumnsFromDestination = await _edFiRuleExecutionLogDetailQueries.GetColumnsByTableAsync(collection.DestinationTable, "destination");
 
                         if (destinationTableInDbColumns.Count == listColumnsFromDestination.Count)
@@ -1005,8 +1006,7 @@ namespace MSDF.DataChecker.Services
                                 while (true)
                                 {
                                     existDestinationTable = catalogsInformation.FirstOrDefault(rec =>
-                                    rec.CatalogType == "RuleDetailsDestinationType" &&
-                                    rec.Name.ToLower() == newDestinationTableName.ToLower());
+                                    rec.CatalogType == "RuleDetailsDestinationType" && rec.Name.ToLower() == newDestinationTableName.ToLower());
                                     if (existDestinationTable == null) break;
                                     counterTable++;
                                     newDestinationTableName = $"{collection.DestinationTable}_{counterTable}";

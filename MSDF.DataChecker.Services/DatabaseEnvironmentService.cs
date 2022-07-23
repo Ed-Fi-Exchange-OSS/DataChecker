@@ -166,10 +166,13 @@ namespace MSDF.DataChecker.Services
             var genericResponse = new GenericResponse();
             try
             {
+                genericResponse.IsValid = true;
                 if (_appSettings.Engine == "SqlServer")
-                    genericResponse.IsValid =  _dataAccessProvider.TestSqlServerConnection(connectionString);
+                    genericResponse.Message = await _dataAccessProvider.TestSqlServerConnection(connectionString);
                 else
-                    genericResponse.IsValid = _dataAccessProvider.TestPostgresConnection(connectionString);
+                    genericResponse.Message =  _dataAccessProvider.TestPostgresConnection(connectionString);
+                if (!string.IsNullOrEmpty(genericResponse.Message))
+                    genericResponse.IsValid = false;
                 //using (var conn =   new SqlConnection(connectionString))
                 //{
                 //    await conn.OpenAsync();
@@ -196,10 +199,10 @@ namespace MSDF.DataChecker.Services
                 {
                     if (!sqlConnection.ToLower().Contains("timeout"))
                         sqlConnection += " Connection Timeout=10";
-                    _dataAccessProvider.TestSqlServerConnection(sqlConnection);
+                    result = await _dataAccessProvider.TestSqlServerConnection(sqlConnection);
                 }
                 else
-                    _dataAccessProvider.TestPostgresConnection(sqlConnection);
+                    result =  _dataAccessProvider.TestPostgresConnection(sqlConnection);
 
                 //using (var conn = new SqlConnection(sqlConnection) )
                 //{

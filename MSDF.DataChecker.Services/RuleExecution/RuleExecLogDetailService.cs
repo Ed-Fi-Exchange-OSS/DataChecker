@@ -83,15 +83,29 @@ namespace MSDF.DataChecker.Services.RuleExecution
                 columns = JsonConvert.DeserializeObject<Dictionary<string, string>>(ruleExecutionLog.DetailsSchema);
 
                 List<string> sqlColumns = new List<string>();
+                var sqlCreate = "";
                 foreach (var column in columns)
                 {
-                    if (column.Value == "string")
-                        sqlColumns.Add(string.Format($"[{column.Key}] [nvarchar](max) NULL"));
+                    if (_appSettings.Engine == "Postgres")
+                    {
+                        if (column.Value == "string")
+                            sqlColumns.Add($"\"{column.Key}\"  text NULL");
+                        else
+                            sqlColumns.Add($"\"{column.Key}\"   timestamp without time zone NULL");
+                    }
                     else
-                        sqlColumns.Add(string.Format($"[{column.Key}] [datetime2](7) NULL"));
+                    {
+                        if (column.Value == "string")
+                            sqlColumns.Add(string.Format($"[{column.Key}] [nvarchar](max) NULL"));
+                        else
+                            sqlColumns.Add(string.Format($"[{column.Key}] [datetime2](7) NULL"));
+                    }
                 }
+                if(_appSettings.Engine=="Postgres")
+                    sqlCreate = $"CREATE TABLE destination.\"{tableName}\"({string.Join(",", sqlColumns)}) ";
+                else
+                    sqlCreate = $"CREATE TABLE [destination].[{tableName}]({string.Join(",", sqlColumns)}) ";
 
-                string sqlCreate = $"CREATE TABLE [destination].[{tableName}]({string.Join(",", sqlColumns)}) ";
                 await _commandRuleExecutionLogDetail.ExecuteSqlAsync(sqlCreate);
 
                 result.TableName = tableName;
@@ -266,30 +280,31 @@ namespace MSDF.DataChecker.Services.RuleExecution
 
                 string connectionString = envBO.GetConnectionString(_appSettings.Engine);
 
-                if (_appSettings.Engine == "SqlServer")
-                {
-                    if (!connectionString.ToLower().Contains("timeout") && envBO.TimeoutInMinutes == null)
-                        connectionString += " Connection Timeout = 60";
-                    else if (envBO.TimeoutInMinutes != null)
-                        connectionString += " Connection Timeout = " + (envBO.TimeoutInMinutes.Value * 60).ToString();
-                    var reader = await _dataProvider.ExecuteSqlServerReaderAsync(connectionString, ruleExecutionLog.DiagnosticSql, null, envBO.TimeoutInMinutes.Value);
-                    if (reader.HasRows)
-                    {
-                        DataTable dt = new DataTable();
-                        dt.Load(reader);
-                        result = GetRuleExecutionLogDetail(dt, id);
-                    }
-                }
-                else
-                {
-                    var reader = await _dataProvider.ExecuteSqlServerReaderAsync(connectionString, ruleExecutionLog.DiagnosticSql, null, envBO.TimeoutInMinutes.Value);
-                    if (reader.HasRows)
-                    {
-                        DataTable dt = new DataTable();
-                        dt.Load(reader);
-                        result = GetRuleExecutionLogDetail(dt, id);
-                    }
-                }
+                if (string.IsNullOrEmpty(_dataProvider.ConnectionString))
+                    _dataProvider.ConnectionString = connectionString;
+                var readerDt = _dataProvider.ExecuteReader(connectionString, ruleExecutionLog.DiagnosticSql, null);
+                result = GetRuleExecutionLogDetail(readerDt, id);
+
+                //if (_appSettings.Engine == "SqlServer")
+                //{
+                //    if (!connectionString.ToLower().Contains("timeout") && envBO.TimeoutInMinutes == null)
+                //        connectionString += " Connection Timeout = 60";
+                //    else if (envBO.TimeoutInMinutes != null)
+                //        connectionString += " Connection Timeout = " + (envBO.TimeoutInMinutes.Value * 60).ToString();
+                //    var reader = await _dataProvider.ExecuteSqlServerReaderAsync(connectionString, ruleExecutionLog.DiagnosticSql, null, envBO.TimeoutInMinutes.Value);
+                //    if (reader.HasRows)
+                //    {
+                //        DataTable dt = new DataTable();
+                //        dt.Load(reader);
+                //        result = GetRuleExecutionLogDetail(dt, id);
+                //    }
+                //}
+                //else
+                //{
+                //    _dataProvider.ConnectionString = connectionString;
+                //    var readerDt = _dataProvider.ExecuteReader(connectionString, ruleExecutionLog.DiagnosticSql, null);
+                //    result = GetRuleExecutionLogDetail(readerDt, id);
+                //}
             }
             return result;
         }

@@ -175,11 +175,6 @@ namespace MSDF.DataChecker.Services.RuleExecution
                     _dataProvider.ConnectionString = connectionString;
 
                
-                    //Timeout not works for postgres
-                    if (!connectionString.ToLower().Contains("timeout") && timeout == null)
-                        connectionString += " Connection Timeout = 60";
-                    else if (timeout != null)
-                        connectionString += " Connection Timeout = " + (timeout.Value * 60).ToString();
 
                 if (string.IsNullOrEmpty(sqlToRun))
                 {

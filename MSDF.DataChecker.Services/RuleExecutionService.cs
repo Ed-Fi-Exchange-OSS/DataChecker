@@ -5,10 +5,12 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using MSDF.DataChecker.Persistence.Catalogs;
 using MSDF.DataChecker.Persistence.Collections;
 using MSDF.DataChecker.Persistence.RuleExecutionLogDetails;
 using MSDF.DataChecker.Persistence.RuleExecutionLogs;
+using MSDF.DataChecker.Persistence.Settings;
 using MSDF.DataChecker.Services.Models;
 using System;
 using System.Collections.Generic;
@@ -35,15 +37,16 @@ namespace MSDF.DataChecker.Services
         private readonly IRuleExecutionLogDetailQueries _edFiRuleExecutionLogDetailQueries;
         private readonly ICatalogQueries _catalogQueries;
         private readonly ICollectionQueries _collectionQueries;
-
+        private readonly DataBaseSettings _appSettings;
         public RuleExecutionService(
             IRuleService ruleService
             ,IRuleExecutionLogCommands ruleExecutionLogCommands
             ,IRuleExecutionLogQueries ruleExecutionLogQueries
             ,IRuleExecutionLogDetailCommands edFiRuleExecutionLogDetailCommands
             ,ICatalogQueries catalogQueries
-            ,IRuleExecutionLogDetailQueries edFiRuleExecutionLogDetailQueries,
-            ICollectionQueries collectionQueries)
+            ,IRuleExecutionLogDetailQueries edFiRuleExecutionLogDetailQueries
+            ,ICollectionQueries collectionQueries
+            ,IOptionsSnapshot<DataBaseSettings> appSettings)
         {
             _ruleService = ruleService;
             _ruleExecutionLogCommands = ruleExecutionLogCommands;
@@ -52,6 +55,7 @@ namespace MSDF.DataChecker.Services
             _catalogQueries = catalogQueries;
             _edFiRuleExecutionLogDetailQueries = edFiRuleExecutionLogDetailQueries;
             _collectionQueries = collectionQueries;
+            _appSettings = appSettings.Value;
         }
 
         public async Task<List<RuleTestResult>> ExecuteRulesByEnvironmentIdAsync(List<RuleBO> rules, DatabaseEnvironmentBO databaseEnvironment)
@@ -73,7 +77,7 @@ namespace MSDF.DataChecker.Services
             var rule = await _ruleService.GetAsync(ruleId);
             var executionLogs = await _ruleExecutionLogQueries.GetByRuleIdAsync(ruleId);
 
-            var connectionString = databaseEnvironment.GetConnectionString();
+            var connectionString = databaseEnvironment.GetConnectionString(_appSettings.Engine);
                 
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
 
