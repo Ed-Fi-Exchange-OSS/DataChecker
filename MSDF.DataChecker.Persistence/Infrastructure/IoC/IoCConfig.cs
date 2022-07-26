@@ -20,6 +20,7 @@ namespace MSDF.DataChecker.Persistence.Infrastructure.IoC
         public static void RegisterDependencies(IServiceCollection container, IConfiguration configuration, IDbAccessProvider dataAccessProvider)
         {
             configuration.GetEnvironmentVariable();
+            container.Configure<DataBaseSettings>(configuration.GetSection("DatabaseSettings"));
             var settings = configuration.GetSection("DatabaseSettings").Get<DataBaseSettings>();
             // Check if is running in Docker
             if (settings.RunningInDockerContainer)
