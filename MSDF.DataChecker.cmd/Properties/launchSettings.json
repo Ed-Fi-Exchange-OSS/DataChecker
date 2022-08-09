@@ -1,8 +1,9 @@
 {
   "profiles": {
     "MSDF.DataChecker.cmd": {
-      "commandName": "Project",
-      "commandLineArgs": "--ruleid \"25B08FD7-755A-CAA8-5741-02E186CEA415\" --environmentname \"ruben sm\" --collectionid \"\" --environmentId \"85897012-F5DB-4A15-61D1-08D7AA67B2D3\" "
+        "commandName": "Project",
+        "commandLineArgs": "--connString \"Server=localhost;Port=5432;Database=EdFi.Ods.Populated.Template;User Id=postgres;Password=1qazXSW2;\"  --ruleName \"Test rules\"  --sqlRules \"\nselect DisciplineIncident.IncidentIdentifier,\n\t DisciplineIncident.SchoolId as educationOrganizationId,\n\t   'Edfi.School' discrimentator,\n\t DisciplineIncident.IncidentDate\nFrom edfi.DisciplineIncident\nleft join edfi.DisciplineIncidentBehavior\n\ton DisciplineIncident.IncidentIdentifier = DisciplineIncidentBehavior.IncidentIdentifier\nWhere DisciplineIncidentBehavior.BehaviorDescriptorId is null\n\""
+        //"commandLineArgs": "--ruleid \"25B08FD7-755A-CAA8-5741-02E186CEA415\" --environmentname \"ruben sm\" --collectionid \"\" --environmentId \"85897012-F5DB-4A15-61D1-08D7AA67B2D3\" "
     }
   }
 }
