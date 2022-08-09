@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -79,7 +80,7 @@ namespace MSDF.DataChecker.Services
             return string.Empty;
         }
 
-        public static DataTable GetTableForSqlBulk(int ruleExecutionLogId, SqlDataReader reader, Dictionary<string,string> columns, out string columnsSchema)
+        public static DataTable GetTableForSqlBulk(int ruleExecutionLogId, DataTable reader, Dictionary<string, string> columns, out string columnsSchema)
         {
             Dictionary<string, string> listColumnsSchema = new Dictionary<string, string>();
             DataTable table = new DataTable();
@@ -88,9 +89,9 @@ namespace MSDF.DataChecker.Services
 
             foreach (var column in columns)
             {
-                if(column.Value.Contains("int"))
+                if (column.Value.Contains("int"))
                     table.Columns.Add(column.Key, typeof(int));
-                else if(column.Value.Contains("varchar"))
+                else if (column.Value.Contains("varchar"))
                     table.Columns.Add(column.Key, typeof(string));
                 else if (column.Value.Contains("date"))
                     table.Columns.Add(column.Key, typeof(DateTime));
@@ -98,7 +99,79 @@ namespace MSDF.DataChecker.Services
                     table.Columns.Add(column.Key, typeof(decimal));
                 else if (column.Value.Contains("float"))
                     table.Columns.Add(column.Key, typeof(double));
-            }            
+            }
+
+            if (reader.Rows.Count > 0)
+            {
+                List<string> staticColumns = new List<string>();
+                List<string> jsonColumns = new List<string>();
+
+                var columnsSource = reader.Columns;
+                foreach (DataColumn column in columnsSource)
+                {
+                    string columnName = column.ColumnName.ToLower();
+                    if (classColumns.Contains(columnName))
+                    {
+                        staticColumns.Add(columnName);
+                    }
+                    else
+                    {
+                        jsonColumns.Add(columnName);
+                    }
+
+                    if (column.DataType.Name.ToLower().Contains("date"))
+                        listColumnsSchema.Add(column.ColumnName, "datetime");
+                    else
+                        listColumnsSchema.Add(column.ColumnName, "string");
+                }
+
+                foreach (DataRow row in reader.Rows)
+                {
+                    DataRow dr = table.NewRow();
+                    dr["ruleexecutionlogid"] = ruleExecutionLogId;
+
+                    foreach (string column in staticColumns)
+                    {
+                        dr[column] = row[column].ToString();
+                    }
+
+                    JObject jsonObject = new JObject();
+                    foreach (string column in jsonColumns)
+                    {
+                        string strNewValue = row[column].ToString();
+                        jsonObject.Add(column, strNewValue);
+                    }
+
+                    dr["otherdetails"] = jsonObject.ToString();
+                    table.Rows.Add(dr);
+                }
+
+            }
+
+            columnsSchema = Newtonsoft.Json.JsonConvert.SerializeObject(listColumnsSchema);
+            return table;
+        }
+
+        public static DataTable GetTableForSqlBulk(int ruleExecutionLogId, DbDataReader reader, Dictionary<string, string> columns, out string columnsSchema)
+        {
+            Dictionary<string, string> listColumnsSchema = new Dictionary<string, string>();
+            DataTable table = new DataTable();
+            List<string> classColumns = columns.Select(rec => rec.Key).ToList();
+            columnsSchema = string.Empty;
+
+            foreach (var column in columns)
+            {
+                if (column.Value.Contains("int"))
+                    table.Columns.Add(column.Key, typeof(int));
+                else if (column.Value.Contains("varchar"))
+                    table.Columns.Add(column.Key, typeof(string));
+                else if (column.Value.Contains("date"))
+                    table.Columns.Add(column.Key, typeof(DateTime));
+                else if (column.Value.Contains("decimal") || column.Value.Contains("numeric"))
+                    table.Columns.Add(column.Key, typeof(decimal));
+                else if (column.Value.Contains("float"))
+                    table.Columns.Add(column.Key, typeof(double));
+            }
 
             if (reader.HasRows)
             {
@@ -147,6 +220,8 @@ namespace MSDF.DataChecker.Services
             }
 
             columnsSchema = Newtonsoft.Json.JsonConvert.SerializeObject(listColumnsSchema);
+            reader.Close(); // <- too easy to forget
+            reader.Dispose(); // <- too easy to forget
             return table;
         }
 
