@@ -5,9 +5,13 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using MSDF.DataChecker.Persistence.DatabaseEnvironments;
+using MSDF.DataChecker.Persistence.Providers;
+using MSDF.DataChecker.Persistence.Settings;
 using MSDF.DataChecker.Services.Models;
 using Newtonsoft.Json;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -34,25 +38,31 @@ namespace MSDF.DataChecker.Services
         private IDatabaseEnvironmentQueries _databaseEnvironmentQueries;
         private IDatabaseEnvironmentCommands _databaseEnvironmentCommands;
         private IUserParamService _userParamsService;
+        private readonly DataBaseSettings _appSettings;
+        private IDbAccessProvider _dataAccessProvider;
 
         public DatabaseEnvironmentService(
             IDatabaseEnvironmentQueries databaseEnvironmentQueries,
             IDatabaseEnvironmentCommands databaseEnvironmentCommands,
-            IUserParamService userParamsService)
+            IUserParamService userParamsService,
+            IOptions<DataBaseSettings> appSettings,
+            IDbAccessProvider dataAccessProvider)
 
         {
-            _databaseEnvironmentQueries = databaseEnvironmentQueries;            
+            _databaseEnvironmentQueries = databaseEnvironmentQueries;
             _databaseEnvironmentCommands = databaseEnvironmentCommands;
             _userParamsService = userParamsService;
+            _appSettings = appSettings.Value;
+            _dataAccessProvider = dataAccessProvider;
         }
 
         public async Task<DatabaseEnvironmentBO> AddAsync(DatabaseEnvironmentBO model)
-        {            
-            var map = await this.GetTablesAndColumnsByConnectionString(model.GetConnectionString());
-            if(map != null)
+        {
+            var map = await this.GetTablesAndColumnsByConnectionString(model.GetConnectionString(_appSettings.Engine));
+            if (map != null)
                 model.MapTables = JsonConvert.SerializeObject(map, Formatting.Indented);
 
-            var result  = await this._databaseEnvironmentCommands.AddAsync(MapModelToEntity(model));
+            var result = await this._databaseEnvironmentCommands.AddAsync(MapModelToEntity(model));
             return MapEntityToModel(result);
         }
 
@@ -65,25 +75,25 @@ namespace MSDF.DataChecker.Services
         {
             var databaseEnvironment = await this.GetAsync(databaseEnvironmentId);
 
-            if (databaseEnvironment.MapTables !=null && databaseEnvironment.MapTables !="")
+            if (databaseEnvironment.MapTables != null && databaseEnvironment.MapTables != "")
             {
                 var conversion = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(databaseEnvironment.MapTables);
                 return conversion;
             }
             else
             {
-                var map = await this.GetTablesAndColumnsByConnectionString(databaseEnvironment.GetConnectionString());
+                var map = await this.GetTablesAndColumnsByConnectionString(databaseEnvironment.GetConnectionString(_appSettings.Engine));
                 databaseEnvironment.MapTables = JsonConvert.SerializeObject(map, Formatting.Indented);
                 await this.UpdateAsync(databaseEnvironment);
                 return map;
-            }            
+            }
         }
 
-        private async Task<Dictionary<string,List<string>>> GetTablesAndColumnsByConnectionString(string connectionString)
+        private async Task<Dictionary<string, List<string>>> GetTablesAndColumnsByConnectionString(string connectionString)
         {
             var listObject = new Dictionary<string, List<string>>();
             using (var conn = new SqlConnection(connectionString))
-            {                
+            {
                 try
                 {
                     await conn.OpenAsync();
@@ -93,20 +103,20 @@ namespace MSDF.DataChecker.Services
                     var list = new List<string>();
                     foreach (DataRow row in schema.Rows)
                     {
-                        var columns= row.Table.Rows;
+                        var columns = row.Table.Rows;
                         var table = row[2].ToString();
 
                         if (!list.Contains(table))
                         {
                             var rowList = new List<string>();
-                            foreach (DataRow column in sourceTableRows.Rows) 
+                            foreach (DataRow column in sourceTableRows.Rows)
                             {
                                 if (table == column[2].ToString())
-                                    if(!list.Contains(column[3].ToString()))
+                                    if (!list.Contains(column[3].ToString()))
                                         rowList.Add(column[3].ToString());
 
                             }
-                            listObject.Add(table,rowList);
+                            listObject.Add(table, rowList);
                             list.Add(table);
                         }
                     }
@@ -121,19 +131,19 @@ namespace MSDF.DataChecker.Services
 
         public async Task<DatabaseEnvironmentBO> UpdateAsync(DatabaseEnvironmentBO model)
         {
-            var map = await this.GetTablesAndColumnsByConnectionString(model.GetConnectionString());
-            if(map != null)
+            var map = await this.GetTablesAndColumnsByConnectionString(model.GetConnectionString(_appSettings.Engine));
+            if (map != null)
                 model.MapTables = JsonConvert.SerializeObject(map, Formatting.Indented);
 
             var environment = await this._databaseEnvironmentQueries.GetAsync(model.Id);
 
             environment.Name = model.Name;
             environment.User = model.User;
-            environment.DataSource = model.DataSource;            
+            environment.DataSource = model.DataSource;
             environment.ExtraData = model.ExtraData;
             environment.Database = model.Database;
             environment.SecurityIntegrated = model.SecurityIntegrated;
-            environment.MapTables= model.MapTables;
+            environment.MapTables = model.MapTables;
             environment.Version = model.Version;
             environment.TimeoutInMinutes = model.TimeoutInMinutes;
 
@@ -142,7 +152,8 @@ namespace MSDF.DataChecker.Services
                 environment.User = string.Empty;
                 environment.Password = string.Empty;
             }
-            else if (!string.IsNullOrEmpty(model.Password)) {
+            else if (!string.IsNullOrEmpty(model.Password))
+            {
                 environment.Password = model.Password;
             }
 
@@ -155,18 +166,25 @@ namespace MSDF.DataChecker.Services
             var genericResponse = new GenericResponse();
             try
             {
-                using (var conn = new SqlConnection(connectionString))
-                {
-                    await conn.OpenAsync();
-                    genericResponse.IsValid = true;
-                }
+                genericResponse.IsValid = true;
+                if (_appSettings.Engine == "SqlServer")
+                    genericResponse.Message = await _dataAccessProvider.TestSqlServerConnection(connectionString);
+                else
+                    genericResponse.Message =  _dataAccessProvider.TestPostgresConnection(connectionString);
+                if (!string.IsNullOrEmpty(genericResponse.Message))
+                    genericResponse.IsValid = false;
+                //using (var conn =   new SqlConnection(connectionString))
+                //{
+                //    await conn.OpenAsync();
+                //    genericResponse.IsValid = true;
+                //}
             }
             catch (Exception ex)
             {
                 genericResponse.IsValid = false;
                 genericResponse.Message = ex.Message;
             }
-            return genericResponse;
+            return    genericResponse;
         }
 
         public async Task<string> TestConnectionByIdAsync(Guid id)
@@ -175,16 +193,23 @@ namespace MSDF.DataChecker.Services
             try
             {
                 var existEnvironment = MapEntityToModel(await _databaseEnvironmentQueries.GetAsync(id));
-                string sqlConnection = existEnvironment.GetConnectionString();
-                if (!sqlConnection.ToLower().Contains("timeout"))
-                    sqlConnection += " Connection Timeout=10";
+                string sqlConnection = existEnvironment.GetConnectionString(_appSettings.Engine);
 
-                using (var conn = new SqlConnection(sqlConnection))
+                if (_appSettings.Engine == "SqlServer")
                 {
-                    await conn.OpenAsync();
-                    await conn.CloseAsync();
-                    await conn.DisposeAsync();
+                    if (!sqlConnection.ToLower().Contains("timeout"))
+                        sqlConnection += " Connection Timeout=10";
+                    result = await _dataAccessProvider.TestSqlServerConnection(sqlConnection);
                 }
+                else
+                    result =  _dataAccessProvider.TestPostgresConnection(sqlConnection);
+
+                //using (var conn = new SqlConnection(sqlConnection) )
+                //{
+                //    await conn.OpenAsync();
+                //    await conn.CloseAsync();
+                //    await conn.DisposeAsync();
+                //}
             }
             catch (Exception ex)
             {
@@ -195,8 +220,8 @@ namespace MSDF.DataChecker.Services
 
         public async Task<List<DatabaseEnvironmentBO>> GetAsync()
         {
-            var environments= await this._databaseEnvironmentQueries.GetAsync();
-            if (environments != null) 
+            var environments = await this._databaseEnvironmentQueries.GetAsync();
+            if (environments != null)
                 return environments
                     .Select(rec => MapEntityToModel(rec))
                     .ToList();
@@ -229,8 +254,8 @@ namespace MSDF.DataChecker.Services
                 Version = model.Version,
                 MapTables = model.MapTables,
                 MaxNumberResults = model.MaxNumberResults,
-                SecurityIntegrated=model.SecurityIntegrated,
-                TimeoutInMinutes=model.TimeoutInMinutes
+                SecurityIntegrated = model.SecurityIntegrated,
+                TimeoutInMinutes = model.TimeoutInMinutes
             };
 
             var result = await this._databaseEnvironmentCommands.AddAsync(databaseEnvironment);
@@ -265,7 +290,7 @@ namespace MSDF.DataChecker.Services
                 SecurityIntegrated = model.SecurityIntegrated == null ? false : model.SecurityIntegrated.Value,
                 User = model.User,
                 Version = model.Version,
-                MaxNumberResults=model.MaxNumberResults,
+                MaxNumberResults = model.MaxNumberResults,
                 TimeoutInMinutes = model.TimeoutInMinutes
             };
 
@@ -296,7 +321,7 @@ namespace MSDF.DataChecker.Services
                 SecurityIntegrated = entity.SecurityIntegrated == null ? false : entity.SecurityIntegrated.Value,
                 User = entity.User,
                 Version = entity.Version,
-                MaxNumberResults=entity.MaxNumberResults,
+                MaxNumberResults = entity.MaxNumberResults,
                 TimeoutInMinutes = entity.TimeoutInMinutes
             };
 

@@ -10,6 +10,8 @@ using System.Linq;
 using MSDF.DataChecker.Persistence.Settings;
 using MSDF.DataChecker.Persistence.Providers;
 using System;
+using System.Data.SqlClient;
+using Npgsql;
 
 namespace MSDF.DataChecker.Persistence.Infrastructure.IoC
 {
@@ -24,18 +26,17 @@ namespace MSDF.DataChecker.Persistence.Infrastructure.IoC
             if (settings.RunningInDockerContainer)
             {
                 var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
-                connectionString = Utility.ParseConnectionString(connectionString, settings.Engine);
+                  connectionString = Utility.ParseConnectionString(connectionString, settings.Engine);
                 if (settings.Engine == "SqlServer")
                     dataAccessProvider.SQLServer(container, connectionString ?? settings.ConnectionStrings.SqlServer);
-                else
+                else 
                     dataAccessProvider.PostgresSQL(container, connectionString ?? settings.ConnectionStrings.PostgresSql);
-
-            }
-            else
+                    
+            } else
                 if (settings.Engine == "SqlServer")
-                dataAccessProvider.SQLServer(container, settings.ConnectionStrings.SqlServer);
-            else
-                dataAccessProvider.PostgresSQL(container, settings.ConnectionStrings.PostgresSql);
+                    dataAccessProvider.SQLServer(container, settings.ConnectionStrings.SqlServer);
+                else
+                    dataAccessProvider.PostgresSQL(container, settings.ConnectionStrings.PostgresSql);
             RegisterCommandsAndQueriesByConvention<IPersistenceMarker>(container);
         }
 

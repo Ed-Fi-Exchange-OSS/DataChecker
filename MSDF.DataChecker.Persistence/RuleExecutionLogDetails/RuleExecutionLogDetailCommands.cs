@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -28,14 +28,18 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
         public async Task ExecuteSqlAsync(string sqlScript)
         {
             string connectionString = _db.Database.GetDbConnection().ConnectionString;
-            using (SqlConnection destinationConnection = new SqlConnection(connectionString))
-            {
-                await destinationConnection.OpenAsync();
-                using (var sqlCommand = new SqlCommand(sqlScript, destinationConnection))
-                {
-                    await sqlCommand.ExecuteNonQueryAsync();
-                }
-            }
+            //using (SqlConnection destinationConnection = new SqlConnection(connectionString))
+            //{
+            //    await destinationConnection.OpenAsync();
+            //    using (var sqlCommand = new SqlCommand(sqlScript, destinationConnection))
+            //    {
+            //        await sqlCommand.ExecuteNonQueryAsync();
+            //    }
+            //}
+
+
+            //New code to use EntityFrmaework
+            _db.Database.ExecuteSqlRaw(sqlScript);
         }
 
         public async Task ExecuteSqlBulkCopy(DataTable table, string tableName)
