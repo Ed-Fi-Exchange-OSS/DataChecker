@@ -182,12 +182,14 @@
             <button *ngIf="userParam.isReadMode"
                     (click)="userParam.isReadMode=false"
                     class="btn">
-              <fa name="edit"></fa>
+              <!--<fa name="edit"></fa>-->
+              <i class="far fa-edit"></i>
             </button>
 
             <button class="btn"
                     (click)="removeUserParam(userParam)">
-              <fa name="trash"></fa>
+              <!--<fa name="trash"></fa>-->
+              <i class="fa-solid fa-trash"></i>
             </button>
 
           </td>
@@ -222,10 +224,10 @@
             <div class="col-8">
               <input id="name" name="name" class="form-control" required minlength="4" [(ngModel)]="newDatabaseEnvironment.name" #name="ngModel">
               <div *ngIf="name.invalid" class="form-feedback">
-                <div *ngIf="name.errors.required">
+                <div *ngIf="name.errors?.['required']">
                   Name is required.
                 </div>
-                <div *ngIf="name.errors.minlength">
+                <div *ngIf="name.errors?.['minlength']">
                   Name must be at least 4 characters long.
                 </div>
               </div>
@@ -240,10 +242,10 @@
         <div class="col-12" style="margin-bottom:20px">
           <h4>Db Connection</h4>
           <div *ngIf="newDatabaseEnvironment.securityIntegrated==false" class="connection-style">
-            Database =  {{ newDatabaseEnvironment.database }}; Data Source ={{ newDatabaseEnvironment.dataSource }}; User Id = {{ newDatabaseEnvironment.user }}; Password = {{ getPasswordWithFormat() }}; {{ newDatabaseEnvironment.extraData }}
+            Database =  {{ newDatabaseEnvironment.database }}; Data Source ={{ newDatabaseEnvironment.dataSource }}; User Id = {{ newDatabaseEnvironment.user }}; Password = {{ getPasswordWithFormat() }}; {{ newDatabaseEnvironment.extradata }}
           </div>
           <div *ngIf="newDatabaseEnvironment.securityIntegrated==true" class="connection-style">
-            Database =  {{ newDatabaseEnvironment.database }}; Data Source ={{ newDatabaseEnvironment.dataSource }}; Integrated Security=true; {{ newDatabaseEnvironment.extraData }}
+            Database =  {{ newDatabaseEnvironment.database }}; Data Source ={{ newDatabaseEnvironment.dataSource }}; Integrated Security=true; {{ newDatabaseEnvironment.extradata }}
           </div>
         </div>
         <div class="col-12"></div>
@@ -256,7 +258,7 @@
                      [(ngModel)]="newDatabaseEnvironment.dataSource" #dataSource="ngModel">
 
               <div *ngIf="dataSource.invalid" class="form-feedback">
-                <div *ngIf="dataSource.errors.required">
+                <div *ngIf="dataSource.errors?.['required']">
                   Server is required.
                 </div>
               </div>
@@ -272,7 +274,7 @@
                      [(ngModel)]="newDatabaseEnvironment.database" #database="ngModel">
               <div *ngIf="database.invalid" class="form-feedback">
 
-                <div *ngIf="database.errors.required">
+                <div *ngIf="database.errors?.['required']">
                   Database is required.
                 </div>
               </div>
@@ -296,10 +298,10 @@
             <label for="user" class="col-4 align-self-center">User:</label>
             <div class="col-8">
               <input id="user" name="user" class="form-control" required
-                     [disabled]="newDatabaseEnvironment.securityIntegrated==true"
+                     [disabled]="newDatabaseEnvironment.securityIntegrated"
                      [(ngModel)]="newDatabaseEnvironment.user" #user="ngModel">
               <div *ngIf="user.invalid" class="form-feedback">
-                <div *ngIf="user.errors.required">
+                <div *ngIf="user.errors?.['required']">
                   User is required.
                 </div>
 
@@ -313,10 +315,10 @@
             <label for="password" class="col-4 align-self-center">Password:</label>
             <div class="col-8">
               <input id="password" name="password" class="form-control" required type="password"
-                     [disabled]="newDatabaseEnvironment.securityIntegrated==true"
+                     [disabled]="newDatabaseEnvironment.securityIntegrated"
                      [(ngModel)]="newDatabaseEnvironment.password" #password="ngModel">
               <div *ngIf="password.invalid" class="form-feedback">
-                <div *ngIf="password.errors.required">
+                <div *ngIf="password.errors?.['required']">
                   Password is required.
                 </div>
               </div>
@@ -329,7 +331,7 @@
             <label for="extraData" class="col-4 align-self-center">Extra:</label>
             <div class="col-8">
               <input id="extraData" name="extraData" class="form-control"
-                     [(ngModel)]="newDatabaseEnvironment.extraData" #extraData="ngModel">
+                     [(ngModel)]="newDatabaseEnvironment.extradata" #extraData="ngModel">
             </div>
           </div>
         </div>
@@ -348,7 +350,7 @@
               </select>
               <div *ngIf="version.invalid"
                    class="form-feedback">
-                <div *ngIf="version.errors.required">
+                <div *ngIf="version.errors?.['required']">
                   Environment type is required.
                 </div>
 
@@ -401,7 +403,8 @@
         </div>
         <div class="col-1">
           <button (click)="removeUserParam(userParam)" class="btn   ">
-            <fa name="trash"></fa>
+            <!--<fa name="trash"></fa>-->
+            <i class="fa-solid fa-trash"></i>
           </button>
         </div>
       </ng-container>

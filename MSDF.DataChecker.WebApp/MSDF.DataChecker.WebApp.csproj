@@ -48,14 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ClientApp\src\app\models\tag.model.ts" />
-    <None Remove="ClientApp\src\app\tags-search\tags-search.component.ts" />
-    <None Remove="ClientApp\src\app\tags-search\tags-search.spec.ts" />
-    <None Remove="ClientApp\src\app\tags\tags.component.spec.ts" />
-    <None Remove="ClientApp\src\app\tags\tags.component.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MSDF.DataChecker.Persistence\MSDF.DataChecker.Persistence.csproj" />
     <ProjectReference Include="..\MSDF.DataChecker.Services\MSDF.DataChecker.Services.csproj" />
   </ItemGroup>

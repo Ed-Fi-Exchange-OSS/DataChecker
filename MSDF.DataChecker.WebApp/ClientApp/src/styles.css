@@ -1,5 +1,4 @@
-@import url("./app/app.component.css");
- @import url("./app/appStyleSheeet.component.css"); 
+@import url("./app/appStyleSheeet.component.css");
 @import "~codemirror/lib/codemirror";
 @import "~codemirror/theme/material";
 
@@ -150,14 +149,14 @@ li.CodeMirror-hint-active {
   border-radius: 2px 0 0 2px;
 }
 
-.popover-custom{
+.popover-custom {
   max-width: 100%;
   max-height: 800px;
   overflow-y: auto;
   /* white-space:pre-wrap; */
 }
 
-.popover-query{
+.popover-query {
   max-width: 100%;
   /* max-height: 800px; */
   /* overflow-y: auto; */
@@ -173,11 +172,13 @@ li.CodeMirror-hint-active {
   border-color: white;
   color: black;
 }
-.button-regular-st:hover {
-  background-color: white;
-  border-color: white;
-  color: black;
-}
+
+  .button-regular-st:hover {
+    background-color: white;
+    border-color: white;
+    color: black;
+  }
+
 .btn-outline-primary:not(:disabled):not(.disabled):active, .btn-outline-primary:not(:disabled):not(.disabled).active, .show > .btn-outline-primary.dropdown-toggle {
   background-color: white;
   border-color: white;
@@ -189,8 +190,8 @@ li.CodeMirror-hint-active {
   border-left: 5px solid #23b7e5 !important;
 }
 
-.popover-body{
-    text-align:center;
+.popover-body {
+  text-align: center;
 }
 
 .notes_text {
@@ -199,8 +200,8 @@ li.CodeMirror-hint-active {
 }
 
 
-.ng2-dropdown-menu{
-    z-index:2000!important;
+.ng2-dropdown-menu {
+  z-index: 2000 !important;
 }
 
 .btn_standar {

@@ -13,29 +13,34 @@
   <div class="row" style="border-bottom: 1px dashed black">
     <div class="col">
       <button class="main-btn btn-success btn-addon btn-block" style="font-size: 16px" (click)="addCollection(content)">
-        <fa name="plus"></fa> Add Collection
+        <i class="fa-solid fa-plus" style="margin-right: 4px !important"></i> Add Collection
+        <!--<i class="fa-solid fa-circle-plus">Add Collection</i>-->
       </button>
     </div>
     <div class="col">
       <button class="main-btn btn-info btn-addon btn-block" style="font-size: 16px; " (click)="showTags(contentTags)">
-        <fa name="tags"></fa> Tags
+        <!--<fa name="tags"></fa> Tags-->
+        <i class="fa-solid fa-tags" style="margin-right:4px !important"></i>Tags
       </button>
     </div>
     <div class="col">
       <button class="main-btn btn-warning btn-addon btn-block" style="font-size: 16px; " (click)="showSearchByTags(contentTagsSearch)">
-        <fa name="search"></fa> Rule Search
+        <!--<fa name="search"></fa> Rule Search-->
+        <i class="fa-solid fa-magnifying-glass" style="margin-right: 4px !important"></i>Rule Search
       </button>
     </div>
     <div class="col">
       <button class="main-btn btn-danger btn-addon btn-block" style="font-size: 16px;" (click)="showJobs(contentJobs)">
-        <fa name="cogs"></fa> Job Scheduler
+        <!--<fa name="cogs"></fa> Job Scheduler-->
+        <i class="fa-solid fa-gears" style="margin-right: 4px !important"> </i>Job Scheduler
       </button>
     </div>
     <div class="col">
       <button class="main-btn btn-primary btn-addon btn-block" style="font-size: 16px;" (click)="uploader.click()">
-        <fa name="upload"></fa> Upload Collection
+        <!--<fa name="upload"></fa> Upload Collection-->
+        <i class="fa-solid fa-upload" style="margin-right: 4px !important"></i>Upload Collection
       </button>
-      <input hidden type="file" #uploader (change)="uploadFile($event, uploadCollectionExist, warningSqlInjectMessageContentHome)" accept=".json"/>
+      <input hidden type="file" #uploader (change)="uploadFile($event, uploadCollectionExist, warningSqlInjectMessageContentHome)" accept=".json" />
     </div>
   </div>
 
@@ -53,7 +58,7 @@
                         [category]="categoryItem"
                         (selectCategoryFromChild)="selectCategoryFromChild($event)"
                         (deleteCollectionFromChild)="deleteCollectionFromChild($event)"
-                        (reloadDataFromChild)="reloadDataFromChild($event)">
+                        (reloadDataFromChild)="reloadDataFromChild()">
         </nav-collection>
       </div>
     </div>
@@ -65,12 +70,14 @@
         </div>
         <div class="col-md-4 text-right">
           <button *ngIf="isRunningAll" class="btn btn-success btn-addon right-button" style="margin:0px">
-            <fa name="spinner" animation="pulse"></fa>Running ...
+            <i fa name="spinner" animation="pulse"></i>Running ...
+            <!--<fa name="spinner" animation="pulse"></fa>Running ...-->
           </button>
           <button *ngIf="!isRunningAll && categories != null && categories.length > 0 " class="btn btn-info btn-addon right-button btn-large"
                   (click)="executeAll()" style="margin:0px">
 
-            <fa name="play"></fa>
+            <i fa name="play"></i>
+            <!--<fa name="play"></fa>-->
             Run All
           </button>
         </div>
@@ -81,12 +88,14 @@
         <div class="row category-header main-rule-st">
           <div class="col">
             <button class="main-btn btn-default btn-addon btn-block" (click)="expandAll()" style="margin:0px">
-              <fa name="expand"></fa> Expand All
+              <i fa name="expand"></i> Expand All
+              <!--<fa name="expand"></fa> Expand All-->
             </button>
           </div>
           <div class="col">
             <button class="main-btn btn-default btn-addon btn-block" (click)="collapseAll()" style="margin:0px">
-              <fa name="compress-alt"></fa> Collapse All
+              <!--<fa name="compress-alt"></fa> Collapse All-->
+              <i fa name="compress-alt"></i> Collapse All
             </button>
           </div>
         </div>
@@ -136,12 +145,14 @@
 
             <div class="col-3 category-run-button  center-end" style="position: relative; margin-left: inherit;">
               <button *ngIf="category.isRunning" class="btn btn-success btn-addon">
-                <fa name="spinner" animation="pulse"></fa>Running ...
+                <i fa name="spinner" animation="pulse"></i>Running ...
+                <!--<fa name="spinner" animation="pulse"></fa>Running ...-->
               </button>
               <button *ngIf="!category.isRunning && category.rules.length>0" class="btn btn-info btn-addon "
                       (click)="executeCategory(category); category.showRules = true">
 
-                <fa name="play"></fa>
+                <i fa name="play"></i>
+                <!--<fa name="play"></fa>-->
                 Run All
               </button>
 
@@ -154,12 +165,17 @@
 
           <ng-container *ngIf="category.showRules">
             <div>
-              <rule-execution-component *ngFor=" let rule of category.rules"
+              <!--<rule-execution-component *ngFor=" let rule of category.rules"
                                         [rule]="rule"
                                         [selectedDatabaseEnvironment]="selectedDatabaseEnvironment"
-                                        (updateRuleResultFromChild)="updateRuleResultFromChild($event,category)">
-              </rule-execution-component>
-            </div>
+                                        (updateRuleResultFromChild)="updateRuleResultFromChild($event,category)">-->
+
+                <rule-execution-component *ngFor=" let rule of category.rules"
+                                          [rule]="rule"
+                                          [selectedDatabaseEnvironment]="selectedDatabaseEnvironment"
+                                          (updateRuleResultFromChild)="updateRuleResultFromChild($event)">
+                </rule-execution-component>
+</div>
 
           </ng-container>
         </ng-container>
@@ -222,10 +238,10 @@
           <input id="name" name="name" class="form-control" required minlength="4" [(ngModel)]="newCollection.name" #name="ngModel">
 
           <div *ngIf="name.invalid" class="form-feedback">
-            <div *ngIf="name.errors.required">
+            <div *ngIf="name.errors?.['required']">
               Name is required.
             </div>
-            <div *ngIf="name.errors.minlength">
+            <div *ngIf="name.errors?.['minlength']">
               Name must be at least 4 characters long.
             </div>
           </div>
@@ -238,10 +254,10 @@
 
           <div *ngIf="description.invalid" class="form-feedback">
 
-            <div *ngIf="description.errors.required">
+            <div *ngIf="description.errors?.['required']">
               Description is required.
             </div>
-            <div *ngIf="description.errors.minlength">
+            <div *ngIf="description.errors?.['minlength']">
               Description must be at least 4 characters long.
             </div>
           </div>
@@ -260,7 +276,7 @@
           </select>
 
           <div *ngIf="environmentType.invalid" class="form-feedback">
-            <div *ngIf="environmentType.errors.required">
+            <div *ngIf="environmentType.errors?.['required']">
               Environment type is required.
             </div>
           </div>
@@ -350,10 +366,10 @@
                (keydown.enter)="signIngForm.valid ? signInToRepository(downloadCommunityContent) : ''">
 
         <div *ngIf="server.invalid" class="form-feedback">
-          <div *ngIf="server.errors.required">
+          <div *ngIf="server.errors?.['required']">
             Server Url is required.
           </div>
-          <div *ngIf="email.errors.email">
+          <div *ngIf="email.errors?.['email']">
             Server Url invalid.
           </div>
         </div>
@@ -366,10 +382,10 @@
                (keydown.enter)="signIngForm.valid ? signInToRepository(downloadCommunityContent) : ''">
 
         <div *ngIf="email.invalid" class="form-feedback">
-          <div *ngIf="email.errors.required">
+          <div *ngIf="email.errors?.['required']">
             Email is required.
           </div>
-          <div *ngIf="email.errors.email">
+          <div *ngIf="email.errors?.['email']">
             Email invalid.
           </div>
         </div>
@@ -382,7 +398,7 @@
                (keydown.enter)="signIngForm.valid ? signInToRepository(downloadCommunityContent) : ''">
 
         <div *ngIf="password.invalid" class="form-feedback">
-          <div *ngIf="password.errors.required">
+          <div *ngIf="password.errors?.['required']">
             Password is required.
           </div>
         </div>

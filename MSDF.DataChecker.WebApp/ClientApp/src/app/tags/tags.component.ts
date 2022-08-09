@@ -1,8 +1,9 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { ToastrService } from 'ngx-toastr';
 import { Tag } from '../models/tag.model';
 import { FormGroup } from '@angular/forms';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'tags',
@@ -43,14 +44,14 @@ export class TagsComponent implements OnInit {
     });
   }
 
-  saveTag(tagForm: FormGroup) {
+  saveTag(tagForm: any) {
 
     if (!tagForm.valid) {
       this.markFormGroupTouched(tagForm);
       return;
     }
 
-    let existTagWithName = this.tags.find(rec => rec.name.toLowerCase() == this.newTag.name.toLowerCase());
+    let existTagWithName = (this.tags as any).find(rec => rec.name.toLowerCase() == this.newTag.name.toLowerCase());
     if (existTagWithName != undefined && existTagWithName.id != this.newTag.id) {
       this.toastr.error('A tag with the name ' + this.newTag.name + ' already exist.', 'Error');
       return;
@@ -74,13 +75,13 @@ export class TagsComponent implements OnInit {
       });
   }
 
-  cancelTag(tagForm: FormGroup) {
+  cancelTag(tagForm: any) {
     tagForm.reset();
     this.setInitialValues();
   }
 
   edit(tag) {
-    this.newTag = Object.assign({}, tag);
+    this.newTag = (<any>Object).assign({}, tag);
     this.titleButton = 'Update';
   }
 
@@ -101,9 +102,9 @@ export class TagsComponent implements OnInit {
     }
   }
 
-  private markFormGroupTouched(form: FormGroup) {
-    Object.values(form.controls).forEach(control => {
-      control.markAsTouched();
+  private markFormGroupTouched(form: any) {
+    (Object as any).values(form.controls).forEach(control => {
+      control.markAsTouched(control);
       if ((control as any).controls) {
         this.markFormGroupTouched(control as FormGroup);
       }
