@@ -15,8 +15,13 @@ namespace MSDF.DataChecker.Persistence.Providers
     {
         string ConnectionString { get; set; }
         IDataProvider ProviderData { get; }
+        
         DataTable ExecuteReader(string newConection, string sqlToRun, Dictionary<string, string> parameters = null);
         int ExecuteScalar(string newConection, string sqlToRun, Dictionary<string, string> parameters = null);
+
+        DataTable ExecuteReader(DatabaseContext _db, string sqlToRun, Dictionary<string, string> parameters = null);
+        int ExecuteScalar(DatabaseContext _db, string sqlToRun, Dictionary<string, string> parameters = null);
+
         Task<NpgsqlDataReader> ExecutePostgresReaderAsync(string connectionString, string sqlToRun, Dictionary<string, string> parameters = null);
         NpgsqlDataReader ExecutePostgresReader(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null);
         int ExecutePostgresScalarAsync(string connectionString, string sqlToRun = "", Dictionary<string, string> parameters = null, int? timeout = null);
@@ -175,5 +180,42 @@ namespace MSDF.DataChecker.Persistence.Providers
             return rows;
         }
 
+        public DataTable ExecuteReader(DatabaseContext _db, string sqlToRun, Dictionary<string, string> parameters = null)
+        {
+            var dt = new DataTable();
+            using (var command = _db.Database.GetDbConnection().CreateCommand())
+            {
+                _db.Database.OpenConnection();
+                command.CommandTimeout = 120;
+                command.CommandText = sqlToRun;
+                if (parameters != null)
+                    command.AddDbCommandParameters(_connectionType, parameters);
+                using (var dr = command.ExecuteReader())
+                {
+                    if (dr.HasRows)
+                    {
+                        dt.Load(dr);
+                    }
+                    command.Connection.Close();
+                }
+            }
+            return dt;
+        }
+
+        public int ExecuteScalar(DatabaseContext _db, string sqlToRun, Dictionary<string, string> parameters = null)
+        {
+            var rows = 0;
+            using (var command = _db.Database.GetDbConnection().CreateCommand())
+            {
+                _db.Database.OpenConnection();
+                command.CommandText = sqlToRun;
+                command.CommandTimeout = 120;
+                if (parameters != null)
+                    command.AddDbCommandParameters(_connectionType, parameters);
+                rows = Convert.ToInt32(command.ExecuteScalar());
+                command.Connection.Close();
+            }
+            return rows;
+        }
     }
 }

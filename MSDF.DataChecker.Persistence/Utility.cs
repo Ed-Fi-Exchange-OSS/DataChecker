@@ -45,19 +45,19 @@ namespace MSDF.DataChecker.Persistence
                     int value = 0;
                     if (int.TryParse(parameter.Value, out value))
                     {
-                        var sqlParameter = new Npgsql.NpgsqlParameter(parameter.Key.Contains("@") ? parameter.Key : $"@{parameter.Key}", value);
+                        var sqlParameter = new Npgsql.NpgsqlParameter( parameter.Key, value);
                         dBCommand.Parameters.Add(sqlParameter);
                     }
                     else
                     {
-                        var sqlParameter = new Npgsql.NpgsqlParameter(parameter.Key.Contains("@") ? parameter.Key : $"@{parameter.Key}", parameter.Value);
+                        var sqlParameter = new Npgsql.NpgsqlParameter(parameter.Key , parameter.Value);
                         dBCommand.Parameters.Add(sqlParameter);
                     }
 
                 }
                 else
                 {
-                    var sqlParameter = new SqlParameter(parameter.Key.Contains("@") ? parameter.Key : $"@{parameter.Key}", parameter.Value);
+                    var sqlParameter = new SqlParameter( parameter.Key , parameter.Value);
                     dBCommand.Parameters.Add(sqlParameter);
                 }
             }

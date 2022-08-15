@@ -284,7 +284,7 @@ namespace MSDF.DataChecker.Services.RuleExecution
                     _dataProvider.ConnectionString = connectionString;
                 var readerDt = _dataProvider.ExecuteReader(connectionString, ruleExecutionLog.DiagnosticSql, null);
                 result = GetRuleExecutionLogDetail(readerDt, id);
-
+                result.RuleDiagnosticSql = ruleExecutionLog.DiagnosticSql;
                 //if (_appSettings.Engine == "SqlServer")
                 //{
                 //    if (!connectionString.ToLower().Contains("timeout") && envBO.TimeoutInMinutes == null)

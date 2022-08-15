@@ -51,10 +51,8 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
                  "WHERE RuleExecutionLogId = @Id " +
                  "ORDER BY Id", tableName)  ;
             var parameters = new Dictionary<string, string>();
-            parameters.Add("Id", id.ToString());
-            if (string.IsNullOrEmpty(_dataProvider.ConnectionString))
-                _dataProvider.ConnectionString = connectionString;
-            var dataReader = _dataProvider.ExecuteReader(connectionString, sql, parameters);
+            parameters.Add("@Id", id.ToString());
+            var dataReader = _dataProvider.ExecuteReader(_db, sql, parameters);
             return dataReader;
 
 
@@ -86,17 +84,21 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
         {
 
             var columns = new List<DestinationTableColumn>();
+            //string sql = string.Format(
+            //      "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE " +
+            //      "FROM INFORMATION_SCHEMA.COLUMNS " +
+            //      "WHERE TABLE_NAME = @tablename AND TABLE_SCHEMA = @tableschema " +
+            //      "ORDER BY ORDINAL_POSITION");
+
             string sql = string.Format(
-                  "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE " +
-                  "FROM INFORMATION_SCHEMA.COLUMNS " +
-                  "WHERE TABLE_NAME = @tablename AND TABLE_SCHEMA = @tableschema " +
-                  "ORDER BY ORDINAL_POSITION");
+                "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE " +
+                "FROM INFORMATION_SCHEMA.COLUMNS " +
+                "WHERE  TABLE_NAME = @tablename AND TABLE_SCHEMA = @tableschema " +
+                "ORDER BY ORDINAL_POSITION", tableName, tableSchema);
             var parameters = new Dictionary<string, string>();
-            parameters.Add("tablename", tableName);
-            parameters.Add("tableschema", tableSchema);
-            if (string.IsNullOrEmpty(_dataProvider.ConnectionString))
-                _dataProvider.ConnectionString = connectionString;
-            var dataReader = _dataProvider.ExecuteReader(connectionString, sql, parameters);
+            parameters.Add("@tablename", tableName);
+            parameters.Add("@tableschema", tableSchema);
+            var dataReader = _dataProvider.ExecuteReader(_db, sql, parameters);
             foreach (DataRow row in dataReader.Rows)
             {
                 columns.Add(new DestinationTableColumn
@@ -146,11 +148,9 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
                           "FROM INFORMATION_SCHEMA.TABLES " +
                           "WHERE TABLE_NAME = @tablename AND TABLE_SCHEMA = @tableschema ");
             var parameters = new Dictionary<string, string>();
-            parameters.Add("tablename", tableName);
-            parameters.Add("tableschema", tableSchema);
-            if (string.IsNullOrEmpty(_dataProvider.ConnectionString))
-                _dataProvider.ConnectionString = connectionString;
-            int result = _dataProvider.ExecuteScalar(connectionString, sql, parameters);
+            parameters.Add("@tablename", tableName);
+            parameters.Add("@tableschema", tableSchema);
+            int result = _dataProvider.ExecuteScalar(_db, sql, parameters);
             existTable = result > 0;
 
 
