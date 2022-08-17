@@ -154,7 +154,7 @@ namespace MSDF.DataChecker.Services.RuleExecution
             return testResult;
         }
 
-        public async Task<RuleTestResult> ExecuteRuleAsync(RuleBO rule, string connectionString, List<UserParamBO> userParams, int? timeout)
+        public Task<RuleTestResult> ExecuteRuleAsync(RuleBO rule, string connectionString, List<UserParamBO> userParams, int? timeout)
         {
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
             RuleTestResult testResult;
@@ -179,7 +179,7 @@ namespace MSDF.DataChecker.Services.RuleExecution
                 if (string.IsNullOrEmpty(sqlToRun))
                 {
                     sqlToRun = rule.DiagnosticSql;
-                    var dataReader = _dataProvider.ExecuteReader(connectionString, sqlToRun, parameters);
+                    var dataReader =  _dataProvider.ExecuteReader(connectionString, sqlToRun, parameters);
                     if (dataReader.Rows.Count > 0)
                         execution = dataReader.Rows.Count;
                 }
@@ -213,7 +213,7 @@ namespace MSDF.DataChecker.Services.RuleExecution
 
             stopWatch.Stop();
             testResult.ExecutionTimeMs = stopWatch.ElapsedMilliseconds;
-            return testResult;
+            return Task.FromResult(testResult);
         }
 
         public TableResult GetExecutedRuleDiagnosticByRuleLog(DataTable dt)

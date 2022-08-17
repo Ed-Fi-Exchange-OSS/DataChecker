@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using MSDF.DataChecker.Services;
 using MSDF.DataChecker.Services.Models;
 using MSDF.DataChecker.Services.RuleExecution;
@@ -9,7 +8,6 @@ using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MSDF.DataChecker.cmd.Helpers
@@ -71,7 +69,6 @@ namespace MSDF.DataChecker.cmd.Helpers
 
         public static CollectionJson BuildCollectionJsonRule(string collectionRules, string ruleName)
         {
-            collectionRules = "\nselect DisciplineIncident.IncidentIdentifier,\n\t DisciplineIncident.SchoolId as educationOrganizationId,\n\t   'Edfi.School' discrimentator,\n\t DisciplineIncident.IncidentDate\nFrom edfi.DisciplineIncident\nleft join edfi.DisciplineIncidentBehavior\n\ton DisciplineIncident.IncidentIdentifier = DisciplineIncidentBehavior.IncidentIdentifier\nWhere DisciplineIncidentBehavior.BehaviorDescriptorId is null\n";
             var collection = new CollectionJson();
             var containerJson = new ContainerJson();
             var rules = new RuleJson();

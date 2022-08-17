@@ -23,6 +23,38 @@
 }
 
 
+
+.fa-check-circle:before {
+  content: "\f058";
+}
+
+
+.fa-times:before {
+  content: "\f00d";
+}
+
+.fa-times-circle:before {
+  content: "\f057";
+}
+
+.fa-exclamation-circle:before {
+  content: "\f06a";
+}
+
+
+.fa-status-success {
+  color: #038003;
+}
+
+.fa-status-fail {
+  color: #d60f0f;
+}
+
+.fa-status-sql-error {
+  color: #ffc107;
+}
+
+
 .category-child {
   margin-left: 20px;
   padding-right: 20px;
