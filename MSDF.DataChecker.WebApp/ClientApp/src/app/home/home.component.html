@@ -291,7 +291,7 @@
                   [(ngModel)]="newCollection.ruleDetailsDestinationId"
                   #ruleDetailsDestinationId="ngModel">
             <option value="0">None</option>
-            <option *ngFor="let item of destinationTypes; let i = index" [value]="destinationTypes[i].id">
+            <option *ngFor="let item of destinationTypes; let i = index" [value]="destinationTypes[i].id" [selected]="option > 0">
               {{destinationTypes[i].name}}
             </option>
           </select>
