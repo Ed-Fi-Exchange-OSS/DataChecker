@@ -137,7 +137,7 @@ namespace MSDF.DataChecker.Services
                     Dictionary<string, string> columnsFromLog = new Dictionary<string, string>();
                     if (!string.IsNullOrEmpty(ruleExecutionLog.DetailsSchema))
                     {
-                        columnsFromLog = JsonConvert.DeserializeObject<Dictionary<string, string>>(ruleExecutionLog.DetailsSchema);
+                        columnsFromLog = JsonConvert.DeserializeObject<Dictionary<string, string>>(ruleExecutionLog.DetailsSchema.ToLower());
                     }
 
                     var reader = await _queries.GetByRuleExecutionLogIdAsync(id, catalog.Name);
