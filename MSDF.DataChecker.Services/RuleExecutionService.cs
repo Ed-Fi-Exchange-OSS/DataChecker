@@ -127,7 +127,7 @@ namespace MSDF.DataChecker.Services
                         if (rule.MaxNumberResults != null)
                             maxNumberResults = rule.MaxNumberResults.Value;
 
-                        await InsertDiagnosticSqlIntoDetails(rule, newRuleExecutionLog, connectionString, databaseEnvironment.UserParams, existCatalog.Name, maxNumberResults);
+                        await InsertDiagnosticSqlIntoDetails(rule, newRuleExecutionLog, connectionString, databaseEnvironment.UserParams, existCatalog.Name, maxNumberResults, databaseEnvironment.TimeoutInMinutes);
                     }
                 }
             }
@@ -288,7 +288,7 @@ namespace MSDF.DataChecker.Services
             return result;
         }
 
-        private async Task InsertDiagnosticSqlIntoDetails(RuleBO rule, RuleExecutionLog ruleExecutionLog, string connectionString, List<UserParamBO> sqlParams, string tableName, int maxNumberResults)
+        private async Task InsertDiagnosticSqlIntoDetails(RuleBO rule, RuleExecutionLog ruleExecutionLog, string connectionString, List<UserParamBO> sqlParams, string tableName, int maxNumberResults, int? timeout)
         {
             string sqlToRun = Utils.GenerateSqlWithTop(rule.DiagnosticSql, maxNumberResults.ToString());
             string columnsSchema = string.Empty;
@@ -300,6 +300,8 @@ namespace MSDF.DataChecker.Services
                 using (var cmd = new SqlCommand(sqlToRun, conn))
                 {
                     AddParameters(sqlToRun,cmd,sqlParams);
+                    if (timeout.HasValue)
+                        cmd.CommandTimeout = (timeout.Value * 60);
                     var reader = await cmd.ExecuteReaderAsync();
 
                     Dictionary<string, string> listColumns = new Dictionary<string, string>();
