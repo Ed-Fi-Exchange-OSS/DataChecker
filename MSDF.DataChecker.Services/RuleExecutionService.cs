@@ -131,7 +131,7 @@ namespace MSDF.DataChecker.Services
                         if (rule.MaxNumberResults != null)
                             maxNumberResults = rule.MaxNumberResults.Value;
 
-                        await InsertDiagnosticSqlIntoDetails(rule, newRuleExecutionLog, connectionString, databaseEnvironment.UserParams, existCatalog.Name, maxNumberResults);
+                        await InsertDiagnosticSqlIntoDetails(rule, newRuleExecutionLog, connectionString, databaseEnvironment.UserParams, existCatalog.Name, maxNumberResults,_appSettings.Engine);
                     }
                 }
             }
@@ -292,9 +292,9 @@ namespace MSDF.DataChecker.Services
             return result;
         }
 
-        private async Task InsertDiagnosticSqlIntoDetails(RuleBO rule, RuleExecutionLog ruleExecutionLog, string connectionString, List<UserParamBO> sqlParams, string tableName, int maxNumberResults)
+        private async Task InsertDiagnosticSqlIntoDetails(RuleBO rule, RuleExecutionLog ruleExecutionLog, string connectionString, List<UserParamBO> sqlParams, string tableName, int maxNumberResults,string engine)
         {
-            string sqlToRun = Utils.GenerateSqlWithTop(rule.DiagnosticSql, maxNumberResults.ToString());
+            string sqlToRun = Utils.GenerateSqlWithTop(rule.DiagnosticSql, maxNumberResults.ToString(), engine);
             string columnsSchema = string.Empty;
             var listColumnsFromDestination = await _edFiRuleExecutionLogDetailQueries.GetColumnsByTableAsync(tableName, "destination");
 
@@ -317,7 +317,7 @@ namespace MSDF.DataChecker.Services
                             ruleExecutionLog.DetailsSchema = columnsSchema;
                             await _ruleExecutionLogCommands.UpdateAsync(ruleExecutionLog);
                         }
-                        await _edFiRuleExecutionLogDetailCommands.ExecuteSqlBulkCopy(tableToInsert, $"[destination].[{tableName}]");
+                        await _edFiRuleExecutionLogDetailCommands.ExecuteSqlBulkCopy(tableToInsert, $"[destination].[{tableName}]",_appSettings.Engine);
                     }
                 }
             }

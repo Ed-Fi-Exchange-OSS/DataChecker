@@ -116,7 +116,7 @@ namespace MSDF.DataChecker.Services.RuleExecution
                     var ruleExecutionLogInfo = await GetByRuleExecutionLogIdAsync(id);
 
                     DataTable infoToInsert = Utils.GetTableForSqlBulk(ruleExecutionLogInfo.Rows, columns);
-                    await _commandRuleExecutionLogDetail.ExecuteSqlBulkCopy(infoToInsert, $"[destination].[{tableName}]");
+                    await _commandRuleExecutionLogDetail.ExecuteSqlBulkCopy(infoToInsert, $"[destination].[{tableName}]",_appSettings.Engine);
 
                     ruleExecutionLog.DetailsTableName = tableName;
                     await _commandRuleExecutionLog.UpdateAsync(ruleExecutionLog);

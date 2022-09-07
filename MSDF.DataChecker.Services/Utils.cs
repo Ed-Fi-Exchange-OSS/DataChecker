@@ -26,10 +26,15 @@ namespace MSDF.DataChecker.Services
             return results;
         }
 
-        public static string GenerateSqlWithTop(string diagnosticSql, string maxNumberResults)
+        public static string GenerateSqlWithTop(string diagnosticSql, string maxNumberResults, string Engine)
         {
             string result = diagnosticSql;
             result = result.ToLower().Trim();
+            if (result.EndsWith(";"))
+            {
+                result = result.Remove(result.Length-1,1);
+            }
+
 
             if (result.StartsWith("select"))
             {
@@ -37,13 +42,33 @@ namespace MSDF.DataChecker.Services
                 {
                     if (result.StartsWith("select distinct"))
                     {
-                        var regex = new Regex(Regex.Escape("select distinct"));
-                        result = regex.Replace(result, "select distinct top "+maxNumberResults+" ", 1);
+                        if (Engine == "SqlServer")
+                        {
+                            var regex = new Regex(Regex.Escape("select distinct"));
+                            result = regex.Replace(result, "select distinct top " + maxNumberResults + " ", 1);
+                        }
+                        else
+                        {
+                            string pattern = @"limit\s\d+";
+                            Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
+                            if (! m.Success)
+                                result = result + $" Limit {maxNumberResults} ";
+                        }
                     }
                     else
                     {
-                        var regex = new Regex(Regex.Escape("select"));
-                        result = regex.Replace(result, "select top "+ maxNumberResults + " ", 1);
+                        if (Engine == "SqlServer")
+                        {
+                            var regex = new Regex(Regex.Escape("select"));
+                            result = regex.Replace(result, "select top " + maxNumberResults + " ", 1);
+                        }
+                        else
+                        {
+                            string pattern = @"limit\s\d+";
+                            Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
+                            if (!m.Success)
+                                result = result + $" Limit {maxNumberResults} ";
+                        }
                     }
                 }
             }
@@ -51,15 +76,18 @@ namespace MSDF.DataChecker.Services
             {
                 if (!result.Contains(") select top"))
                 {
-                    if (result.Contains(") select distinct"))
+                    if (Engine == "SqlServer")
                     {
-                        var regex = new Regex(Regex.Escape(") select distinct"));
-                        result = regex.Replace(result, ") select distinct top "+ maxNumberResults + " ", 1);
-                    }
-                    else
-                    {
-                        var regex = new Regex(Regex.Escape(") select"));
-                        result = regex.Replace(result, ") select top "+ maxNumberResults + " ", 1);
+                        if (result.Contains(") select distinct"))
+                        {
+                            var regex = new Regex(Regex.Escape(") select distinct"));
+                            result = regex.Replace(result, ") select distinct top " + maxNumberResults + " ", 1);
+                        }
+                        else
+                        {
+                            var regex = new Regex(Regex.Escape(") select"));
+                            result = regex.Replace(result, ") select top " + maxNumberResults + " ", 1);
+                        }
                     }
                 }
             }
@@ -99,6 +127,8 @@ namespace MSDF.DataChecker.Services
                     table.Columns.Add(column.Key, typeof(decimal));
                 else if (column.Value.Contains("float"))
                     table.Columns.Add(column.Key, typeof(double));
+                else if (column.Value.Contains("text"))
+                    table.Columns.Add(column.Key, typeof(string));
             }
 
             if (reader.Rows.Count > 0)
@@ -171,6 +201,8 @@ namespace MSDF.DataChecker.Services
                     table.Columns.Add(column.Key, typeof(decimal));
                 else if (column.Value.Contains("float"))
                     table.Columns.Add(column.Key, typeof(double));
+                else if (column.Value.Contains("text"))
+                    table.Columns.Add(column.Key, typeof(string));
             }
 
             if (reader.HasRows)
@@ -264,7 +296,7 @@ namespace MSDF.DataChecker.Services
                     var columnValue = dr[col];
                     if (columnValue.GetType() == typeof(DateTime))
                     {
-                        if(DateTime.TryParse(columnValue.ToString(),out dtAux))
+                        if (DateTime.TryParse(columnValue.ToString(), out dtAux))
                             result.Add(col, dtAux.ToString("MM/dd/yyyy"));
                         else
                             result.Add(col, columnValue);
@@ -277,7 +309,7 @@ namespace MSDF.DataChecker.Services
                 else
                 {
                     result.Add(col, "NULL");
-                }                    
+                }
             }
             return result;
         }
