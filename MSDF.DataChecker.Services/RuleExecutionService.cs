@@ -162,7 +162,7 @@ namespace MSDF.DataChecker.Services
                     int execution = 0;
                     bool resultWithErrors = false;
                     await conn.OpenAsync();
-                    string sqlToRun = Utils.GenerateSqlWithCount(rule.DiagnosticSql);
+                    string sqlToRun = Utils.GenerateSqlWithCount(rule.DiagnosticSql,_appSettings.Engine);
 
                     try
                     {

@@ -166,7 +166,7 @@ namespace MSDF.DataChecker.Services.RuleExecution
 
                 int execution = 0;
                 bool resultWithErrors = false;
-                string sqlToRun = Utils.GenerateSqlWithCount(rule.DiagnosticSql);
+                string sqlToRun = Utils.GenerateSqlWithCount(rule.DiagnosticSql,_appSettings.Engine);
                 var parameters = new Dictionary<string, string>();
                 userParams.ForEach(item => { parameters.Add(item.Name, item.Value); });
 

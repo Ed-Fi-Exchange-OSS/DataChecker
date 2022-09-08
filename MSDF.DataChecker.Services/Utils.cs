@@ -87,7 +87,10 @@ namespace MSDF.DataChecker.Services
                     string pattern = @"limit\s+\d+";
                     Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
                     if (!m.Success)
-                        result = result + limitValue == string.Empty ? " Limit " + maxNumberResults : limitValue ;
+                    {
+                        limitValue = limitValue == string.Empty ? " Limit " + maxNumberResults : limitValue;
+                        result = result + " " + limitValue;
+                    }
                 }
             }
             else if (result.StartsWith("with"))
@@ -170,14 +173,82 @@ namespace MSDF.DataChecker.Services
             return result;
         }
 
-        public static string GenerateSqlWithCount(string diagnosticSql)
+        public static string ValidateLimitRows(string diagnosticSql,string engine)
         {
             string result = diagnosticSql;
             result = result.ToLower().Trim().Replace(";", "");
+            result = result.ToLower().Trim();
+            if (result.EndsWith(";"))
+            {
+                result = result.Remove(result.Length - 1, 1);
+            }
+
+            var topValue = "";
+            var limitExpression = @"top\s+\d+";
+            var limitGroups = Regex.Match(result, limitExpression).Groups;
+            if (limitGroups[0].Success)
+            {
+                topValue = limitGroups[0].Value;
+                result = result.Replace(limitGroups[0].Value, "");
+            }
+
+
+            var limitValue = "";
+            limitExpression = @"limit\s+\d+";
+            limitGroups = Regex.Match(result, limitExpression).Groups;
+            if (limitGroups[0].Success)
+            {
+                limitValue = limitGroups[0].Value;
+                result = result.Replace(limitGroups[0].Value, "");
+            }
+            if (engine == "SqlServer" && !string.IsNullOrEmpty(limitValue))
+            {
+                topValue = limitValue.Replace("limit", "top");
+            }
+            else if (engine == "Postgres" && !string.IsNullOrEmpty(topValue))
+            {
+                limitValue = topValue.Replace("top", "Limit");
+            }
+
 
             if (result.StartsWith("select"))
             {
-                return string.Format("SELECT COUNT(*) FROM ( \n {0} \n) as TBL", result);
+                if (engine == "SqlServer")
+                {
+                    var regex = new Regex(Regex.Escape("select distinct"));
+                    if (regex.IsMatch(result))
+                    {
+                        result = regex.Replace(result, $"select distinct {topValue} ", 1);
+                    }
+                    else
+                    {
+                        regex = new Regex(Regex.Escape("select"));
+                        if (regex.IsMatch(result))
+                        {
+                            result = regex.Replace(result, $"select {topValue} ", 1);
+                        }
+                    }
+                }
+                else
+                {
+                    string pattern = @"limit\s+\d+";
+                    Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
+                    if (!m.Success)
+                    {
+                        result = result + " " + limitValue;
+                    }
+                }
+            }
+
+            return result;
+        }
+            public static string GenerateSqlWithCount(string diagnosticSql,string engine)
+        {
+            string result = diagnosticSql;
+
+            if (result.StartsWith("select"))
+            {
+                return string.Format("SELECT COUNT(*) FROM ( \n {0} \n) as TBL", ValidateLimitRows(result, engine));
             }
 
             return string.Empty;
