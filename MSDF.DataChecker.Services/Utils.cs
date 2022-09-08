@@ -35,41 +35,59 @@ namespace MSDF.DataChecker.Services
                 result = result.Remove(result.Length-1,1);
             }
 
+            var topValue = "";
+            var limitExpression = @"top\s+\d+";
+           var limitGroups = Regex.Match(result, limitExpression).Groups;
+            if (limitGroups[0].Success)
+            {
+                topValue = limitGroups[0].Value;
+                result = result.Replace(limitGroups[0].Value, "");
+            }
+
+
+            var limitValue = "";
+            limitExpression = @"limit\s+\d+";
+            limitGroups = Regex.Match(result, limitExpression).Groups;
+            if (limitGroups[0].Success)
+            {
+                limitValue = limitGroups[0].Value;
+                result = result.Replace(limitGroups[0].Value, "");
+            }
+            if (Engine == "SqlServer" && !string.IsNullOrEmpty(limitValue))
+            {
+                topValue  = limitValue.Replace("limit", "top");
+            }
+            else if (Engine == "Postgres" && !string.IsNullOrEmpty(topValue))
+            {
+                limitValue = topValue.Replace("top","Limit");
+            }
 
             if (result.StartsWith("select"))
             {
-                if (!result.StartsWith("select top"))
+                if (Engine == "SqlServer")
                 {
-                    if (result.StartsWith("select distinct"))
+                    var regex = new Regex(Regex.Escape("select distinct"));
+                    if (regex.IsMatch(result))
                     {
-                        if (Engine == "SqlServer")
-                        {
-                            var regex = new Regex(Regex.Escape("select distinct"));
-                            result = regex.Replace(result, "select distinct top " + maxNumberResults + " ", 1);
-                        }
-                        else
-                        {
-                            string pattern = @"limit\s\d+";
-                            Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
-                            if (! m.Success)
-                                result = result + $" Limit {maxNumberResults} ";
-                        }
-                    }
+                        var top = topValue==string.Empty ? $" top {maxNumberResults}" : topValue;
+                        result = regex.Replace(result, $"select distinct {top} ", 1);
+                    }                        
                     else
                     {
-                        if (Engine == "SqlServer")
+                        regex = new Regex(Regex.Escape("select"));
+                        if (regex.IsMatch(result))
                         {
-                            var regex = new Regex(Regex.Escape("select"));
-                            result = regex.Replace(result, "select top " + maxNumberResults + " ", 1);
-                        }
-                        else
-                        {
-                            string pattern = @"limit\s\d+";
-                            Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
-                            if (!m.Success)
-                                result = result + $" Limit {maxNumberResults} ";
+                            var top = topValue == string.Empty ? $" top {maxNumberResults}" : topValue;
+                            result = regex.Replace(result, $"select {top} ", 1);
                         }
                     }
+                }
+                else
+                {
+                    string pattern = @"limit\s+\d+";
+                    Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
+                    if (!m.Success)
+                        result = result + limitValue == string.Empty ? " Limit " + maxNumberResults : limitValue ;
                 }
             }
             else if (result.StartsWith("with"))
@@ -91,6 +109,63 @@ namespace MSDF.DataChecker.Services
                     }
                 }
             }
+
+
+            //if (result.StartsWith("select"))
+            //{
+            //    if (!result.StartsWith("select top"))
+            //    {
+            //        if (result.StartsWith("select distinct"))
+            //        {
+            //            if (Engine == "SqlServer")
+            //            {
+            //                var regex = new Regex(Regex.Escape("select distinct"));
+            //                result = regex.Replace(result, "select distinct top " + maxNumberResults + " ", 1);
+            //            }
+            //            else
+            //            {
+            //                string pattern = @"limit\s\d+";
+            //                Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
+            //                if (! m.Success)
+            //                    result = result + $" Limit {maxNumberResults} ";
+            //            }
+            //        }
+            //        else
+            //        {
+            //            if (Engine == "SqlServer")
+            //            {
+            //                var regex = new Regex(Regex.Escape("select"));
+            //                result = regex.Replace(result, "select top " + maxNumberResults + " ", 1);
+            //            }
+            //            else
+            //            {
+            //                string pattern = @"limit\s\d+";
+            //                Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
+            //                if (!m.Success)
+            //                    result = result + $" Limit {maxNumberResults} ";
+            //            }
+            //        }
+            //    }
+            //}
+            //else if (result.StartsWith("with"))
+            //{
+            //    if (!result.Contains(") select top"))
+            //    {
+            //        if (Engine == "SqlServer")
+            //        {
+            //            if (result.Contains(") select distinct"))
+            //            {
+            //                var regex = new Regex(Regex.Escape(") select distinct"));
+            //                result = regex.Replace(result, ") select distinct top " + maxNumberResults + " ", 1);
+            //            }
+            //            else
+            //            {
+            //                var regex = new Regex(Regex.Escape(") select"));
+            //                result = regex.Replace(result, ") select top " + maxNumberResults + " ", 1);
+            //            }
+            //        }
+            //    }
+            //}
 
             return result;
         }
