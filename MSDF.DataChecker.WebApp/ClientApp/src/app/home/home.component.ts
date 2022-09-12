@@ -127,7 +127,9 @@ export class HomeComponent implements OnInit {
     this.newCollection.ruleDetailsDestinationId = 0;
     this.newCollection.dateUpdated = new Date();
     this.newCollection.strDateUpdated = this.getFormatDate(this.newCollection.dateUpdated);
-
+    if (this.destinationTypes.length > 0) {
+      this.newCollection.ruleDetailsDestinationId = this.destinationTypes[this.destinationTypes.length - 1].id;
+    }
     this.addCollectionObjModal = this.modalService.open(content, { ariaLabelledBy: "modal-basic-title", backdrop: "static" });
     this.addCollectionObjModal.result.then(
       result => {
