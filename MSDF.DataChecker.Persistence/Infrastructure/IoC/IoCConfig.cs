@@ -28,10 +28,14 @@ namespace MSDF.DataChecker.Persistence.Infrastructure.IoC
                 var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
                   connectionString = Utility.ParseConnectionString(connectionString, settings.Engine);
                 if (settings.Engine == "SqlServer")
-                    dataAccessProvider.SQLServer(container, connectionString ?? settings.ConnectionStrings.SqlServer);
-                else 
-                    dataAccessProvider.PostgresSQL(container, connectionString ?? settings.ConnectionStrings.PostgresSql);
-                    
+                    dataAccessProvider.SQLServer(container, settings.ConnectionStrings.SqlServer);
+                else
+                    dataAccessProvider.PostgresSQL(container, settings.ConnectionStrings.PostgresSql);
+                //if (settings.Engine == "SqlServer")
+                //    //dataAccessProvider.SQLServer(container, connectionString ?? settings.ConnectionStrings.SqlServer);
+                //else 
+                //   //dataAccessProvider.PostgresSQL(container, connectionString ?? settings.ConnectionStrings.PostgresSql);
+
             } else
                 if (settings.Engine == "SqlServer")
                     dataAccessProvider.SQLServer(container, settings.ConnectionStrings.SqlServer);
