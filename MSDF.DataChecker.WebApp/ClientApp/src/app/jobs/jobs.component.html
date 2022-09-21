@@ -125,16 +125,13 @@
           <td>{{ getTypeName(job) }}</td>
           <td>{{ getTargetName(job) }}</td>
           <td>
-            <i fa class="icon-table text-info" name="play" (click)="enqueue(job)"></i>
-            <!--<fa class="icon-table text-info" name="play" (click)="enqueue(job)"></fa>-->
-            <i fa class="icon-table text-success" name="pencil-alt" (click)="edit(job)"></i>
-            <!--<fa class="icon-table text-success" name="pencil-alt" (click)="edit(job)"></fa>-->
+            <i class="icon ion-md-play-circle btn_principal  text-primary" ngbTooltip="Run" style="margin:5px;cursor:pointer;" (click)="enqueue(job)"></i>
+            <i class="fa-solid fa-pencil icon-table text-success" placement="top" ngbTooltip="edit" style="margin:5px;cursor:pointer;" name="pencil-alt" (click)="edit(job)"></i>
+            <i class=" icon ion-md-trash icon-table text-danger" name="trash" ngbTooltip="Delete" [ngbPopover]="popDeleteJobContent" popoverTitle="Confirm Delete?" placement="bottom"></i>
             <ng-template #popDeleteJobContent>
               <button class="btn btn-danger" (click)="delete(job)" style="max-height: 50px;">Yes</button>
               <button class="btn btn-default" style="margin-left:10px">No</button>
             </ng-template>
-            <i fa class="icon-table text-danger" name="trash" [ngbPopover]="popDeleteJobContent" popoverTitle="Confirm Delete?" placement="bottom"></i>
-            <!--<fa class="icon-table text-danger" name="trash" [ngbPopover]="popDeleteJobContent" popoverTitle="Confirm Delete?" placement="bottom"></fa>-->
           </td>
         </tr>
       </tbody>
