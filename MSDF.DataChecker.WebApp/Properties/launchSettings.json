@@ -27,6 +27,8 @@
             "DatabaseSettings__Engine": "Postgres",
             "DatabaseSettings__ConnectionStrings__PostgresSql": "Server=localhost;Port=5432;Database=DataCheckerPersistence;User Id=postgres;Password=YOUPASSWORD;",
             "Serilog__MinimumLevel__Default": "Warning",
+            "Serilog__WriteTo__0__Args__Name": "Console",
+            "Serilog__WriteTo__0__Args__restrictedToMinimumLevel": "Debug",
             "EncryptionKey": "M2c240FUeEbs5SxxO1vra721t1T41xwO",
             "MaxNumberResults": "100"
 
