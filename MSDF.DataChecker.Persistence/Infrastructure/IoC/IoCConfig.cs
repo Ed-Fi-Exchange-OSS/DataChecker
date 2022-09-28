@@ -22,33 +22,50 @@ namespace MSDF.DataChecker.Persistence.Infrastructure.IoC
             configuration.GetEnvironmentVariable();
             container.Configure<DataBaseSettings>(configuration.GetSection("DatabaseSettings"));
             var settings = configuration.GetSection("DatabaseSettings").Get<DataBaseSettings>();
+            //Console.WriteLine(settings1);
             // Check if is running in Docker
             if (settings.RunningInDockerContainer)
             {
-                var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
-                  connectionString = Utility.ParseConnectionString(connectionString, settings.Engine);
                 if (settings.Engine == "SqlServer")
-                    dataAccessProvider.SQLServer(container, connectionString ?? settings.ConnectionStrings.SqlServer);
+                    settings.ConnectionStrings.SqlServer = Utility.ParseConnectionString(settings.ConnectionStrings.SqlServer, settings.Engine);
                 else
-                   dataAccessProvider.PostgresSQL(container, connectionString ?? settings.ConnectionStrings.PostgresSql);
-
+                    settings.ConnectionStrings.PostgresSql = Utility.ParseConnectionString(settings.ConnectionStrings.PostgresSql, settings.Engine);
             }
+            if (settings.Engine == "SqlServer")
+                dataAccessProvider.SQLServer(container, settings.ConnectionStrings.SqlServer);
             else
-                if (settings.Engine == "SqlServer")
-                    dataAccessProvider.SQLServer(container, settings.ConnectionStrings.SqlServer);
-                else
-                    dataAccessProvider.PostgresSQL(container, settings.ConnectionStrings.PostgresSql);
+                dataAccessProvider.PostgresSQL(container, settings.ConnectionStrings.PostgresSql);
             RegisterCommandsAndQueriesByConvention<IPersistenceMarker>(container);
         }
 
         public static IConfiguration GetEnvironmentVariable(this IConfiguration configuration)
         {
             var DOTNET_RUNNING_IN_CONTAINER = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
-            var dockerEngine = Environment.GetEnvironmentVariable("Engine");
+            var dockerEngine = Environment.GetEnvironmentVariable("DatabaseSettings__Engine");
             if (!string.IsNullOrEmpty(DOTNET_RUNNING_IN_CONTAINER))
+            {
                 configuration.GetSection("DataBaseSettings:RunningInDockerContainer").Value = "true";
-            if (!string.IsNullOrEmpty(dockerEngine))
-                configuration.GetSection("DataBaseSettings:Engine").Value = dockerEngine;
+                if (!string.IsNullOrEmpty(dockerEngine))
+                    configuration.GetSection("DataBaseSettings:Engine").Value = dockerEngine;
+
+                var sqlServer = Environment.GetEnvironmentVariable("DATABASESETTINGS__CONNECTIONSTRINGS__SQLSERVER");
+                if (!string.IsNullOrEmpty(sqlServer))
+                    configuration.GetSection("DataBaseSettings:ConnectionStrings:SqlServer").Value = sqlServer;
+
+                var postgres = Environment.GetEnvironmentVariable("DATABASESETTINGS__CONNECTIONSTRINGS__POSTGRESSQL");
+                if (!string.IsNullOrEmpty(postgres))
+                    configuration.GetSection("DataBaseSettings:ConnectionStrings:PostgresSql").Value = postgres;
+
+
+                sqlServer = Environment.GetEnvironmentVariable("DatabaseSettings__ConnectionStrings__SqlServer");
+                if (!string.IsNullOrEmpty(sqlServer))
+                    configuration.GetSection("DataBaseSettings:ConnectionStrings:SqlServer").Value = sqlServer;
+
+                postgres = Environment.GetEnvironmentVariable("DatabaseSettings__ConnectionStrings__PostgresSql");
+                if (!string.IsNullOrEmpty(postgres))
+                    configuration.GetSection("DataBaseSettings:ConnectionStrings:PostgresSql").Value = postgres;
+            }
+
             return configuration;
         }
 

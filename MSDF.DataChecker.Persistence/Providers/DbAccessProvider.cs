@@ -23,7 +23,7 @@ namespace MSDF.DataChecker.Persistence.Providers
     {
         public void PostgresSQL(IServiceCollection configuration, string ConnectionStrings)
         {
-            configuration.AddEntityFrameworkNpgsql().AddDbContext<DatabaseContext>(opt => opt.UseNpgsql(ConnectionStrings));
+            configuration.AddDbContext<DatabaseContext>(opt => opt.UseNpgsql(ConnectionStrings));
             configuration.AddHangfire(globalConfiguration => globalConfiguration
                  .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                  .UseSimpleAssemblyNameTypeSerializer()
