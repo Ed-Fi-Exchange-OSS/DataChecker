@@ -19,13 +19,13 @@ This option will work well for teams that are installing data checker on a Windo
 * SQL Server Management Studio (SSMS)  or PG Admin
 
 #### Binary Install- Installation Steps ####
-* Download the file WebApp.zip and either the DataCheckerPersistance.bacpac (for SqlServer) or DataCheckerPersistance.sql (for postgres) from the latest release here: https://github.com/Ed-Fi-Exchange-OSS/DataChecker/releases
-* Unzip WebApp.zip to a local folder
+* Download the file DataChecker.zip and either the DataCheckerPersistance.bacpac (for SqlServer) or DataCheckerPersistance.dump (for postgres) from the latest release here: https://github.com/Ed-Fi-Exchange-OSS/DataChecker/releases
+* Unzip DataChecker.zip to a local folder
 * Validate if you have all your prerequisites installed running the powershell script VerifyPreReqs.ps1
 * Copy the folder DataChecker in the path: C:\inetpub\wwwroot\DataChecker or other suitable location for the web application
 * Find that folder in IIS, right click and 'convert to application'
 * If using MS Sql Server, Restore the dataCheckerPersitance.bacpac file.
-* Otherwise if using Posgres, Create a new Postgres database and run the DataCHeckerPersistance.SQL file in PG Admin or the psql command line to restore all of the objects to that database.
+* Otherwise if using Posgres, use pg_restore and the DataCheckerPersistance.dump to restore the database. .
 * Open the file C:\inetpub\wwwroot\DataChecker\appsettings.json
 	* Make sure the 'Engine' value is set to the database engine of your choice
 	* Make usre the connection string is valid for the database that you just restored. The database user will need write acces to the datachecker database. In order to use integrated security with MS SQL SErver there will need to be a new SQL Server login created or the user IIS_APPPOOL/<app pool name>. 
