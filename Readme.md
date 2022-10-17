@@ -83,6 +83,7 @@ For both environments you will need to complete the following common prerequisit
 ### Download or Clone the code to your machine ###
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 * Clone this repository locally
 * Open the solution (MSDF.DataChecker.sln) file located in the root directory of the repository in Visual Studeio
 * Open the <project root./MSDF.DataChecker.WebApp/ClientApp folder in Powershell (or another shell and run:) <npm install -force>
@@ -95,6 +96,9 @@ For both environments you will need to complete the following common prerequisit
 * In the package manager console run: Add-Migration MyMigration -context DatabaseContext
 * Then run: Update-Database -context DatabaseContext
 * Deploy the WebApp to a folder in the IIS root and convert it into an application in IIS.
+=======
+Clone or download the code located in the github repository: https://github.com/Ed-Fi-Exchange-OSS/DataChecker/
+>>>>>>> parent of 90e1c37 (updated readme)
 =======
 Clone or download the code located in the github repository: https://github.com/Ed-Fi-Exchange-OSS/DataChecker/
 >>>>>>> parent of 90e1c37 (updated readme)
