@@ -59,7 +59,7 @@ This method is recommend for teams that may want to modify the source code and h
 * In visual studeio solutions Explorer delate the DataChecker.Persistanc-> Migrations folder if it exists.
 * In the package manager console run: Add-Migration MyMigration -context DatabaseContext
 * Then run: Update-Database -context DatabaseContext
-* Deploy the WebApp to a folder in the IIS root and convert it into an application in IIS
+* Deploy the WebApp to a folder in the IIS root and convert it into an application in IIS.
 
 ## Docker Install ##
 The data checker web app is available as a docker container. At this time there is not a containerized version of the database.
