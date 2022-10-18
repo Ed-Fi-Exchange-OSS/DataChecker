@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -41,6 +41,11 @@ namespace MSDF.DataChecker.Persistence.EntityFramework
 
             modelBuilder.Entity<ContainerType>().HasData(new ContainerType { Id = 1, Name = "Collection" });
             modelBuilder.Entity<ContainerType>().HasData(new ContainerType { Id = 2, Name = "Folder" });
+
+            modelBuilder.Entity<Catalog>().HasData(new Catalog { Id = 1, CatalogType = "EnvironmentType", Name = "Ed-Fi v2.X", Description = "Ed-Fi v2.X" });
+            modelBuilder.Entity<Catalog>().HasData(new Catalog { Id = 2, CatalogType = "EnvironmentType", Name = "Ed-Fi v3.X", Description = "Ed-Fi v3.X" });
+            modelBuilder.Entity<Catalog>().HasData(new Catalog { Id = 3, CatalogType = "RuleDetailsDestinationType", Name = "EdFiRuleExecutionLogDetails", Description = "EdFiRuleExecutionLogDetails" });
+
         }
     }
 }

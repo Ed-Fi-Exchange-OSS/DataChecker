@@ -4,14 +4,17 @@
     <div class="col-md-7">
       <div class="rule-name">
         <div class="text-truncate" placement="top" ngbTooltip="{{rule.ruleIdentification}} {{rule.name}}">
-          <fa *ngIf="rule.lastStatus == 3" name="exclamation-circle" class="fa-lg fa-status-sql-error"></fa>
-          <fa *ngIf="rule.lastStatus == 1" name="check-circle" class="fa-lg fa-status-success"></fa>
-          <fa *ngIf="rule.lastStatus == 2" name="times-circle" class="fa-lg fa-status-fail"></fa>
+
+          <i fa *ngIf="rule.lastStatus == 3" name="exclamation-circle" class="fa-lg fa-status-sql-error fa-solid fa-circle-exclamation"></i>
+          <i fa *ngIf="rule.lastStatus == 1" name="check-circle" class="fa-lg fa-status-success fa-solid fa-circle-check"></i>
+          <i fa *ngIf="rule.lastStatus == 2" name="times-circle" class="fa-lg fa-status-fail fas fa-times-circle"></i>
+
           {{rule.ruleIdentification}} {{rule.name}}
         </div>
         <div style="float:right">
           <span (click)="rule.displayDetails = !rule.displayDetails;">
-            <fa class="right-icon icon-medium-size" name="info-circle"></fa>
+            <i fa class="right-icon icon-medium-size" name="info-circle"></i>
+            <!--<fa class="right-icon icon-medium-size" name="info-circle"></fa>-->
           </span>
         </div>
       </div>
@@ -31,10 +34,11 @@
       </div>
       <div style="float:right">
         <button *ngIf="rule.isExecuting" class="btn btn-success btn-addon" style="font-size: 13px;">
-          <fa name="spinner" animation="pulse"></fa> Running
+          <i fa name="spinner" animation="pulse"></i> Running
+          <!--<fa name="spinner" animation="pulse"></fa> Running-->
         </button>
         <button *ngIf="!rule.isExecuting" class="btn btn-info btn-addon" (click)="executeRule();" style="font-size: 13px;">
-          <fa name="play"></fa> Run
+          <i fa name="play"></i> Run
         </button>
         <i *ngIf="rule.displayResults" class="fas fa-angle-up fa-lg margin-auto right-icon cursor-pointer"
            style="color: #b0b0b0;margin-left: 8px;margin-top: 20px;" (click)="getRuleResults();"></i>
@@ -153,12 +157,14 @@
                   <div class="" data-title="See error"
                        *ngIf="result.displayErrorDetails && result.status == 2"
                        (click)="result.displayErrorDetails = !result.displayErrorDetails">
-                    <fa name="arrow-up"></fa>
+                    <!--<fa name="arrow-up"></fa>-->
+                    <i class="fas fa-arrow-up"></i>
                   </div>
                   <div class="" data-title="See error"
                        *ngIf="!result.displayErrorDetails && result.status == 2"
                        (click)="result.displayErrorDetails = !result.displayErrorDetails">
-                    <fa name="arrow-down"></fa>
+                    <i class="fas fa-arrow-down"></i>
+                    <!--<fa name="arrow-down"></fa>-->
                   </div>
                 </td>
 

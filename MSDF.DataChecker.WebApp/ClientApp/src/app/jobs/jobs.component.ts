@@ -6,7 +6,7 @@ import { Category } from "../models/category.model";
 import { Job } from "../models/job.model";
 import { DatabaseEnvironment } from "../models/databaseEnvironment.model";
 import { FormGroup } from '@angular/forms';
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'jobs',
@@ -101,7 +101,7 @@ export class JobsComponent implements OnInit {
     return null;
   }
 
-  saveJob(jobForm: FormGroup, jobMessageModal) {
+  saveJob(jobForm: any, jobMessageModal) {
 
     if (!jobForm.valid) {
       this.markFormGroupTouched(jobForm);
@@ -185,7 +185,7 @@ export class JobsComponent implements OnInit {
     });
   }
 
-  cancelJob(jobForm: FormGroup) {
+  cancelJob(jobForm: any) {
     jobForm.reset();
     this.setInitialValues();
   }

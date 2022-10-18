@@ -1,10 +1,12 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using MSDF.DataChecker.Persistence.Settings;
 using MSDF.DataChecker.Services;
 using MSDF.DataChecker.Services.Models;
 using System;
@@ -14,17 +16,19 @@ namespace MSDF.DataChecker.WebApp.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DatabaseEnvironmentsController: ControllerBase
+    public class DatabaseEnvironmentsController : ControllerBase
     {
         private IDatabaseEnvironmentService _databaseEnvironmentService;
         private IConfiguration _configuration;
-
+        private readonly DataBaseSettings _appSettings;
         public DatabaseEnvironmentsController(
             IDatabaseEnvironmentService enviromentService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IOptionsSnapshot<DataBaseSettings> appSettings)
         {
             _databaseEnvironmentService = enviromentService;
             _configuration = configuration;
+            _appSettings = appSettings.Value;
         }
 
         [HttpGet]
@@ -63,7 +67,7 @@ namespace MSDF.DataChecker.WebApp.Controllers
             var databaseEnvironment = await _databaseEnvironmentService
                 .AddAsync(model);
 
-            if(databaseEnvironment != null)
+            if (databaseEnvironment != null)
                 return CreatedAtAction("Get", new { id = databaseEnvironment.Id }, databaseEnvironment);
 
             return BadRequest();
@@ -105,7 +109,7 @@ namespace MSDF.DataChecker.WebApp.Controllers
             var result = await _databaseEnvironmentService
                 .GetMapTableAsync(id);
 
-            if(result != null) 
+            if (result != null)
                 return Ok(result);
 
             return NotFound();
@@ -115,9 +119,9 @@ namespace MSDF.DataChecker.WebApp.Controllers
         public async Task<ActionResult> TestConnection([FromBody] DatabaseEnvironmentBO model)
         {
             var result = await _databaseEnvironmentService
-                .TestConnectionAsync(model.GetConnectionString());
+                .TestConnectionAsync(model.GetConnectionString(_appSettings.Engine));
 
-            if (result != null) 
+            if (result != null)
                 return Ok(result);
 
             return BadRequest();

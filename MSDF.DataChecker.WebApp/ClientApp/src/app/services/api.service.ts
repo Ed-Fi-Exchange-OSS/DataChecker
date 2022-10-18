@@ -12,6 +12,7 @@ import { RuleExecutionLogDetailService } from "./ruleExecutionLogDetail.service"
 
 @Injectable()
 export class ApiService {
+
   public rule: RuleService;
   public container: ContainerService;
   public community: CommunityService;

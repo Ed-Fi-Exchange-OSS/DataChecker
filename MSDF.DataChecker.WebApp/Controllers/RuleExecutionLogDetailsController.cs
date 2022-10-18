@@ -5,6 +5,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using MSDF.DataChecker.Services;
+using MSDF.DataChecker.Services.RuleExecution;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,10 +17,10 @@ namespace MSDF.DataChecker.WebApp.Controllers
     [ApiController]
     public class RuleExecutionLogDetailsController : ControllerBase
     {
-        private readonly IRuleExecutionLogDetailService _ruleExecutionLogDetailService;
+        private readonly IRuleExecLogDetailService _ruleExecutionLogDetailService;
 
         public RuleExecutionLogDetailsController(
-            IRuleExecutionLogDetailService ruleExecutionLogDetailService)
+            IRuleExecLogDetailService ruleExecutionLogDetailService)
         {
             _ruleExecutionLogDetailService = ruleExecutionLogDetailService;
         }

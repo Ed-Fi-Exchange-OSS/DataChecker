@@ -6,8 +6,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MSDF.DataChecker.Persistence.Providers;
 using MSDF.DataChecker.Services;
 using MSDF.DataChecker.Services.Models;
+using MSDF.DataChecker.Services.RuleExecution;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,7 +21,7 @@ namespace MSDF.DataChecker.cmd
     class Program
     {
         public static IConfiguration configuration;
-
+        public static IDbAccessProvider dataAccessProvider { get; set; }
         static void Main(string[] args)
         {
             try
@@ -91,7 +93,7 @@ namespace MSDF.DataChecker.cmd
                 var containerService = serviceProvider.GetService<IContainerService>();
                 var tagService = serviceProvider.GetService<ITagService>();
                 var _ruleService = serviceProvider.GetService<IRuleService>();
-                var _executionService = serviceProvider.GetService<IRuleExecutionService>();
+                var _executionService = serviceProvider.GetService<IRuleExecService>();
 
                 List<RuleBO> toRun = new List<RuleBO>();
 
@@ -181,7 +183,8 @@ namespace MSDF.DataChecker.cmd
                 .AddTransient<ContainerService>()
                 .AddTransient<RuleService>()
                 .AddTransient<TagService>()
-                .AddTransient<RuleExecutionService>()
+                //.AddTransient<RuleExecutionService>()
+                .AddTransient<IRuleExecService>()
                 .AddTransient<DatabaseEnvironmentService>();
 
             // Build configuration
@@ -196,12 +199,13 @@ namespace MSDF.DataChecker.cmd
             // Add services
             // TODO: Add generic way of registering services.
             serviceCollection.AddTransient<IRuleService, RuleService>();
-            serviceCollection.AddTransient<IRuleExecutionService, RuleExecutionService>();
+            serviceCollection.AddTransient<IRuleExecService, IRuleExecService>();
             serviceCollection.AddTransient<IDatabaseEnvironmentService, DatabaseEnvironmentService>();
             serviceCollection.AddTransient<IContainerService, ContainerService>();
             serviceCollection.AddTransient<ITagService, TagService>();
 
-            Services.Infrastructure.IoC.IoCConfig.RegisterDependencies(serviceCollection, configuration);
+            dataAccessProvider = new DbAccessProvider();
+            Services.Infrastructure.IoC.IoCConfig.RegisterDependencies(serviceCollection, configuration, dataAccessProvider); ;
         }
     }
 }

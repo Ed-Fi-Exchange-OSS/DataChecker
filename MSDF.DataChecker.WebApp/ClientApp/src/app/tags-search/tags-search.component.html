@@ -100,13 +100,16 @@
   </div>
   <div class="col-md-10" style="margin-bottom:20px;text-align:right">
     <button style="margin:5px" type="button" class="btn btn-info btn-lg btn_standar" (click)="showCopyRulesSelected(ruleCopyRulesToContent)">
-      <i class=" icon ion-md-copy"></i> Copy Selected Rules
+      <!--<i class=" icon ion-md-copy"></i> Copy Selected Rules-->
+      <i class="fa-solid fa-copy">Copy Selected Rules</i>
     </button>
     <button style="margin:5px" type="button" class="btn btn-secondary btn-lg btn_standar" (click)="showAssignTagsRulesSelected(ruleAssignTagsContent)">
-      <fa name="tags"></fa> Assign Tags to Selected Rules
+      <i class="fas fa-tags"> Assign Tags to Selected Rules</i>
+      <!--<fa name="tags"></fa> Assign Tags to Selected Rules-->
     </button>
     <button style="margin:5px" type="button" class="btn btn-primary btn-lg btn_standar" (click)="showMoveRulesSelected(moveRuleRuleSearchToContent)">
-      <fa name="arrows-alt"></fa> Move Selected Rules
+      <!--<fa name="arrows-alt"></fa> Move Selected Rules-->
+      <i class="fa-solid fa-maximize">Move Selected Rules</i>
     </button>
     <ng-template #popDeleteSelectedRuleSearchContent>
       <button class="btn btn-danger" (click)="deleteRulesSelected()">Yes</button>
@@ -137,15 +140,20 @@
           <td> {{ entity.name }} </td>
           <td>{{ entity.description }}</td>
           <td style="width:12%">
-            <fa placement="top" ngbTooltip="Modify Rule" style="margin:5px;cursor:pointer;" class="icon-table text-success" name="pencil-alt" (click)="modifyRule(ruleContent, entity)"></fa>
-            <fa placement="top" ngbTooltip="Copy Rule" style="margin:5px;cursor:pointer;" class="icon-table text-info" name="copy" (click)="copyRule(entity)"></fa>
+            <!--<fa placement="top" ngbTooltip="Modify Rule" style="margin:5px;cursor:pointer;" class="icon-table text-success" name="pencil-alt" (click)="modifyRule(ruleContent, entity)"></fa>-->
+            <i class="fa-solid fa-pencil icon-table text-success" placement="top" ngbTooltip="Modify Rule" style="margin:5px;cursor:pointer;" name="pencil-alt" (click)="modifyRule(ruleContent, entity)"></i>
+            <i class="fas fa-copy icon-table text-info" placement="top" ngbTooltip="Copy Rule" style="margin:5px;cursor:pointer;" name="copy" (click)="copyRule(entity)"></i>
+            <!--<fa placement="top" ngbTooltip="Copy Rule" style="margin:5px;cursor:pointer;" class="icon-table text-info" name="copy" (click)="copyRule(entity)"></fa>-->
             <ng-template #popDeleteRuleSearchContent>
               <button class="btn btn-danger" (click)="deleteRuleChild(entity)">Yes</button>
               <button class="btn btn-default" style="margin-left:10px">No</button>
             </ng-template>
-            <fa ngbTooltip="Delete Rule" style="margin:5px;cursor:pointer;" class="icon-table text-danger" name="trash" [ngbPopover]="popDeleteRuleSearchContent" popoverTitle="Confirm Delete?" placement="bottom"></fa>
-            <fa placement="top" ngbTooltip="Move Rule" style="margin:5px;cursor:pointer;" class="icon-table text-primary" name="arrows-alt" (click)="showMoveRule(entity, moveRuleRuleSearchToContent)"></fa>
-            <fa placement="top" ngbTooltip="View Last Log Details" style="margin:5px;cursor:pointer;" class="icon-table text-warning" name="eye" (click)="viewRuleExecutionLogDetailsFromOptions(ruleExecutionLogDetailRuleEditSearchContent, entity)"></fa>
+            <i class="fas fa-trash icon-table text-danger" ngbTooltip="Delete Rule" style="margin:5px;cursor:pointer;" name="trash" [ngbPopover]="popDeleteRuleSearchContent" popoverTitle="Confirm Delete?" placement="bottom"></i>
+            <!--<fa ngbTooltip="Delete Rule" style="margin:5px;cursor:pointer;" class="icon-table text-danger" name="trash" [ngbPopover]="popDeleteRuleSearchContent" popoverTitle="Confirm Delete?" placement="bottom"></fa>-->
+            <!--<fa placement="top" ngbTooltip="Move Rule" style="margin:5px;cursor:pointer;" class="icon-table text-primary" name="arrows-alt" (click)="showMoveRule(entity, moveRuleRuleSearchToContent)"></fa>-->
+            <i class="fas fa-arrows-alt icon-table text-primary" placement="top" ngbTooltip="Move Rule" style="margin:5px;cursor:pointer;" name="arrows-alt" (click)="showMoveRule(entity, moveRuleRuleSearchToContent)"></i>
+            <!--<fa placement="top" ngbTooltip="View Last Log Details" style="margin:5px;cursor:pointer;" class="icon-table text-warning" name="eye" (click)="viewRuleExecutionLogDetailsFromOptions(ruleExecutionLogDetailRuleEditSearchContent, entity)"></fa>-->
+            <i class="fas fa-eye icon-table text-warning" placement="top" ngbTooltip="View Last Log Details" style="margin:5px;cursor:pointer;"   name="eye" (click)="viewRuleExecutionLogDetailsFromOptions(ruleExecutionLogDetailRuleEditSearchContent, entity)"></i>
           </td>
         </tr>
       </tbody>
@@ -213,7 +221,7 @@
 
                 <div *ngIf="name.invalid" class="form-feedback">
 
-                  <div *ngIf="name.errors.required">
+                  <div *ngIf="name.errors?.['required']">
                     Name is required.
                   </div>
                 </div>
@@ -234,7 +242,7 @@
             <textarea id="description" name="description" class="form-control" required [(ngModel)]="newRule.description" #description="ngModel"></textarea>
 
             <div *ngIf="description.invalid" class="form-feedback">
-              <div *ngIf="description.errors.required">
+              <div *ngIf="description.errors?.['required']">
                 Description is required.
               </div>
             </div>
@@ -250,7 +258,7 @@
 
                 <div *ngIf="version.invalid" class="form-feedback">
 
-                  <div *ngIf="version.errors.required">
+                  <div *ngIf="version.errors?.['required']">
                     Version is required.
                   </div>
                 </div>
@@ -273,7 +281,7 @@
 
                 <div *ngIf="errorSeverityLevel.invalid" class="form-feedback">
 
-                  <div *ngIf="errorSeverityLevel.errors.required">
+                  <div *ngIf="errorSeverityLevel.errors?.['required']">
                     Severity level is required.
                   </div>
                 </div>
