@@ -281,19 +281,16 @@ namespace MSDF.DataChecker.Services
             {
                 List<string> staticColumns = new List<string>();
                 List<string> jsonColumns = new List<string>();
+               var  columnsToIgnore = new List<string>() { "id", "otherdetails", "ruleexecutionlogid" };
 
                 var columnsSource = reader.Columns;
                 foreach (DataColumn column in columnsSource)
                 {
                     string columnName = column.ColumnName.ToLower();
-                    if (classColumns.Contains(columnName))
-                    {
+                    if (!columnsToIgnore.Contains(columnName) && classColumns.Contains(columnName))
                         staticColumns.Add(columnName);
-                    }
                     else
-                    {
                         jsonColumns.Add(columnName);
-                    }
 
                     if (column.DataType.Name.ToLower().Contains("date"))
                         listColumnsSchema.Add(column.ColumnName, "datetime");
@@ -355,20 +352,21 @@ namespace MSDF.DataChecker.Services
             {
                 List<string> staticColumns = new List<string>();
                 List<string> jsonColumns = new List<string>();
+                var columnsToIgnore = new List<string>() { "id", "otherdetails", "ruleexecutionlogid" };
 
                 var columnsSource = reader.GetColumnSchema();
                 foreach (var column in columnsSource)
                 {
                     string columnName = column.ColumnName.ToLower();
-                    if (classColumns.Contains(columnName))
+                    if (!columnsToIgnore.Contains(columnName) && classColumns.Contains(columnName))
                     {
                         staticColumns.Add(columnName);
                     }
                     else
                     {
                         jsonColumns.Add(columnName);
-                    }
 
+                    }
                     if (column.DataTypeName.ToLower().Contains("date"))
                         listColumnsSchema.Add(column.ColumnName, "datetime");
                     else
