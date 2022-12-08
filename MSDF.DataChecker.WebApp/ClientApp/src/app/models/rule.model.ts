@@ -15,12 +15,14 @@ export class Rule {
   previousVersions: Rule[];
   enabled: boolean;
   results: TestResult[];
-
+  sql: string;
   createdByUserId: string;
   containerId: string;
-
+  errorMessage: string;
   // This variables are only for front-end purposes
   isExecuting: boolean;
+  expectedResult: number;
+  evaluationOperand: string;
   testResults: TestResult[];
   displayResults: boolean;
   displayDetails: boolean;

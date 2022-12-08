@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injector, Injectable  } from '@angular/core';
 import { UtilService } from './util.service';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,7 +10,9 @@ export class CatalogService {
   private component = "catalogs";
   private url = UtilService.apiUrl() + this.component;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+  }
+/*  constructor(private http: HttpClient) { }*/
 
   public get(): Observable<any> {
     return this.http

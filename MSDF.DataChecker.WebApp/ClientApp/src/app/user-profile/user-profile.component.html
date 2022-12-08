@@ -24,10 +24,10 @@
                                             <div *ngIf="name.invalid"
                                                 class="form-feedback">
 
-                                                <div *ngIf="name.errors.required">
+                                                <div *ngIf="name.errors?.['required']">
                                                     Full Name is required.
                                                 </div>
-                                                <div *ngIf="name.errors.minlength">
+                                                <div *ngIf="name.errors?.['minlength']">
                                                     Full Name must be at least 4 characters long.
                                                 </div>
                                             </div>
@@ -43,14 +43,14 @@
                                             <div *ngIf="email.invalid"
                                                 class="form-feedback">
 
-                                                <div *ngIf="email.errors.required">
+                                                <div *ngIf="email.errors?.['required']">
                                                     Email is required.
                                                 </div>
-                                                <div *ngIf="email.errors.minlength">
+                                                <div *ngIf="email.errors?.['minlength']">
                                                     Email must be at least 4 characters long.
                                                 </div>
 
-                                                <div *ngIf="email.errors.email">
+                                                <div *ngIf="email.errors?.['email'] ">
                                                     Invalid email format.
                                                 </div>
                                             </div>
@@ -87,10 +87,10 @@
                                     <div *ngIf="nameOfInstitution.invalid"
                                         class="form-feedback">
 
-                                        <div *ngIf="nameOfInstitution.errors.required">
+                                        <div *ngIf="nameOfInstitution.errors?.['required']">
                                             Institution name is required.
                                         </div>
-                                        <div *ngIf="nameOfInstitution.errors.minlength">
+                                        <div *ngIf="nameOfInstitution.errors?.['minlength']">
                                             Institution name must be at least 4 characters long.
                                         </div>
                                     </div>
@@ -107,10 +107,10 @@
                                     <div *ngIf="primaryContactName.invalid"
                                         class="form-feedback">
 
-                                        <div *ngIf="primaryContactName.errors.required">
+                                        <div *ngIf="primaryContactName.errors?.['required']">
                                             Contact name is required.
                                         </div>
-                                        <div *ngIf="primaryContactName.errors.minlength">
+                                        <div *ngIf="primaryContactName.errors?.['minlength']">
                                             Contact name must be at least 4 characters long.
                                         </div>
                                     </div>
@@ -132,10 +132,10 @@
                                     <div *ngIf="primaryContactPhone.invalid"
                                         class="form-feedback">
 
-                                        <div *ngIf="primaryContactPhone.errors.required">
+                                        <div *ngIf="primaryContactPhone.errors?.['required']">
                                             Contact phone is required.
                                         </div>
-                                        <div *ngIf="primaryContactPhone.errors.minlength">
+                                        <div *ngIf="primaryContactPhone.errors?.['minlength']">
                                             Contact phone must be at least 10 characters long.
                                         </div>
                                     </div>
@@ -155,13 +155,13 @@
                                     <div *ngIf="primaryContactEmail.invalid"
                                         class="form-feedback">
 
-                                        <div *ngIf="primaryContactEmail.errors.required">
+                                        <div *ngIf="primaryContactEmail.errors?.['required']">
                                             Contact email is required.
                                         </div>
-                                        <div *ngIf="primaryContactEmail.errors.minlength">
-                                            Contact email must be at least 4 characters long.
+                                        <div *ngIf="primaryContactEmail.errors?.['minlength']">
+                                          Contact email must be at least 4 characters long.
                                         </div>
-                                        <div *ngIf="primaryContactEmail.errors.email">
+                                        <div *ngIf="primaryContactEmail.errors?.['email']">
                                             Email incorrect format
                                         </div>
                                     </div>

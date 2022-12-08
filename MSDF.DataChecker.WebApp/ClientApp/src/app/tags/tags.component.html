@@ -19,10 +19,10 @@
             <div class="col-10">
               <input id="name" name="name" class="form-control" required minlength="4" [(ngModel)]="newTag.name" #name="ngModel">
               <div *ngIf="name.invalid && (name.dirty || name.touched)" class="form-feedback">
-                <div *ngIf="name.errors.required">
+                <div *ngIf="name.errors?.['required']">
                   Name is required.
                 </div>
-                <div *ngIf="name.errors.minlength">
+                <div *ngIf="name.errors?.['minlength']">
                   Name must be at least 4 characters long.
                 </div>
               </div>
@@ -36,10 +36,10 @@
             <div class="col-10">
               <input id="description" name="description" class="form-control" required minlength="4" [(ngModel)]="newTag.description" #description="ngModel">
               <div *ngIf="description.invalid && (description.dirty || description.touched)" class="form-feedback">
-                <div *ngIf="description.errors.required">
+                <div *ngIf="description.errors?.['required']">
                   Description is required.
                 </div>
-                <div *ngIf="description.errors.minlength">
+                <div *ngIf="description.errors?.['minlength']">
                   Description must be at least 4 characters long.
                 </div>
               </div>
@@ -114,7 +114,8 @@
           <td>{{ tag.isPublic ? 'Yes' : 'No' }}</td>
           <td>{{ tag.isUsed ? 'Yes' : 'No' }}</td>
           <td>
-            <fa class="icon-table text-success" name="pencil-alt" (click)="edit(tag)"></fa>
+            <!--<fa class="icon-table text-success" name="pencil-alt" (click)="edit(tag)"></fa>-->
+            <i class="fa-solid fa-pencil" (click)="edit(tag)"></i>
             <ng-template #popDeleteTagContent>
               <button class="btn btn-danger" (click)="delete(tag)" style="max-height: 50px;">{{tag.isUsed ? 'Yes (it will remove all relations where is use it)' : 'Yes'}}</button>
               <button class="btn btn-default" style="margin-left:10px">No</button>

@@ -23,13 +23,28 @@
     "MSDF.DataChecker.WebApp": {
       "commandName": "Project",
       "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
+        "environmentVariables": {
+            //"ASPNETCORE_ENVIRONMENT": "Development",
+            "DatabaseSettings__Engine": "SqlServer",
+            "DatabaseSettings__ConnectionStrings__PostgresSql": "Server=localhost;Port=5432;Database=DataCheckerPersistence;User Id=postgres;Password=YOUPASSWORD;",
+            "DatabaseSettings__ConnectionStrings__SqlServer": "Data Source=localhost; Database=DataCheckerPersistence; Integrated Security=true; Persist Security Info=True;",
+            //"Serilog__MinimumLevel__Default": "Warning",
+            //"Serilog__WriteTo__0__Args__Name": "Console",
+            //"Serilog__WriteTo__0__Args__restrictedToMinimumLevel": "Debug",
+            "EncryptionKey": "M2c240FUeEbs5SxxO1vra721t1T41xwO",
+            "MaxNumberResults": "100"
+
+        },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
     },
     "Local IIS": {
       "commandName": "IIS"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "publishAllPorts": true
     }
   }
 }

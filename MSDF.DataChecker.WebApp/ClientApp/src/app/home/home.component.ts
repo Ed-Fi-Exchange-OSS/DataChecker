@@ -3,13 +3,12 @@ import { ApiService } from "../services/api.service";
 import { Rule } from "../models/rule.model";
 import { RuleFilter } from "../models/rule.model";
 import { Category } from "../models/category.model";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ToastrService } from "ngx-toastr";
 import { DatabaseEnvironment } from "../models/databaseEnvironment.model";
 import { Tag } from "../models/tag.model";
 import { User } from "../models/user.model";
 import { UtilService } from '../services/util.service';
-
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: "app-home",
   templateUrl: "./home.component.html",
@@ -44,7 +43,7 @@ export class HomeComponent implements OnInit {
   collectionToUpload: any;
   collectionSqlInjectModal: any;
 
-  @ViewChild('uploader', { static: false })
+  @ViewChild('uploader')
   myFileInput: ElementRef;
 
   constructor(
@@ -128,7 +127,6 @@ export class HomeComponent implements OnInit {
     this.newCollection.ruleDetailsDestinationId = 0;
     this.newCollection.dateUpdated = new Date();
     this.newCollection.strDateUpdated = this.getFormatDate(this.newCollection.dateUpdated);
-
     if (this.destinationTypes.length > 0) {
       this.newCollection.ruleDetailsDestinationId = this.destinationTypes[this.destinationTypes.length - 1].id;
     }
@@ -292,7 +290,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  updateRuleResultFromChild(ruleFromChild: Rule) {
+  updateRuleResultFromChild(ruleFromChild: any) {
     let container = this.selectedCategory.childContainers.find(rec => rec.id == ruleFromChild.containerId);
     if (container != null) {
       let rule = container.rules.find(rec => rec.id == ruleFromChild.id);
@@ -315,7 +313,7 @@ export class HomeComponent implements OnInit {
     this.filterRulesOfCategories();
   }
 
-  showTags(contentTags) {
+  showTags(contentTags:any) {
     this.modalService
       .open(contentTags, {
         backdrop: "static", ariaLabelledBy: "modal-basic-title", size: "xl"
@@ -323,7 +321,7 @@ export class HomeComponent implements OnInit {
       .result.then(result => {}, error => { });
   }
 
-  showSearchByTags(contentTagsSearch) {
+  showSearchByTags(contentTagsSearch:any) {
 
     this.existChangesInRuleSearch = false;
 
@@ -531,7 +529,7 @@ export class HomeComponent implements OnInit {
 
   //upload Collection
 
-  uploadFile($event, uploadCollectionExist, warningSqlInjectMessageContentHome) {
+  uploadFile($event:any, uploadCollectionExist:any, warningSqlInjectMessageContentHome:any) {
 
     this.collectionSqlInjectModal = null;
     this.uploadCollectionMessageModal = null;
@@ -568,7 +566,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  uploadOverwriteCollection(warningSqlInjectMessageContentHome) {
+  uploadOverwriteCollection(warningSqlInjectMessageContentHome:any) {
 
     if (warningSqlInjectMessageContentHome != null) {
       for (let i = 0; i < this.collectionToUpload.Containers.length; i++) {
@@ -626,4 +624,8 @@ export class HomeComponent implements OnInit {
 
     this.myFileInput.nativeElement.value = '';
   }
+}
+
+function r(r: any, arg1: (any: any) => void, arg2: (error: any) => void) {
+    throw new Error("Function not implemented.");
 }

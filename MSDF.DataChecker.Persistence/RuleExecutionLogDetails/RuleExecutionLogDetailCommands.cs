@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -13,7 +13,7 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
 {
     public interface IRuleExecutionLogDetailCommands
     {
-        Task ExecuteSqlBulkCopy(DataTable table, string tableName);
+        Task ExecuteSqlBulkCopy(DataTable table, string tableName,string engine);
         Task ExecuteSqlAsync(string sqlScript);
     }
 
@@ -28,28 +28,59 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
         public async Task ExecuteSqlAsync(string sqlScript)
         {
             string connectionString = _db.Database.GetDbConnection().ConnectionString;
-            using (SqlConnection destinationConnection = new SqlConnection(connectionString))
-            {
-                await destinationConnection.OpenAsync();
-                using (var sqlCommand = new SqlCommand(sqlScript, destinationConnection))
-                {
-                    await sqlCommand.ExecuteNonQueryAsync();
-                }
-            }
+            _db.Database.ExecuteSqlRaw(sqlScript);
         }
 
-        public async Task ExecuteSqlBulkCopy(DataTable table, string tableName)
+        public async Task ExecuteSqlBulkCopy(DataTable table, string tableName,string engine)
         {
-            string connectionString = _db.Database.GetDbConnection().ConnectionString;
-            using (SqlConnection destinationConnection = new SqlConnection(connectionString))
+
+            if (engine == "SqlServer")
             {
-                await destinationConnection.OpenAsync();
-                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(destinationConnection))
+                string connectionString = _db.Database.GetDbConnection().ConnectionString;
+                using (SqlConnection destinationConnection = new SqlConnection(connectionString))
                 {
-                    bulkCopy.DestinationTableName = tableName;
-                    await bulkCopy.WriteToServerAsync(table);
+                    await destinationConnection.OpenAsync();
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(destinationConnection))
+                    {
+                        bulkCopy.DestinationTableName = tableName;
+                        await bulkCopy.WriteToServerAsync(table);
+                    }
                 }
             }
+            else {
+                //BulkCopy not suported for postgres
+                foreach (DataRow row in table.Rows)
+                {
+
+                    var logDetail = new EdFiRuleExecutionLogDetail();
+                    if (!row.IsNull("CourseCode"))
+                        logDetail.CourseCode = row["CourseCode"].ToString();
+
+                    if (!row.IsNull("StudentUniqueId"))
+                        logDetail.StudentUniqueId = row["StudentUniqueId"].ToString();
+                    if (!row.IsNull("Discriminator"))
+                        logDetail.Discriminator = row["Discriminator"].ToString();
+                    if (!row.IsNull("OtherDetails"))
+                        logDetail.OtherDetails = row["OtherDetails"].ToString();
+                    if (!row.IsNull("EducationOrganizationId"))
+                        logDetail.EducationOrganizationId = int.Parse(row["EducationOrganizationId"].ToString());
+                    if (!row.IsNull("RuleExecutionLogId"))
+                        logDetail.RuleExecutionLogId = int.Parse(row["RuleExecutionLogId"].ToString());
+                    if (!row.IsNull("ProgramName"))
+                        logDetail.ProgramName = (row["ProgramName"].ToString());
+                    if (!row.IsNull("StaffUniqueId"))
+                        logDetail.StaffUniqueId = (row["StaffUniqueId"].ToString());
+                    await AddAsync(logDetail);
+                }
+            }
+
+           
+        }
+
+        public async Task AddAsync(EdFiRuleExecutionLogDetail ruleExecutionLog)
+        {
+            this._db.EdFiRuleExecutionLogDetails.Add(ruleExecutionLog);
+            await this._db.SaveChangesAsync();
         }
     }
 }

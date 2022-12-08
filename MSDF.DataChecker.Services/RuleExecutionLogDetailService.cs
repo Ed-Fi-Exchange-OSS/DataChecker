@@ -3,11 +3,13 @@
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
+using Microsoft.Extensions.Options;
 using MSDF.DataChecker.Persistence.Catalogs;
 using MSDF.DataChecker.Persistence.DatabaseEnvironments;
 using MSDF.DataChecker.Persistence.RuleExecutionLogDetails;
 using MSDF.DataChecker.Persistence.RuleExecutionLogs;
 using MSDF.DataChecker.Persistence.Rules;
+using MSDF.DataChecker.Persistence.Settings;
 using MSDF.DataChecker.Services.Models;
 using Newtonsoft.Json;
 using System;
@@ -20,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace MSDF.DataChecker.Services
 {
-    public interface IRuleExecutionLogDetailService
+    public interface IRuleExecutionLogDetailService1
     { 
         Task<RuleExecutionLogDetailBO> GetByRuleExecutionLogIdAsync(int id);
         Task<int> GetLastRuleExecutionLogByEnvironmentAndRuleAsync(Guid environmentId, Guid ruleId);
@@ -28,7 +30,7 @@ namespace MSDF.DataChecker.Services
         Task<RuleExecutionLogDetailBO> ExecutionDiagnosticSqlByLogIdAsync(int id);
     }
 
-    public class RuleExecutionLogDetailService : IRuleExecutionLogDetailService
+    public class RuleExecutionLogDetailService1 : IRuleExecutionLogDetailService1
     {
         private IRuleExecutionLogDetailQueries _queries;
         private IRuleExecutionLogQueries _queriesRuleExecutionLog;
@@ -37,13 +39,15 @@ namespace MSDF.DataChecker.Services
         private IRuleExecutionLogCommands _commandRuleExecutionLog;
         private IRuleQueries _queriesRule;
         private IDatabaseEnvironmentQueries _queriesDatabaseEnvironments;
+        private readonly DataBaseSettings _appSettings;
 
-        public RuleExecutionLogDetailService(
+        public RuleExecutionLogDetailService1(
             IRuleExecutionLogDetailQueries queries,
             IRuleExecutionLogQueries queriesRuleExecutionLog,
             ICatalogQueries queriesCatalog,
             IRuleExecutionLogDetailCommands commandRuleExecutionLogDetail,
             IRuleExecutionLogCommands commandRuleExecutionLog,
+            IOptions<DataBaseSettings> appSettings,
             IRuleQueries queriesRule,
             IDatabaseEnvironmentQueries queriesDatabaseEnvironments)
         {
@@ -54,6 +58,7 @@ namespace MSDF.DataChecker.Services
             _commandRuleExecutionLog = commandRuleExecutionLog;
             _queriesRule = queriesRule;
             _queriesDatabaseEnvironments = queriesDatabaseEnvironments;
+            _appSettings = appSettings.Value;
         }
 
         public async Task<RuleExecutionLogDetailExportToTableBO> ExportToTableByRuleExecutionLogIdAsync(int id)
@@ -100,7 +105,7 @@ namespace MSDF.DataChecker.Services
                     var ruleExecutionLogInfo = await GetByRuleExecutionLogIdAsync(id);
                     
                     DataTable infoToInsert = Utils.GetTableForSqlBulk(ruleExecutionLogInfo.Rows, columns);
-                    await _commandRuleExecutionLogDetail.ExecuteSqlBulkCopy(infoToInsert, $"[destination].[{tableName}]");
+                    await _commandRuleExecutionLogDetail.ExecuteSqlBulkCopy(infoToInsert, $"[destination].[{tableName}]",_appSettings.Engine);
                     
                     ruleExecutionLog.DetailsTableName = tableName;
                     await _commandRuleExecutionLog.UpdateAsync(ruleExecutionLog);

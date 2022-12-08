@@ -138,7 +138,9 @@ namespace MSDF.DataChecker.Services
             if (rulesDatabase != null)
             {
                 List<RuleBO> rules = rulesDatabase.
-                   Select(rec => MapEntityToModel(rec)).OrderByDescending(rul =>  rul.ErrorSeverityLevel).ThenBy(rul => rul.Name).ToList();
+                    Select(rec => MapEntityToModel(rec))
+                    .ToList();
+
                 foreach (RuleBO rule in rules)
                 {
                     var logs = await _ruleExecutionLogQueries.GetByRuleIdAndDatabaseEnvironmentIdAsync(rule.Id, databaseEnvironmentId);

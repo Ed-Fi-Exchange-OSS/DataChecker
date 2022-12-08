@@ -38,9 +38,9 @@
                 <th style="font-weight:bold">Is Nullable</th>
               </tr>
               <tr *ngFor="let columnChild of category.containerDestinationStructure">
-                <td style="padding:5px">{{columnChild.Name}}</td>
-                <td style="padding: 5px">{{columnChild.Type}}</td>
-                <td style="padding: 5px">{{columnChild.IsNullable}}</td>
+                <td style="padding:5px">{{columnChild.name}}</td>
+                <td style="padding: 5px">{{columnChild.type}}</td>
+                <td style="padding: 5px">{{columnChild.isNullable}}</td>
               </tr>
             </table>
           </div>
@@ -62,7 +62,8 @@
 
       <div class="col-2">
         <button class="btn btn-primary btn-lg" (click)="validDownloadCollection(downloadCollectionMessageContent)" style="font-size: 13px;">
-          <fa name="download"></fa> Download collection
+          <!--<fa name="download"></fa> Download collection-->
+          <i fa name="download"></i> Download collection
         </button>
       </div>
 

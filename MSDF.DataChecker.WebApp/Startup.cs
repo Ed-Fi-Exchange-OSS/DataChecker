@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MSDF.DataChecker.Persistence.Providers;
 using MSDF.DataChecker.Services.Infrastructure.IoC;
 using MSDF.DataChecker.WebApp.Extensions;
 using Serilog;
@@ -24,6 +25,7 @@ namespace MSDF.DataChecker.WebApp
         }
 
         public IConfiguration Configuration { get; }
+        public IDbAccessProvider dataAccessProvider { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -37,7 +39,8 @@ namespace MSDF.DataChecker.WebApp
                     .AllowAnyHeader());
             });
 
-            IoCConfig.RegisterDependencies(services, Configuration);
+            dataAccessProvider = new DbAccessProvider();
+            IoCConfig.RegisterDependencies(services, Configuration, dataAccessProvider);
             services.AddControllersWithViews();
 
             // In production, the Angular files will be served from this directory

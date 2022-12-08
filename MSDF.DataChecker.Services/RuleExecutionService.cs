@@ -5,10 +5,12 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using MSDF.DataChecker.Persistence.Catalogs;
 using MSDF.DataChecker.Persistence.Collections;
 using MSDF.DataChecker.Persistence.RuleExecutionLogDetails;
 using MSDF.DataChecker.Persistence.RuleExecutionLogs;
+using MSDF.DataChecker.Persistence.Settings;
 using MSDF.DataChecker.Services.Models;
 using System;
 using System.Collections.Generic;
@@ -35,15 +37,16 @@ namespace MSDF.DataChecker.Services
         private readonly IRuleExecutionLogDetailQueries _edFiRuleExecutionLogDetailQueries;
         private readonly ICatalogQueries _catalogQueries;
         private readonly ICollectionQueries _collectionQueries;
-
+        private readonly DataBaseSettings _appSettings;
         public RuleExecutionService(
             IRuleService ruleService
             ,IRuleExecutionLogCommands ruleExecutionLogCommands
             ,IRuleExecutionLogQueries ruleExecutionLogQueries
             ,IRuleExecutionLogDetailCommands edFiRuleExecutionLogDetailCommands
             ,ICatalogQueries catalogQueries
-            ,IRuleExecutionLogDetailQueries edFiRuleExecutionLogDetailQueries,
-            ICollectionQueries collectionQueries)
+            ,IRuleExecutionLogDetailQueries edFiRuleExecutionLogDetailQueries
+            ,ICollectionQueries collectionQueries
+            ,IOptionsSnapshot<DataBaseSettings> appSettings)
         {
             _ruleService = ruleService;
             _ruleExecutionLogCommands = ruleExecutionLogCommands;
@@ -52,6 +55,7 @@ namespace MSDF.DataChecker.Services
             _catalogQueries = catalogQueries;
             _edFiRuleExecutionLogDetailQueries = edFiRuleExecutionLogDetailQueries;
             _collectionQueries = collectionQueries;
+            _appSettings = appSettings.Value;
         }
 
         public async Task<List<RuleTestResult>> ExecuteRulesByEnvironmentIdAsync(List<RuleBO> rules, DatabaseEnvironmentBO databaseEnvironment)
@@ -73,7 +77,7 @@ namespace MSDF.DataChecker.Services
             var rule = await _ruleService.GetAsync(ruleId);
             var executionLogs = await _ruleExecutionLogQueries.GetByRuleIdAsync(ruleId);
 
-            var connectionString = databaseEnvironment.GetConnectionString();
+            var connectionString = databaseEnvironment.GetConnectionString(_appSettings.Engine);
                 
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -127,7 +131,7 @@ namespace MSDF.DataChecker.Services
                         if (rule.MaxNumberResults != null)
                             maxNumberResults = rule.MaxNumberResults.Value;
 
-                        await InsertDiagnosticSqlIntoDetails(rule, newRuleExecutionLog, connectionString, databaseEnvironment.UserParams, existCatalog.Name, maxNumberResults, databaseEnvironment.TimeoutInMinutes);
+                        await InsertDiagnosticSqlIntoDetails(rule, newRuleExecutionLog, connectionString, databaseEnvironment.UserParams, existCatalog.Name, maxNumberResults,_appSettings.Engine);
                     }
                 }
             }
@@ -158,7 +162,7 @@ namespace MSDF.DataChecker.Services
                     int execution = 0;
                     bool resultWithErrors = false;
                     await conn.OpenAsync();
-                    string sqlToRun = Utils.GenerateSqlWithCount(rule.DiagnosticSql);
+                    string sqlToRun = Utils.GenerateSqlWithCount(rule.DiagnosticSql,_appSettings.Engine);
 
                     try
                     {
@@ -288,9 +292,9 @@ namespace MSDF.DataChecker.Services
             return result;
         }
 
-        private async Task InsertDiagnosticSqlIntoDetails(RuleBO rule, RuleExecutionLog ruleExecutionLog, string connectionString, List<UserParamBO> sqlParams, string tableName, int maxNumberResults, int? timeout)
+        private async Task InsertDiagnosticSqlIntoDetails(RuleBO rule, RuleExecutionLog ruleExecutionLog, string connectionString, List<UserParamBO> sqlParams, string tableName, int maxNumberResults,string engine)
         {
-            string sqlToRun = Utils.GenerateSqlWithTop(rule.DiagnosticSql, maxNumberResults.ToString());
+            string sqlToRun = Utils.GenerateSqlWithTop(rule.DiagnosticSql, maxNumberResults.ToString(), engine);
             string columnsSchema = string.Empty;
             var listColumnsFromDestination = await _edFiRuleExecutionLogDetailQueries.GetColumnsByTableAsync(tableName, "destination");
 
@@ -300,8 +304,6 @@ namespace MSDF.DataChecker.Services
                 using (var cmd = new SqlCommand(sqlToRun, conn))
                 {
                     AddParameters(sqlToRun,cmd,sqlParams);
-                    if (timeout.HasValue)
-                        cmd.CommandTimeout = (timeout.Value * 60);
                     var reader = await cmd.ExecuteReaderAsync();
 
                     Dictionary<string, string> listColumns = new Dictionary<string, string>();
@@ -315,7 +317,7 @@ namespace MSDF.DataChecker.Services
                             ruleExecutionLog.DetailsSchema = columnsSchema;
                             await _ruleExecutionLogCommands.UpdateAsync(ruleExecutionLog);
                         }
-                        await _edFiRuleExecutionLogDetailCommands.ExecuteSqlBulkCopy(tableToInsert, $"[destination].[{tableName}]");
+                        await _edFiRuleExecutionLogDetailCommands.ExecuteSqlBulkCopy(tableToInsert, $"[destination].[{tableName}]",_appSettings.Engine);
                     }
                 }
             }

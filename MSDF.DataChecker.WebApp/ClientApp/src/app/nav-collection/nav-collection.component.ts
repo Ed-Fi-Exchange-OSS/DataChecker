@@ -764,6 +764,7 @@ export class NavCollectionComponent implements OnInit {
     let idExecutionLog = this.newRule.idLastRuleExecutionLog;
     this.apiService.ruleExecutionLogDetail.getByRuleExecutionLogAsync(idExecutionLog).subscribe(
       result => {
+        if (result != null) {
         this.ruleDetailsLogResult = result;
         this.modalService.open(ruleExecutionLogDetailRuleEditContent, {
           ariaLabelledBy: "modal-basic-title",
@@ -771,6 +772,10 @@ export class NavCollectionComponent implements OnInit {
           windowClass: "modal-custom-xl",
           backdrop: "static"
         });
+        }
+        else {
+          this.toastr.info("No execution log details for rule ", "Information");
+        }
       });
   }
 

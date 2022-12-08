@@ -114,15 +114,24 @@
             <span style="padding-left: 2px;">{{ruleChild.ruleIdentification}} {{ruleChild.name}}</span>
           </div>
           <div class="col-5" style="text-align:right">
-            <fa placement="top" ngbTooltip="Modify Rule" style="margin:5px;cursor:pointer;" class="icon-table text-success" name="pencil-alt" (click)="modifyRule(ruleContent,ruleChild,categoryChild)"></fa>
-            <fa placement="top" ngbTooltip="Copy Rule" style="margin:5px;cursor:pointer;" class="icon-table text-info" name="copy" (click)="copyRule(ruleChild,categoryChild)"></fa>
+            <i class="fa-solid fa-pencil icon-table text-success" placement="top" ngbTooltip="Modify Rule" style="margin:5px;cursor:pointer;" name="pencil-alt" (click)="modifyRule(ruleContent,ruleChild,categoryChild)"></i>
+            <!--<fa placement="top" ngbTooltip="Modify Rule" style="margin:5px;cursor:pointer;" class="icon-table text-success" name="pencil-alt" (click)="modifyRule(ruleContent,ruleChild,categoryChild)"></fa>-->
+            <!--<fa placement="top" ngbTooltip="Copy Rule" style="margin:5px;cursor:pointer;" class="icon-table text-info" name="copy" (click)="copyRule(ruleChild,categoryChild)"></fa>-->
+
+            <i class=" icon ion-md-copy icon-table text-info" placement="top" ngbTooltip="Copy Rule" style="margin:5px;cursor:pointer;" name="copy" (click)="copyRule(ruleChild,categoryChild)"></i>
+
             <ng-template #popContent>
               <button class="btn btn-danger" (click)="deleteRuleChild(ruleChild,categoryChild)">Yes</button>
               <button class="btn btn-default" style="margin-left:10px">No</button>
             </ng-template>
-            <fa ngbTooltip="Delete Rule" style="margin:5px;cursor:pointer;" class="icon-table text-danger" name="trash" [ngbPopover]="popContent" popoverTitle="Confirm Delete?" placement="bottom"></fa>
-            <fa placement="top" ngbTooltip="Move Rule" style="margin:5px;cursor:pointer;" class="icon-table text-primary" name="arrows-alt" (click)="showMoveRule(ruleChild,categoryChild, moveRuleEditToContent)"></fa>
-            <fa placement="top" ngbTooltip="View Last Log Details" style="margin:5px;cursor:pointer;" class="icon-table text-warning" name="eye" (click)="viewRuleExecutionLogDetailsFromOptions(ruleExecutionLogDetailRuleEditContent, ruleChild)"></fa>
+            <i class=" icon ion-md-trash icon-table text-danger" ngbTooltip="Delete Rule" style="margin:5px;cursor:pointer;" name="trash" [ngbPopover]="popContent" popoverTitle="Confirm Delete?" placement="bottom"></i>
+            <i class="fas fa-arrows-alt icon-table text-primary" placement="top" ngbTooltip="Move Rule" style="margin:5px;cursor:pointer;" name="arrows-alt" (click)="showMoveRule(ruleChild,categoryChild, moveRuleEditToContent)"></i>
+            <!--<i ngbTooltip="Delete Rule" style="margin:5px;cursor:pointer;" class="icon-table text-danger" name="trash" [ngbPopover]="popContent" popoverTitle="Confirm Delete?" placement="bottom"></i>-->
+            <!--<fa ngbTooltip="Delete Rule" style="margin:5px;cursor:pointer;" class="icon-table text-danger" name="trash" [ngbPopover]="popContent" popoverTitle="Confirm Delete?" placement="bottom"></fa>-->
+            <!--<i placement="top" ngbTooltip="Move Rule" style="margin:5px;cursor:pointer;" class="arrows-alt icon-table text-primary" name="arrows-alt" (click)="showMoveRule(ruleChild,categoryChild, moveRuleEditToContent)"></i>-->
+            <!--<fa placement="top" ngbTooltip="Move Rule" style="margin:5px;cursor:pointer;" class="icon-table text-primary" name="arrows-alt" (click)="showMoveRule(ruleChild,categoryChild, moveRuleEditToContent)"></fa>-->
+            <i class=" icon ion-md-eye icon-table text-warning" placement="top" ngbTooltip="View Last Log Details" style="margin:5px;cursor:pointer;" name="eye" (click)="viewRuleExecutionLogDetailsFromOptions(ruleExecutionLogDetailRuleEditContent, ruleChild)"></i>
+            <!--<fa placement="top" ngbTooltip="View Last Log Details" style="margin:5px;cursor:pointer;" class="icon-table text-warning" name="eye" (click)="viewRuleExecutionLogDetailsFromOptions(ruleExecutionLogDetailRuleEditContent, ruleChild)"></fa>-->
           </div>
         </div>
       </div>
@@ -148,10 +157,10 @@
 
         <div *ngIf="name.invalid" class="form-feedback">
 
-          <div *ngIf="name.errors.required">
+          <div *ngIf="name.errors?.['required']">
             Name is required.
           </div>
-          <div *ngIf="name.errors.minlength">
+          <div *ngIf="name.errors?.['minlength']">
             Name must be at least 4 characters long.
           </div>
         </div>
@@ -165,10 +174,10 @@
 
         <div *ngIf="description.invalid" class="form-feedback">
 
-          <div *ngIf="description.errors.required">
+          <div *ngIf="description.errors?.['required']">
             Description is required.
           </div>
-          <div *ngIf="description.errors.minlength">
+          <div *ngIf="description.errors?.['minlength']">
             Description must be at least 4 characters long.
           </div>
         </div>
@@ -186,7 +195,7 @@
         </select>
 
         <div *ngIf="environmentType.invalid" class="form-feedback">
-          <div *ngIf="environmentType.errors.required">
+          <div *ngIf="environmentType.errors?.['required']">
             Environment type is required.
           </div>
         </div>
@@ -306,7 +315,7 @@
 
                 <div *ngIf="name.invalid" class="form-feedback">
 
-                  <div *ngIf="name.errors.required">
+                  <div *ngIf="name.errors?.['required']">
                     Name is required.
                   </div>
                 </div>
@@ -327,7 +336,7 @@
             <textarea id="description" name="description" class="form-control" required [(ngModel)]="newRule.description" #description="ngModel"></textarea>
 
             <div *ngIf="description.invalid" class="form-feedback">
-              <div *ngIf="description.errors.required">
+              <div *ngIf="description.errors?.['required']">
                 Description is required.
               </div>
             </div>
@@ -343,7 +352,7 @@
 
                 <div *ngIf="version.invalid" class="form-feedback">
 
-                  <div *ngIf="version.errors.required">
+                  <div *ngIf="version.errors?.['required']">
                     Version is required.
                   </div>
                 </div>
@@ -366,7 +375,7 @@
 
                 <div *ngIf="errorSeverityLevel.invalid" class="form-feedback">
 
-                  <div *ngIf="errorSeverityLevel.errors.required">
+                  <div *ngIf="errorSeverityLevel.errors?.['required']">
                     Severity level is required.
                   </div>
                 </div>
@@ -624,10 +633,10 @@
                (keydown.enter)="signIngForm.valid ? signInToRepository(uploadCollectionMessageContent) : ''">
 
         <div *ngIf="server.invalid" class="form-feedback">
-          <div *ngIf="server.errors.required">
+          <div *ngIf="server.errors?.['required']">
             Server Url is required.
           </div>
-          <div *ngIf="email.errors.email">
+          <div *ngIf="email.errors?.['email']">
             Server Url invalid.
           </div>
         </div>
@@ -640,10 +649,10 @@
                (keydown.enter)="signIngForm.valid ? signInToRepository(uploadCollectionMessageContent) : ''">
 
         <div *ngIf="email.invalid" class="form-feedback">
-          <div *ngIf="email.errors.required">
+          <div *ngIf="email.errors?.['required']">
             Email is required.
           </div>
-          <div *ngIf="email.errors.email">
+          <div *ngIf="email.errors?.['email']">
             Email invalid.
           </div>
         </div>
@@ -656,7 +665,7 @@
                (keydown.enter)="signIngForm.valid ? signInToRepository(uploadCollectionMessageContent) : ''">
 
         <div *ngIf="password.invalid" class="form-feedback">
-          <div *ngIf="password.errors.required">
+          <div *ngIf="password.errors?.['required']">
             Password is required.
           </div>
         </div>
