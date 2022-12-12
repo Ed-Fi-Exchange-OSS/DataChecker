@@ -1050,6 +1050,7 @@ namespace MSDF.DataChecker.Services
                             List<string> sqlColumns = new List<string>();
 
                             var sqlCreate = Persistence.Utility.GetNewTableScript(_appSettings.Engine, destinationTableInDbColumns, collection.DestinationTable);
+
                             await _edFiRuleExecutionLogDetailCommands.ExecuteSqlAsync(sqlCreate);
                         }
                     }
