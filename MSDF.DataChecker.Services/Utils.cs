@@ -112,64 +112,6 @@ namespace MSDF.DataChecker.Services
                     }
                 }
             }
-
-
-            //if (result.StartsWith("select"))
-            //{
-            //    if (!result.StartsWith("select top"))
-            //    {
-            //        if (result.StartsWith("select distinct"))
-            //        {
-            //            if (Engine == "SqlServer")
-            //            {
-            //                var regex = new Regex(Regex.Escape("select distinct"));
-            //                result = regex.Replace(result, "select distinct top " + maxNumberResults + " ", 1);
-            //            }
-            //            else
-            //            {
-            //                string pattern = @"limit\s\d+";
-            //                Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
-            //                if (! m.Success)
-            //                    result = result + $" Limit {maxNumberResults} ";
-            //            }
-            //        }
-            //        else
-            //        {
-            //            if (Engine == "SqlServer")
-            //            {
-            //                var regex = new Regex(Regex.Escape("select"));
-            //                result = regex.Replace(result, "select top " + maxNumberResults + " ", 1);
-            //            }
-            //            else
-            //            {
-            //                string pattern = @"limit\s\d+";
-            //                Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
-            //                if (!m.Success)
-            //                    result = result + $" Limit {maxNumberResults} ";
-            //            }
-            //        }
-            //    }
-            //}
-            //else if (result.StartsWith("with"))
-            //{
-            //    if (!result.Contains(") select top"))
-            //    {
-            //        if (Engine == "SqlServer")
-            //        {
-            //            if (result.Contains(") select distinct"))
-            //            {
-            //                var regex = new Regex(Regex.Escape(") select distinct"));
-            //                result = regex.Replace(result, ") select distinct top " + maxNumberResults + " ", 1);
-            //            }
-            //            else
-            //            {
-            //                var regex = new Regex(Regex.Escape(") select"));
-            //                result = regex.Replace(result, ") select top " + maxNumberResults + " ", 1);
-            //            }
-            //        }
-            //    }
-            //}
-
             return result;
         }
 

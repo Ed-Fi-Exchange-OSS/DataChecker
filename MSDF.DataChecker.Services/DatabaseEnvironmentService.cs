@@ -173,11 +173,6 @@ namespace MSDF.DataChecker.Services
                     genericResponse.Message =  _dataAccessProvider.TestPostgresConnection(connectionString);
                 if (!string.IsNullOrEmpty(genericResponse.Message))
                     genericResponse.IsValid = false;
-                //using (var conn =   new SqlConnection(connectionString))
-                //{
-                //    await conn.OpenAsync();
-                //    genericResponse.IsValid = true;
-                //}
             }
             catch (Exception ex)
             {
@@ -203,13 +198,6 @@ namespace MSDF.DataChecker.Services
                 }
                 else
                     result =  _dataAccessProvider.TestPostgresConnection(sqlConnection);
-
-                //using (var conn = new SqlConnection(sqlConnection) )
-                //{
-                //    await conn.OpenAsync();
-                //    await conn.CloseAsync();
-                //    await conn.DisposeAsync();
-                //}
             }
             catch (Exception ex)
             {

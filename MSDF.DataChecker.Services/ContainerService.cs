@@ -1050,19 +1050,7 @@ namespace MSDF.DataChecker.Services
                             List<string> sqlColumns = new List<string>();
 
                             var sqlCreate = Persistence.Utility.GetNewTableScript(_appSettings.Engine, destinationTableInDbColumns, collection.DestinationTable);
-                            //foreach (var column in destinationTableInDbColumns)
-                            //{
-                            //    string isNull = column.IsNullable ? "NULL" : "NOT NULL";
-                            //    if (column.Name == "id" && column.Type == "int")
-                            //        sqlColumns.Add("[Id] [int] IDENTITY(1,1) NOT NULL");
-                            //    else if (column.Type.Contains("varchar"))
-                            //        sqlColumns.Add($"[{column.Name}] [{column.Type}](max) {isNull}");
-                            //    else if (column.Type.Contains("datetime"))
-                            //        sqlColumns.Add($"[{column.Name}] [{column.Type}](7) {isNull}");
-                            //    else
-                            //        sqlColumns.Add($"[{column.Name}] [{column.Type}] {isNull}");
-                            //}
-                            //string sqlCreate = $"CREATE TABLE [destination].[{collection.DestinationTable}]({string.Join(",", sqlColumns)}) ";
+
                             await _edFiRuleExecutionLogDetailCommands.ExecuteSqlAsync(sqlCreate);
                         }
                     }

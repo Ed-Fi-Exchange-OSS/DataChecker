@@ -28,17 +28,6 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
         public async Task ExecuteSqlAsync(string sqlScript)
         {
             string connectionString = _db.Database.GetDbConnection().ConnectionString;
-            //using (SqlConnection destinationConnection = new SqlConnection(connectionString))
-            //{
-            //    await destinationConnection.OpenAsync();
-            //    using (var sqlCommand = new SqlCommand(sqlScript, destinationConnection))
-            //    {
-            //        await sqlCommand.ExecuteNonQueryAsync();
-            //    }
-            //}
-
-
-            //New code to use EntityFrmaework
             _db.Database.ExecuteSqlRaw(sqlScript);
         }
 
@@ -59,6 +48,7 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
                 }
             }
             else {
+                //BulkCopy not suported for postgres
                 foreach (DataRow row in table.Rows)
                 {
 

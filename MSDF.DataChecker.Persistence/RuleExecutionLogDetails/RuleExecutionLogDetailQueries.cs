@@ -55,41 +55,12 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
             var dataReader = _dataProvider.ExecuteReader(_db, sql, parameters);
             return dataReader;
 
-
-            //using (SqlConnection destinationConnection = new SqlConnection(connectionString))
-            //{
-            //    await destinationConnection.OpenAsync();
-            //    string sql = string.Format(
-            //        "SELECT * " +
-            //        "FROM destination.{0} " +
-            //        "WHERE RuleExecutionLogId = @Id " +
-            //        "ORDER BY Id", tableName);
-
-            //    using (var sqlCommand = new SqlCommand(sql, destinationConnection))
-            //    {
-            //        sqlCommand.Parameters.AddWithValue("@Id", id);
-            //        var reader = await sqlCommand.ExecuteReaderAsync();
-            //        if (reader.HasRows)
-            //        {
-            //            DataTable dt = new DataTable();
-            //            dt.Load(reader);
-            //            return dt;
-            //        }
-            //    }
-            //}
-
         }
 
         public async Task<List<DestinationTableColumn>> GetColumnsByTableAsync(string tableName, string tableSchema)
         {
 
             var columns = new List<DestinationTableColumn>();
-            //string sql = string.Format(
-            //      "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE " +
-            //      "FROM INFORMATION_SCHEMA.COLUMNS " +
-            //      "WHERE TABLE_NAME = @tablename AND TABLE_SCHEMA = @tableschema " +
-            //      "ORDER BY ORDINAL_POSITION");
-
             string sql = string.Format(
                 "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE " +
                 "FROM INFORMATION_SCHEMA.COLUMNS " +
@@ -152,26 +123,6 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogDetails
             parameters.Add("@tableschema", tableSchema);
             int result = _dataProvider.ExecuteScalar(_db, sql, parameters);
             existTable = result > 0;
-
-
-            ////string connectionString = _db.Database.GetDbConnection().ConnectionString;
-            //using (SqlConnection destinationConnection = new SqlConnection(connectionString))
-            //{
-            //    await destinationConnection.OpenAsync();
-            //    string sql = string.Format(
-            //        "SELECT COUNT(*) " +
-            //        "FROM INFORMATION_SCHEMA.TABLES " +
-            //        "WHERE TABLE_NAME = @tablename AND TABLE_SCHEMA = @tableschema ");
-
-            //    using (var sqlCommand = new SqlCommand(sql, destinationConnection))
-            //    {
-            //        sqlCommand.Parameters.AddWithValue("@tablename", tableName);
-            //        sqlCommand.Parameters.AddWithValue("@tableschema", tableSchema);
-            //        int result = (int)(await sqlCommand.ExecuteScalarAsync());
-            //        existTable = result > 0;
-            //    }
-            //}
-
             return existTable;
         }
     }
