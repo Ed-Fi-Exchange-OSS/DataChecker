@@ -5,6 +5,7 @@ import { RuleFilter } from "../models/rule.model";
 import { Category } from "../models/category.model";
 import { ToastrService } from "ngx-toastr";
 import { DatabaseEnvironment } from "../models/databaseEnvironment.model";
+import { ValidationRun } from "../models/validationRun.model";
 import { Tag } from "../models/tag.model";
 import { User } from "../models/user.model";
 import { UtilService } from '../services/util.service';
@@ -21,8 +22,9 @@ export class HomeComponent implements OnInit {
   isRunningAll: boolean;
   collectionName: "";
   newCollection: Category = new Category();
+  newValidationRun: ValidationRun = new ValidationRun();
+  isErrorValidationRun: boolean;
   addCollectionObjModal: any;
-
   databaseEnvironments: DatabaseEnvironment[];
   selectedDatabaseEnvironment: DatabaseEnvironment;
   selectedCategory: Category;
@@ -167,21 +169,46 @@ export class HomeComponent implements OnInit {
       this.toastr.info("Select or create an Environment", "Information");
     }
   }
-
+  initValidationRun() {
+    this.newValidationRun.DatabaseEnvironmentId = this.selectedDatabaseEnvironment.id;
+    this.newValidationRun.Source = "Manual";
+    this.newValidationRun.HostDatabase = this.selectedDatabaseEnvironment.database;
+    this.newValidationRun.HostServer = this.selectedDatabaseEnvironment.dataSource;
+    this.newValidationRun.RunStatus = "Running";
+    this.newValidationRun.Id = 0;
+    this.isErrorValidationRun = false;
+  }
   executeAll() {
     this.apiService.databaseEnvironment.testDatabaseEnvironmentById(this.selectedDatabaseEnvironment).subscribe(isConnectedMessage => {
       if (isConnectedMessage == null || isConnectedMessage == '') {
         this.isRunningAll = true;
-        this.categories.forEach(category => {
-          category.rules.forEach(rec => rec.lastStatus = 0);
-          if (category.rules.length > 0) {
-            this.executeCategory(category);
-          }
+        this.initValidationRun();
+        this.newValidationRun.StartTime = new Date();
+        this.newValidationRun.Id = 0;
+        this.apiService.validationRun.addValidationRun(this.newValidationRun).subscribe(validationRunResult => {
+          this.newValidationRun.Id = validationRunResult;
+          this.categories.forEach(category => {
+            category.rules.forEach(rec => rec.lastStatus = 0);
+            if (category.rules.length > 0) {
+              this.executeCategory(category);
+            }
+          });
+
         });
       }
       else {
         this.toastr.error("Review the connection with your environment:" + isConnectedMessage, "Environment Connection Error");
-      }
+      }     
+    });
+  }
+
+  executeCategoryWithValidationRun(category: Category) {
+    this.initValidationRun();
+    this.newValidationRun.StartTime = new Date();
+    this.newValidationRun.Id = 0;
+    this.apiService.validationRun.addValidationRun(this.newValidationRun).subscribe(validationRunResult => {
+      this.newValidationRun.Id = validationRunResult;
+      this.executeCategory(category);  
     });
   }
 
@@ -198,7 +225,7 @@ export class HomeComponent implements OnInit {
           category.rules.forEach(rule => {
             rule.isExecuting = true;
             this.apiService.rule
-              .executeRule({ ruleId: rule.id, databaseEnvironmentId: this.selectedDatabaseEnvironment.id })
+              .executeRule({ ruleId: rule.id, databaseEnvironmentId: this.selectedDatabaseEnvironment.id, validationRunId: this.newValidationRun.Id})
               .subscribe(
                 result => {
                   rule.counter = result.result;
@@ -219,12 +246,13 @@ export class HomeComponent implements OnInit {
                   rule.lastStatus = 0;
                   rule.lastExecution = new Date();
                   rule.isExecuting = false;
+                  this.isErrorValidationRun = true;
                   category.validRules++;
                   this.setContainerStatus(category);
                   this.filterRulesOfCategories();
                   throw (error);
                 });
-          });
+          });         
         }
         else {
           this.toastr.error("Review the connection with your environment:" + isConnectedMessage, "Environment Connection Error");
@@ -246,9 +274,21 @@ export class HomeComponent implements OnInit {
       let remainingCategories = this.categories.filter(rec => rec.rules.length>0 && rec.lastStatus == 0);
       if (remainingCategories.length == 0) {
         this.isRunningAll = false;
+        this.newValidationRun.EndTime = new Date();
+        if (this.isErrorValidationRun) {
+          setTimeout(() =>
+            this.apiService.validationRun.errorValidationRun(this.newValidationRun).subscribe(validationRunResult => {
+            }), 300);
+        } else {
+          setTimeout(() =>
+            this.apiService.validationRun.finishValidationRun(this.newValidationRun).subscribe(validationRunResult => {
+            }), 300);
+        }
+      }
+       
       }
     }
-  }
+  
 
   selectCategoryFromChild(category: Category) {
     this.collections.forEach(m => (m.isDefault = false));

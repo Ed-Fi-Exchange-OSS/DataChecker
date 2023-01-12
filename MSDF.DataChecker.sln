@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSDF.DataChecker.Persistenc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSDF.DataChecker.WebApp", "MSDF.DataChecker.WebApp\MSDF.DataChecker.WebApp.csproj", "{3B397AF4-1CB8-4EC3-928B-079289E05CC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSDF.DataChecker.RuleExec", "MSDF.DataChecker.RuleExec\MSDF.DataChecker.RuleExec.csproj", "{B3D27E76-EFD6-4EC1-9A5B-D0B302D98D4A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSDF.DataChecker.RuleExec", "MSDF.DataChecker.RuleExec\MSDF.DataChecker.RuleExec.csproj", "{B3D27E76-EFD6-4EC1-9A5B-D0B302D98D4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -4,6 +4,7 @@ import { RuleService } from "./rule.service";
 import { ContainerService } from "./container.service";
 import { ApiService } from "./api.service";
 import { DatabaseEnvironmentService } from "./databaseEnvironment.service";
+import { ValidationRunService } from "./validationRun.service";
 import { UserParamService } from "./userParam.service";
 import { LogService } from "./log.service";
 import { CatalogService } from "./catalog.service";
@@ -17,6 +18,7 @@ import { RuleExecutionLogDetailService } from "./ruleExecutionLogDetail.service"
     RuleService,
     ContainerService,
     DatabaseEnvironmentService,
+    ValidationRunService,
     UserParamService,
     LogService,
     CatalogService,

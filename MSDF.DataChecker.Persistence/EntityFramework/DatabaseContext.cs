@@ -15,6 +15,7 @@ using MSDF.DataChecker.Persistence.RuleExecutionLogs;
 using MSDF.DataChecker.Persistence.Rules;
 using MSDF.DataChecker.Persistence.Tags;
 using MSDF.DataChecker.Persistence.UserParams;
+using MSDF.DataChecker.Persistence.ValidationsRun;
 
 namespace MSDF.DataChecker.Persistence.EntityFramework
 {
@@ -28,6 +29,7 @@ namespace MSDF.DataChecker.Persistence.EntityFramework
         public DbSet<ContainerType> ContainerTypes { get; set; }
         public DbSet<Rule> Rules { get; set; }
         public DbSet<Log> Logs { get; set; }
+        public DbSet<ValidationRun> ValidationRuns { get; set; }
         public DbSet<RuleExecutionLog> RuleExecutionLogs { get; set; }
         public DbSet<DatabaseEnvironment> DatabaseEnvironments { get; set; }
         public DbSet<UserParam> UserParams { get; set; }

@@ -4,6 +4,7 @@ import { ContainerService } from "./container.service";
 import { CommunityService } from "./community.service";
 import { LocalUserService } from "./localUser.service";
 import { DatabaseEnvironmentService } from "./databaseEnvironment.service";
+import { ValidationRunService } from "./validationRun.service";
 import { UserParamService } from "./userParam.service";
 import { CatalogService } from "./catalog.service"
 import { TagService } from "./tag.service"
@@ -18,6 +19,7 @@ export class ApiService {
   public community: CommunityService;
   public localUser: LocalUserService;
   public databaseEnvironment: DatabaseEnvironmentService;
+  public validationRun: ValidationRunService;
   public userParam: UserParamService;
   public catalog: CatalogService;
   public tag: TagService;
@@ -30,6 +32,7 @@ export class ApiService {
     this.community = injector.get(CommunityService);
     this.localUser = injector.get(LocalUserService);
     this.databaseEnvironment = injector.get(DatabaseEnvironmentService);
+    this.validationRun = injector.get(ValidationRunService);
     this.userParam = injector.get(UserParamService);
     this.catalog = injector.get(CatalogService);
     this.tag = injector.get(TagService);

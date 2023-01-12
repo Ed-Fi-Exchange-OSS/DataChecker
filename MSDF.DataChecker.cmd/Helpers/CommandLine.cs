@@ -143,6 +143,7 @@ namespace MSDF.DataChecker.cmd.Helpers
 
         public static async Task<RuleTestResult> ExecuteRuleByEnvironmentId(
             IContainerService _containerService,
+            IValidationRunService _validationRunService,
             IRuleService _ruleService,
             IRuleExecService _executionService,
             IDatabaseEnvironmentService _databaseEnvironmentService,
@@ -172,10 +173,20 @@ namespace MSDF.DataChecker.cmd.Helpers
             toRun.AddRange(resultRules.Rules);
             toRun = toRun.Where(r => r.Id != Guid.Empty).ToList();
             databaseEnvironment.UserParams = new List<UserParamBO>();
+            var validationRun = new ValidationRunBO
+            {
+                HostDatabase = databaseEnvironment.Database,
+                HostServer = databaseEnvironment.DataSource,
+                RunStatus = "Running",
+                Source = "Manual",
+                StartTime = DateTime.Now
+            };
+
+            var validationResult = await _validationRunService.AddAsync(validationRun);
             foreach (var r in toRun)
             {
                 databaseEnvironment = await _databaseEnvironmentService.GetAsync(databaseEnvironment.Id);
-                result= await _executionService.ExecuteRuleByEnvironmentIdAsync(r.Id, databaseEnvironment);
+                result= await _executionService.ExecuteRuleByEnvironmentIdAsync(validationResult.Id, r.Id, databaseEnvironment);
             }
             return result;
         }

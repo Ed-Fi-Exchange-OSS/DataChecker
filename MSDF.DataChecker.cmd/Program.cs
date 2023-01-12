@@ -90,6 +90,7 @@ namespace MSDF.DataChecker.cmd
                 ConfigureServices(serviceCollection);
                 var serviceProvider = serviceCollection.BuildServiceProvider();
                 var _databaseEnvironmentService = serviceProvider.GetService<IDatabaseEnvironmentService>();
+                var _validationRunService = serviceProvider.GetService<IValidationRunService>();
                 var containerService = serviceProvider.GetService<IContainerService>();
                 var tagService = serviceProvider.GetService<ITagService>();
                 var _ruleService = serviceProvider.GetService<IRuleService>();
@@ -161,9 +162,20 @@ namespace MSDF.DataChecker.cmd
                 toRun.AddRange(result.Rules);
                 toRun = toRun.Where(r => r.Id != Guid.Empty).ToList();
 
+                var validationRun = new ValidationRunBO
+                {
+                    HostDatabase = databaseEnvironment.Database,
+                    HostServer = databaseEnvironment.DataSource,
+                    RunStatus = "Running",
+                    Source = "Manual",
+                    StartTime = DateTime.Now
+                };
+
+                var validationResult =  _validationRunService.AddAsync(validationRun);
+
                 foreach (var r in toRun)
                 {
-                    _executionService.ExecuteRuleByEnvironmentIdAsync(r.Id, databaseEnvironment).GetAwaiter().GetResult();
+                    _executionService.ExecuteRuleByEnvironmentIdAsync(validationResult.Id, r.Id, databaseEnvironment).GetAwaiter().GetResult();
                 }
 
                 Console.WriteLine("Finished.");
