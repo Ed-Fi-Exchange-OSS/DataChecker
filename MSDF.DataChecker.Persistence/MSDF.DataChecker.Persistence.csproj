@@ -6,29 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20191204194230_Initial - Copy.cs" />
-    <Compile Remove="Migrations\20191204194230_Initial - Copy.Designer.cs" />
-    <Compile Remove="Migrations\20191204194230_Initial.cs" />
-    <Compile Remove="Migrations\20191204194230_Initial.Designer.cs" />
-    <Compile Remove="Migrations\20191217004933_databaseupdatex.cs" />
-    <Compile Remove="Migrations\20191217004933_databaseupdatex.Designer.cs" />
-    <Compile Remove="Migrations\20191217011630_seedbeta.cs" />
-    <Compile Remove="Migrations\20191217011630_seedbeta.Designer.cs" />
-    <Compile Remove="Migrations\20191217011946_seedv2.cs" />
-    <Compile Remove="Migrations\20191217011946_seedv2.Designer.cs" />
-    <Compile Remove="Migrations\20200604231430_Tags.cs" />
-    <Compile Remove="Migrations\20200604231430_Tags.Designer.cs" />
-    <Compile Remove="Migrations\20200604232037_Tags.cs" />
-    <Compile Remove="Migrations\20200604232037_Tags.Designer.cs" />
-    <Compile Remove="Migrations\20200604232434_Tags.cs" />
-    <Compile Remove="Migrations\20200604232434_Tags.Designer.cs" />
-    <Compile Remove="Migrations\20200604232651_Tags.cs" />
-    <Compile Remove="Migrations\20200604232651_Tags.Designer.cs" />
-    <Compile Remove="Migrations\20200610180224_RuleDetailsDestination.cs" />
-    <Compile Remove="Migrations\20200610180224_RuleDetailsDestination.Designer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Hangfire.PostgreSql.Npgsql5" Version="1.9.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.3" />

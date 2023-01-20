@@ -37,9 +37,11 @@ namespace MSDF.DataChecker.Services.Models
             private readonly IContainerService _containerService;
             private readonly IDatabaseEnvironmentService _databaseEnvironmentService;
             private readonly IRuleExecService _executionService;
+            private IValidationRunService _validationRunService;
 
             public JobRunner(ITagService tagService,
                              IContainerService containerService,
+                             IValidationRunService validationRunService,
                              IDatabaseEnvironmentService databaseEnvironmentService,
                              IRuleExecService executionService,
                              IRuleService ruleService)
@@ -47,6 +49,7 @@ namespace MSDF.DataChecker.Services.Models
                 _tagService = tagService;
                 _containerService = containerService;
                 _databaseEnvironmentService = databaseEnvironmentService;
+                _validationRunService = validationRunService;
                 _executionService = executionService;
                 _ruleService = ruleService;
             }
@@ -82,11 +85,35 @@ namespace MSDF.DataChecker.Services.Models
                 var result = await _ruleService.SearchRulesAsync(collections, containers, tags, string.Empty, string.Empty, null, null);
                 toRun.AddRange(result.Rules);
                 toRun = toRun.Where(r => r.Id != Guid.Empty).ToList();
+                var validationRun = new ValidationRunBO
+                {
+                    HostDatabase = databaseEnvironment.Database,
+                    HostServer = databaseEnvironment.DataSource,
+                    RunStatus = "Running",
+                    Source = "Scheduled",
+                    StartTime = DateTime.UtcNow
+                };
+
+                var validationResult = await _validationRunService.AddAsync(validationRun);
 
                 foreach (var r in toRun)
                 {
-                    await _executionService.ExecuteRuleByEnvironmentIdAsync(r.Id, databaseEnvironment);
+                    await _executionService.ExecuteRuleByEnvironmentIdAsync(validationResult.Id, r.Id, databaseEnvironment);
                 }
+                validationRun.EndTime = DateTime.UtcNow;
+                validationRun.RunStatus = "Finished";
+                validationRun.Id = validationResult.Id;
+
+                try
+                {
+                    await _validationRunService.UpdateAsync(validationRun);
+
+                }
+                catch (Exception ex)
+                {
+                }
+
+              
             }
         }
     }

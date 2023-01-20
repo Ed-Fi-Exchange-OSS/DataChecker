@@ -149,7 +149,7 @@
                 <!--<fa name="spinner" animation="pulse"></fa>Running ...-->
               </button>
               <button *ngIf="!category.isRunning && category.rules.length>0" class="btn btn-info btn-addon "
-                      (click)="executeCategory(category); category.showRules = true">
+                      (click)="executeCategoryWithValidationRun(category); category.showRules = true">
 
                 <i fa name="play"></i>
                 <!--<fa name="play"></fa>-->

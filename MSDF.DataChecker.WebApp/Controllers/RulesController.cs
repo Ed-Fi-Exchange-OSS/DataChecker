@@ -112,7 +112,7 @@ namespace MSDF.DataChecker.WebApi.Controllers
                 _executionService.ConnectionString = connectionString;
 
             var result = await _executionService
-                .ExecuteRuleByEnvironmentIdAsync(model.RuleId, databaseEnvironment);
+                .ExecuteRuleByEnvironmentIdAsync(model.ValidationRunId, model.RuleId, databaseEnvironment);
 
             if (result != null)
                 return Ok(result);
