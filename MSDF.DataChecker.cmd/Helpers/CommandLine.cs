@@ -107,7 +107,7 @@ namespace MSDF.DataChecker.cmd.Helpers
                 isPostgres = false;
             }
 
-            dbEnvironment.Database = isPostgres? builderNpgsql.Database: builderSql.InitialCatalog;
+            dbEnvironment.Database = isPostgres ? builderNpgsql.Database : builderSql.InitialCatalog;
             dbEnvironment.DataSource = isPostgres ? builderNpgsql.Host : builderSql.DataSource;
             dbEnvironment.Name = isPostgres ? builderNpgsql.Database : builderSql.InitialCatalog;
             dbEnvironment.User = isPostgres ? builderNpgsql.Username : builderSql.UserID;
@@ -143,6 +143,7 @@ namespace MSDF.DataChecker.cmd.Helpers
 
         public static async Task<RuleTestResult> ExecuteRuleByEnvironmentId(
             IContainerService _containerService,
+            IValidationRunService _validationRunService,
             IRuleService _ruleService,
             IRuleExecService _executionService,
             IDatabaseEnvironmentService _databaseEnvironmentService,
@@ -172,14 +173,24 @@ namespace MSDF.DataChecker.cmd.Helpers
             toRun.AddRange(resultRules.Rules);
             toRun = toRun.Where(r => r.Id != Guid.Empty).ToList();
             databaseEnvironment.UserParams = new List<UserParamBO>();
+            var validationRun = new ValidationRunBO
+            {
+                HostDatabase = databaseEnvironment.Database,
+                HostServer = databaseEnvironment.DataSource,
+                RunStatus = "Running",
+                Source = "Manual",
+                StartTime = DateTime.Now
+            };
+
+            var validationResult = await _validationRunService.AddAsync(validationRun);
             foreach (var r in toRun)
             {
                 databaseEnvironment = await _databaseEnvironmentService.GetAsync(databaseEnvironment.Id);
-                result= await _executionService.ExecuteRuleByEnvironmentIdAsync(r.Id, databaseEnvironment);
+                result = await _executionService.ExecuteRuleByEnvironmentIdAsync(validationResult.Id, r.Id, databaseEnvironment);
             }
             return result;
         }
-            public static bool validateRule(this string  sql)
+        public static bool validateRule(this string sql)
         {
             var isValid = true;
             string[] sqlCheckList = { "--",";--",";","/*","*/","@@","@","char","nchar","varchar","nvarchar","alter","begin","cast","create","cursor","declare",
