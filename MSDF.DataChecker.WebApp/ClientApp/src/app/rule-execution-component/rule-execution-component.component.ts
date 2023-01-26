@@ -54,6 +54,7 @@ export class RuleExecutionComponentComponent implements OnInit {
     this.newValidationRun.HostDatabase = this.selectedDatabaseEnvironment.database;
     this.newValidationRun.HostServer = this.selectedDatabaseEnvironment.dataSource;
     this.newValidationRun.RunStatus = "Running";
+    this.newValidationRun.Id = 0;
   }
 
 
