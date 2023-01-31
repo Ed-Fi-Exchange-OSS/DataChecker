@@ -56,8 +56,8 @@ This method is recommend for teams that may want to modify the source code and h
 * In the WebApp project, configure both “appsettings.json” and "appsettings.Production.json". Specify your database engine (postgres of SqlServer) and your database connection string.
 * In visual studio open: Tools->Nuget Package Manager->Package Manager Console.
 * In the package manager console change the project to *dataChecker.Persistance*
-* In the package manager console run: Update-Database -context DatabaseContext to update the data base with the Migration files( DataChecker.Persistanc-> Migrations)
-* Run Add-Migration MyMigration -context DatabaseContext and then Update-Database -context DatabaseContext, only for new Migrations.
+* In the package manager console run: `Update-Database -context DatabaseContext` to update the data base with the Migration files( DataChecker.Persistanc-> Migrations)
+* Run `Add-Migration MyMigration -context DatabaseContext` and then `Update-Database -context DatabaseContext`, only for new Migrations.
 * Deploy the WebApp to a folder in the IIS root and convert it into an application in IIS.
 
 ## Docker Install ##
