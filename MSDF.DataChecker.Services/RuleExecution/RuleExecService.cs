@@ -94,7 +94,7 @@ namespace MSDF.DataChecker.Services.RuleExecution
 
             if (string.IsNullOrEmpty(_dataProvider.ConnectionString))
                 _dataProvider.ConnectionString = connectionString;
-            RuleTestResult testResult = await ExecuteRuleAsync(rule, connectionString, databaseEnvironment.UserParams, databaseEnvironment.TimeoutInMinutes);
+            var testResult = await ExecuteRuleAsync(rule, connectionString, databaseEnvironment.UserParams, databaseEnvironment.TimeoutInMinutes);
 
             var containerParent = await _collectionQueries.GetAsync(rule.ContainerId);
             if (containerParent.ParentContainerId != null)
@@ -144,8 +144,7 @@ namespace MSDF.DataChecker.Services.RuleExecution
                         int maxNumberResults = databaseEnvironment.MaxNumberResults.Value;
                         if (rule.MaxNumberResults != null)
                             maxNumberResults = rule.MaxNumberResults.Value;
-
-                        await InsertDiagnosticSqlIntoDetails(rule, newRuleExecutionLog, connectionString, databaseEnvironment.UserParams, existCatalog.Name, maxNumberResults,_appSettings.Engine);
+                        testResult.Result = await InsertDiagnosticSqlIntoDetails(rule, newRuleExecutionLog, connectionString, databaseEnvironment.UserParams, existCatalog.Name, maxNumberResults, _appSettings.Engine);
                     }
                 }
             }
@@ -182,14 +181,10 @@ namespace MSDF.DataChecker.Services.RuleExecution
                
 
                 if (string.IsNullOrEmpty(sqlToRun))
-                {
                     sqlToRun = rule.DiagnosticSql;
                     var dataReader =  _dataProvider.ExecuteReader(connectionString, sqlToRun, parameters);
-                    if (dataReader.Rows.Count > 0)
-                        execution = dataReader.Rows.Count;
-                }
-                else
-                    execution = Convert.ToInt32(_dataProvider.ExecuteScalar(connectionString, sqlToRun, parameters));
+                if (dataReader.Rows.Count > 0)
+                    execution = dataReader.Rows.Count;
 
                 resultWithErrors = execution > 0;
                 testResult = new RuleTestResult
@@ -264,7 +259,7 @@ namespace MSDF.DataChecker.Services.RuleExecution
             return diagnosticResult;
         }
 
-        private async Task InsertDiagnosticSqlIntoDetails(RuleBO rule, RuleExecutionLog ruleExecutionLog, string connectionString, List<UserParamBO> sqlParams, string tableName, int maxNumberResults,string engine)
+        private async Task<int> InsertDiagnosticSqlIntoDetails(RuleBO rule, RuleExecutionLog ruleExecutionLog, string connectionString, List<UserParamBO> sqlParams, string tableName, int maxNumberResults,string engine)
         {
             var tableForSqlBulk = new DataTable();
             string sqlToRun = Utils.GenerateSqlWithTop(rule.DiagnosticSql, maxNumberResults.ToString(), engine);
@@ -288,10 +283,12 @@ namespace MSDF.DataChecker.Services.RuleExecution
                 if (ruleExecutionLog != null)
                 {
                     ruleExecutionLog.DetailsSchema = columnsSchema;
+                    ruleExecutionLog.Result = tableForSqlBulk.Rows.Count;
                     await _ruleExecutionLogCommands.UpdateAsync(ruleExecutionLog);
                 }
                 await _edFiRuleExecutionLogDetailCommands.ExecuteSqlBulkCopy(tableForSqlBulk, $"[destination].[{tableName}]",_appSettings.Engine);
             }
+            return tableForSqlBulk.Rows.Count;
         }
     }
 }
