@@ -11,16 +11,15 @@ namespace MSDF.DataChecker.Persistence.ValidationsRun
     public class ValidationRun
     {
         public int Id { get; set; }
-        [Required(AllowEmptyStrings = true)]
+        [Required(AllowEmptyStrings = false)]
         public string RunStatus { get; set; }
-
-        [Required(AllowEmptyStrings = true)]
+        [Required(AllowEmptyStrings = false)]
         public string HostServer { get; set; }
-        [Required(AllowEmptyStrings = true)]
+        [Required(AllowEmptyStrings = false)]
         public string HostDatabase { get; set; }
-        [Required(AllowEmptyStrings = true)]
+        [Required(AllowEmptyStrings = false)]
         public string Source { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime? EndTime { get; set; }
+        public DateTime? StartTime { get; set; }
+        public DateTime EndTime { get; set; }
     }
 }
