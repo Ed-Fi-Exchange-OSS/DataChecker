@@ -13,6 +13,8 @@ namespace MSDF.DataChecker.Persistence.ValidationsRun
         public int Id { get; set; }
         [Required(AllowEmptyStrings = false)]
         public string RunStatus { get; set; }
+
+
         [Required(AllowEmptyStrings = false)]
         public string HostServer { get; set; }
         [Required(AllowEmptyStrings = false)]

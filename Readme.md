@@ -51,18 +51,40 @@ This method is recommend for teams that may want to modify the source code and h
 * Clone this repository locally
 * Open the solution (MSDF.DataChecker.sln) file located in the root directory of the repository in Visual Studeio
 * Open the <project root./MSDF.DataChecker.WebApp/ClientApp folder in Powershell (or another shell and run:) <npm install -force>
-* Ensure the solution builds: Right click the *“MSDF.DataChecker.WebApp”* project and click rebuild. If you get any errors it's probably because you are missing one of the dependencies or prerequisites listed above.
+* Ensure the solution builds: Right click the *"MSDF.DataChecker.WebApp"* project and click rebuild. If you get any errors it's probably because you are missing one of the dependencies or prerequisites listed above.
 * Right Click on the WebApp folder and set it as the startup project.
-* In the WebApp project, configure both “appsettings.json” and "appsettings.Production.json". Specify your database engine (postgres of SqlServer) and your database connection string.
+* In the WebApp project, configure both "appsettings.json" and "appsettings.Production.json". Specify your database engine (postgres of SqlServer) and your database connection string.
 * In visual studio open: Tools->Nuget Package Manager->Package Manager Console.
 * In the package manager console change the project to *dataChecker.Persistance*
-* In the package manager console run: `Update-Database -context DatabaseContext` to update the data base with the Migration files( DataChecker.Persistanc-> Migrations)
-* Run `Add-Migration MyMigration -context DatabaseContext` and then `Update-Database -context DatabaseContext`, only for new Migrations.
+* If and only if this is an upgrade of an exisitng system, in the package manager console run: `Add-Migration MyMigration -context DatabaseContext` 
+* Run`Update-Database -context DatabaseContext` to update the data base with the Migration files( DataChecker.Persistanc-> Migrations)
 * Deploy the WebApp to a folder in the IIS root and convert it into an application in IIS.
 
 ## Docker Install ##
 The data checker web app is available as a docker container. At this time there is not a containerized version of the database.
 There is a sample docker-compose.yml file and both a postgres and SqlServer version of the database that can be found attached to the latest release in github.
+
+
+## Securing the Data Checker Web App ##
+
+At this time, data checker does not have an internal security (authentication and authorization) method built in.  Data checker has the potential of having access to protected student data, this means that the application needs to be installed in such a a way that the web application and the database are not available unauthorized access. We recommend the following strategies.
+### Secure the database
+The Data Checker database has validation results and should be subject to the same security practices as the ODS.
+### Eliminate outside access to the data checker web app
+Like other internal EdFI tools (Admin App, Data Import), the data checker should not be on a web site that is available from the public internet. 
+### Enable windows authentication for the data checker web app
+As an added level of security, windows authentication should be considered for the web app.  This is done with the following steps.
+
+* Under server manger, go to the IIS role, open the security folder, and make sure that the optional feature 'Windows Authentication' is installed.
+* Restart IIS
+* In IIS, select the data checker web app and double click the 'authentication' icon on the right.  Change "Anonymous Authentication" to disabled and "Windows Authentication" to enabled. Close the authentication tab.
+* Right click on the data checker web application, and choose "Edit Permissions..."
+* Go to the security tab
+* Click on the 'advanced' button
+* Click 'Disable Inheritance' , and choose the option to convert the inherited permissions to explicit permissions on that object. 
+* Delete the access for the 'Users' group
+* Add a windows security group that includes the people that should be able to access the application and close this screen.
+* Test access using incognito mode in your browser to make sure that authentication is required.
 
 # Quick start guide #
 * Set up an environment that connects to an ODS you want to examine. It is highly recommended that the credentials used to connect to that ODS have read-only access.

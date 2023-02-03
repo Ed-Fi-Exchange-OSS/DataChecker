@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MSDF.DataChecker.Persistence.Migrations
@@ -21,10 +21,10 @@ namespace MSDF.DataChecker.Persistence.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RunStatus = table.Column<string>(nullable: true),
-                    HostServer = table.Column<string>(nullable: true),
-                    HostDatabase = table.Column<string>(nullable: true),
-                    Source = table.Column<string>(nullable: true),
+                    RunStatus = table.Column<string>(nullable: false),
+                    HostServer = table.Column<string>(nullable: false),
+                    HostDatabase = table.Column<string>(nullable: false),
+                    Source = table.Column<string>(nullable: false),
                     StartTime = table.Column<DateTime>(nullable: false),
                     EndTime = table.Column<DateTime>(nullable: true)
                 },
