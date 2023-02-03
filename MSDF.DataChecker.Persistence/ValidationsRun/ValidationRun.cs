@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using MSDF.DataChecker.Persistence.RuleExecutionLogs;
@@ -10,9 +11,14 @@ namespace MSDF.DataChecker.Persistence.ValidationsRun
     public class ValidationRun
     {
         public int Id { get; set; }
+        [Required(AllowEmptyStrings = true)]
         public string RunStatus { get; set; }
+
+        [Required(AllowEmptyStrings = true)]
         public string HostServer { get; set; }
+        [Required(AllowEmptyStrings = true)]
         public string HostDatabase { get; set; }
+        [Required(AllowEmptyStrings = true)]
         public string Source { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }

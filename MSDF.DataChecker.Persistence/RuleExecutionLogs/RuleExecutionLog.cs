@@ -28,7 +28,7 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogs
         public string DetailsTableName { get; set; }
 
 
-        public int ValidationRunId { get; set; }
+        public int? ValidationRunId { get; set; }
         [ForeignKey("ValidationRunId")]
         public ValidationRun ValidationRun { get; set; }
     }
