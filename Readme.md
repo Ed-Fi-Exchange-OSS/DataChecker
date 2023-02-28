@@ -90,6 +90,52 @@ As an added level of security, windows authentication should be considered for t
 * Set up an environment that connects to an ODS you want to examine. It is highly recommended that the credentials used to connect to that ODS have read-only access.
 * Pull in an existing collections of rules from https://github.com/Ed-Fi-Exchange-OSS/DataChecker-Collections
 * More detailed user instructions can be found at: [Data Checker Overview and User Guide](https://docs.google.com/document/d/17FkjSqg55-MOvFxpmbAZ06okIdxyjXhHoN4DnxgIC8A/)
+
+# Known Issues #
+## Why is Data Checker only showing a blank page?
+The issue could be caused because we have different version of Angular Clic and Node in our environment.
+Data checker needs:
+
+Angular CLI: 14.1.0 
+
+Node: you need a version compatible with Angular CLI: 14.1.0 , Node 16.16.0 works well.
+
+Run the commands:
+
+`ng version` : to know what angular version you have installed.
+`node -v` : to know what version of Node you have installed.
+
+If we have different versions, uninstall and Install the correct versions.
+
+`npm i -g node@16.16.0`
+`npm install -g @angular/cli@14.1.0`
+
+ ### Before you run the application.
+ 1) Compile the the solution. This process will install all the packages that the application needs to run.
+
+    if for some reason It failed to install a package, try to install manually.<br>
+     a) go to ..\DataChecker\MSDF.DataChecker.WebApp\ClientApp directory and delete the package-lock.json file and the node_modules folder.<br>
+     b) Open PowerShell and navigate to your directory :  `MSDF.DataChecker.WebApp\ClientApp `<br>
+     c) Run the command npm install -force
+
+ 2) Create your Data Base running the Migrations files.<br>
+    a) In your visual Studio , open a Package Manager Console.<br>
+    b) Select `MSDF.DataChecker.Persistence` as Default project.<br>
+    c) Run the command `Update-Database -context DatabaseContext`.<br>
+    d) Open your Sql Server Management Studio and ensure your data base was created.<br>
+ 3) Run Data checker<br>
+    a) Change all your connections strings<br>
+    b) If your are going to debug Data Checker, ensure your ASPNETCORE_ENVIRONMENT in `MSDF.DataChecker.WebApp\Properties\launchSettings.json` is configured as                   Development (`"ASPNETCORE_ENVIRONMENT": "Development"`)<br>
+    c) Right Click on the `MSDF.DataChecker.WebApp` project and set it as the startup project.<br>
+    d) Run the application, instead to run with IIS express, select` MSDF.DataChecker.WebApp`<br>
+    
+    If everything works well, you are going to see a console application like this.
+
+![image](https://user-images.githubusercontent.com/85459544/221946710-f5e361e0-57e6-42b4-8284-3cb0fb92bd30.png)
+Note: if for some reason, in the console application you see something like this and your browser never open DataChecker, just close the console application and run DataChecker again.
+![image](https://user-images.githubusercontent.com/85459544/221947047-2f524334-2789-4fc2-82ca-916d76dd74f5.png)
+
+
 # Support #
 * For Questions,or  comments, please use the #users-datachecker channel on the Ed-Fi Alliance Slack workspace.
 * For support requests or bugs please open a ticket with the Ed-Fi support group with Data Checker in the title.
