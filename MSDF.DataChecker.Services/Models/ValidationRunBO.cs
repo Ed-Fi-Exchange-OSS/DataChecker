@@ -12,7 +12,7 @@ namespace MSDF.DataChecker.Services.Models
         public string HostServer { get; set; }
         public string HostDatabase { get; set; }
         public string Source { get; set; }
-        public DateTime? StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime? EndTime { get; set; }
     }
 }

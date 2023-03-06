@@ -48,6 +48,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MSDF.DataChecker.Migrations.Postgres\MSDF.DataChecker.Migrations.Postgres.csproj" />
+    <ProjectReference Include="..\MSDF.DataChecker.Migrations.SqlServer\MSDF.DataChecker.Migrations.SqlServer.csproj" />
     <ProjectReference Include="..\MSDF.DataChecker.Persistence\MSDF.DataChecker.Persistence.csproj" />
     <ProjectReference Include="..\MSDF.DataChecker.Services\MSDF.DataChecker.Services.csproj" />
   </ItemGroup>

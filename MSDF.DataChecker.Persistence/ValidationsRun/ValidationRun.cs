@@ -21,7 +21,7 @@ namespace MSDF.DataChecker.Persistence.ValidationsRun
         public string HostDatabase { get; set; }
         [Required(AllowEmptyStrings = false)]
         public string Source { get; set; }
-        public DateTime? StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime? EndTime { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace MSDF.DataChecker.Persistence.Migrations
                 name: "ValidationRunId",
                 schema: "destination",
                 table: "RuleExecutionLogs",
-                nullable: false,
+                nullable: true,
                 defaultValue: 0);
 
             migrationBuilder.CreateTable(
