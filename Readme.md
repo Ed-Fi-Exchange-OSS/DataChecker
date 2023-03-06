@@ -120,9 +120,17 @@ If we have different versions, uninstall and Install the correct versions.
 
  2) Create your Data Base running the Migrations files.<br>
     a) In your visual Studio , open a Package Manager Console.<br>
-    b) Select `MSDF.DataChecker.Persistence` as Default project.<br>
+    b) Depending on your connection string,select `MSDF.DataChecker.Migrations.SqlServer` or `MSDF.DataChecker.Migrations.Postgres`        
     c) Run the command `Update-Database -context DatabaseContext`.<br>
     d) Open your Sql Server Management Studio and ensure your data base was created.<br>
+    
+    Note: if you get the error Your target project 'MSDF.DataChecker.Migrations' doesn't match your migrations assembly ....
+    ![image](https://user-images.githubusercontent.com/85459544/223282457-b05150bd-5cea-4336-8650-1216132e23f0.png)
+          Make sure your connection Engine match with your Migration Assembly.<br>
+          "Engine": "Postgres" —>MSDF.DataChecker.Migrations.Postgres<br>
+          "Engine": "SqlServer" —>MSDF.DataChecker.Migrations.SqlServer<br>
+        ![image](https://user-images.githubusercontent.com/85459544/223282673-3543bc50-87f9-4cb8-a0a9-a1e4d86cd29e.png)
+
  3) Run Data checker<br>
     a) Change all your connections strings<br>
     b) If your are going to debug Data Checker, ensure your ASPNETCORE_ENVIRONMENT in `MSDF.DataChecker.WebApp\Properties\launchSettings.json` is configured as                   Development (`"ASPNETCORE_ENVIRONMENT": "Development"`)<br>
