@@ -116,11 +116,11 @@ If we have different versions, uninstall and Install the correct versions.
     if for some reason It failed to install a package, try to install manually.<br>
      a) go to ..\DataChecker\MSDF.DataChecker.WebApp\ClientApp directory and delete the package-lock.json file and the node_modules folder.<br>
      b) Open PowerShell and navigate to your directory :  `MSDF.DataChecker.WebApp\ClientApp `<br>
-     c) Run the command npm install -force
+     c) Run the command `npm install -force`
 
  2) Create your Data Base running the Migrations files.<br>
     a) In your visual Studio , open a Package Manager Console.<br>
-    b) Depending on your connection string,select `MSDF.DataChecker.Migrations.SqlServer` or `MSDF.DataChecker.Migrations.Postgres`        
+    b) Depending on your connection string,select `MSDF.DataChecker.Migrations.SqlServer` or `MSDF.DataChecker.Migrations.Postgres` as default project    
     c) Run the command `Update-Database -context DatabaseContext`.<br>
     d) Open your Sql Server Management Studio and ensure your data base was created.<br>
     
