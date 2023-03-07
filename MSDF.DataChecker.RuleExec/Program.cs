@@ -47,7 +47,7 @@ namespace MSDF.DataChecker.RuleExec
                 
                 var listEnvironments = _databaseEnvironmentService.GetAsync().GetAwaiter().GetResult();
                 var collection = CommandLine.BuildCollectionJsonRule(sqlRules, ruleName);
-                var settings = configuration.GetSection("Settings").Get<DataBaseSettings>();
+                var settings = configuration.GetSection("DatabaseSettings").Get<DataBaseSettings>();
                 var dbEnvironment = CommandLine.BuildDatabaseEnvironment(connString, settings.Engine);
 
                 var databaseEnvironment = listEnvironments.FirstOrDefault(rec => rec.Name == dbEnvironment.Database && rec.DataSource == dbEnvironment.DataSource);

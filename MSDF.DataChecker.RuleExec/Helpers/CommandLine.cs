@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using MSDF.DataChecker.Persistence;
 using MSDF.DataChecker.Persistence.ValidationsRun;
 using MSDF.DataChecker.Services;
 using MSDF.DataChecker.Services.Models;
@@ -102,10 +103,11 @@ namespace MSDF.DataChecker.RuleExec.Helpers
             if (Engine == "SqlServer")
             {
                 isPostgres = false;
-                builderSql = new SqlConnectionStringBuilder(connString);
+                
+                builderSql = new SqlConnectionStringBuilder(Utility.ParseConnectionString(connString, Engine));
             }
             else
-                builderNpgsql = new NpgsqlConnectionStringBuilder(connString);
+                builderNpgsql = new NpgsqlConnectionStringBuilder(Utility.ParseConnectionString(connString, Engine));
 
             dbEnvironment.Database = isPostgres ? builderNpgsql.Database : builderSql.InitialCatalog;
             dbEnvironment.DataSource = isPostgres ? builderNpgsql.Host : builderSql.DataSource;
