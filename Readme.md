@@ -55,7 +55,7 @@ This method is recommend for teams that may want to modify the source code and h
 * Right Click on the WebApp folder and set it as the startup project.
 * In the WebApp project, configure both "appsettings.json" and "appsettings.Production.json". Specify your database engine (postgres of SqlServer) and your database connection string.
 * In visual studio open: Tools->Nuget Package Manager->Package Manager Console.
-* In the package manager console change the project to *dataChecker.Persistance*
+* In the package manager console change the project to `MSDF.DataChecker.Migrations.SqlServer` or `MSDF.DataChecker.Migrations.Postgres` dependign of your connection engine.
 * If and only if this is an upgrade of an exisitng system, in the package manager console run: `Add-Migration MyMigration -context DatabaseContext` 
 * Run`Update-Database -context DatabaseContext` to update the data base with the Migration files( DataChecker.Persistanc-> Migrations)
 * Deploy the WebApp to a folder in the IIS root and convert it into an application in IIS.
@@ -120,7 +120,7 @@ If we have different versions, uninstall and Install the correct versions.
 
  2) Create your Data Base running the Migrations files.<br>
     a) In your visual Studio , open a Package Manager Console.<br>
-    b) Depending on your connection string,select `MSDF.DataChecker.Migrations.SqlServer` or `MSDF.DataChecker.Migrations.Postgres` as default project    
+    b) Depending of your connection string,select `MSDF.DataChecker.Migrations.SqlServer` or `MSDF.DataChecker.Migrations.Postgres` as default project    
     c) Run the command `Update-Database -context DatabaseContext`.<br>
     d) Open your Sql Server Management Studio and ensure your data base was created.<br>
     
