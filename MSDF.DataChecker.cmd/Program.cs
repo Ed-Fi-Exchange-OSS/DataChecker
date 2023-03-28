@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace MSDF.DataChecker.cmd
 {
@@ -22,12 +23,12 @@ namespace MSDF.DataChecker.cmd
     {
         public static IConfiguration configuration;
         public static IDbAccessProvider dataAccessProvider { get; set; }
-        static void Main(string[] args)
+        static async System.Threading.Tasks.Task Main(string[] args)
         {
             try
             {
+                Console.ResetColor();
                 string containerName = string.Empty, environmentName = string.Empty, collectionName = string.Empty, tagsName = string.Empty;
-
                 if (args == null)
                 {
                     Console.WriteLine("Parameters are needed");
@@ -37,21 +38,21 @@ namespace MSDF.DataChecker.cmd
                 for (int i = 0; i < args.Length; i++)
                 {
                     string arg = args[i];
-                    switch (arg)
+                    switch (arg.ToLower())
                     {
-                        case "--Collection":
+                        case "--collection":
                             collectionName = args[i + 1];
                             break;
 
-                        case "--Container":
+                        case "--container":
                             containerName = args[i + 1];
                             break;
 
-                        case "--Tag":
+                        case "--tag":
                             tagsName = args[i + 1];
                             break;
 
-                        case "--Environment":
+                        case "--environment": case "--environmentname":
                             environmentName = args[i + 1];
                             break;
                     }
@@ -107,9 +108,9 @@ namespace MSDF.DataChecker.cmd
                     return;
                 }
 
-                List<Guid> collections = new List<Guid>();
-                List<Guid> containers = new List<Guid>();
-                List<int> tags = new List<int>();
+                var collections = new List<Guid>();
+                var containers = new List<Guid>();
+                var tags = new List<int>();
 
                 if (!string.IsNullOrEmpty(tagsName))
                 {
@@ -171,23 +172,31 @@ namespace MSDF.DataChecker.cmd
                     StartTime = DateTime.Now
                 };
 
-                var validationResult =  _validationRunService.AddAsync(validationRun);
-
+                var validationResult = await _validationRunService.AddAsync(validationRun);
                 foreach (var r in toRun)
                 {
-                    _executionService.ExecuteRuleByEnvironmentIdAsync(validationResult.Id, r.Id, databaseEnvironment).GetAwaiter().GetResult();
+                    await _executionService.ExecuteRuleByEnvironmentIdAsync(validationResult.Id, r.Id, databaseEnvironment);
                 }
-
-                Console.WriteLine("Finished.");
+                Thread.Sleep(4000);
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"*************************************************** F I N I S H E D **************************************************");
+                Console.WriteLine($"The validation rules were executed correctlly");
+                Console.WriteLine(string.Format("Environment: {0}", environmentName));
+                Console.WriteLine(string.Format("Collection: {0}", collectionName));
+                Console.WriteLine(string.Format("Container: {0}", containerName));
                 Console.SetOut(Console.Out);
+
             }
             catch (Exception ex)
             {
+                Thread.Sleep(4000);
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Exception:");
                 Console.WriteLine(ex.Message);
             }
         }
-
         private static void ConfigureServices(IServiceCollection serviceCollection)
         {
             // Add logging
@@ -195,8 +204,7 @@ namespace MSDF.DataChecker.cmd
                 .AddTransient<ContainerService>()
                 .AddTransient<RuleService>()
                 .AddTransient<TagService>()
-                //.AddTransient<RuleExecutionService>()
-                .AddTransient<IRuleExecService>()
+                .AddTransient<RuleExecService>()
                 .AddTransient<DatabaseEnvironmentService>();
 
             // Build configuration
@@ -211,7 +219,9 @@ namespace MSDF.DataChecker.cmd
             // Add services
             // TODO: Add generic way of registering services.
             serviceCollection.AddTransient<IRuleService, RuleService>();
-            serviceCollection.AddTransient<IRuleExecService, IRuleExecService>();
+            //serviceCollection.AddTransient<IRuleExecutionService, RuleExecutionService>();
+            serviceCollection.AddTransient<IRuleExecService, RuleExecService>();
+
             serviceCollection.AddTransient<IDatabaseEnvironmentService, DatabaseEnvironmentService>();
             serviceCollection.AddTransient<IContainerService, ContainerService>();
             serviceCollection.AddTransient<ITagService, TagService>();
