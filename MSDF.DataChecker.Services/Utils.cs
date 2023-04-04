@@ -29,7 +29,8 @@ namespace MSDF.DataChecker.Services
         public static string GenerateSqlWithTop(string diagnosticSql, string maxNumberResults, string Engine)
         {
             //Replacing line breaks and multiple spaces 
-            var result = Regex.Replace(Regex.Replace(diagnosticSql.Trim(), @"\r\n?|\n", " "), @"\s+", " ").Replace(";", "");
+            //var result = Regex.Replace(Regex.Replace(diagnosticSql.Trim(), @"\r\n?|\n", " "), @"\s+", " ").Replace(";", "");
+            var result = Regex.Replace(diagnosticSql, @"[^\S\r\n]+", " ").Replace(";", "");
 
             if (result.EndsWith(";"))
             {
@@ -67,19 +68,25 @@ namespace MSDF.DataChecker.Services
             {
                 if (Engine == "SqlServer")
                 {
-                    var regex = new Regex(Regex.Escape("select distinct"), RegexOptions.IgnoreCase);
+                    var regex = new Regex(Regex.Escape("distinct "), RegexOptions.IgnoreCase);
                     if (regex.IsMatch(result))
                     {
-                        var top = topValue == string.Empty ? $" top {maxNumberResults}" : topValue;
-                        result = regex.Replace(result, $"select distinct {top} ", 1);
+                        if (!string.IsNullOrEmpty(maxNumberResults) || !string.IsNullOrEmpty(topValue))
+                        {
+                            var top = topValue == string.Empty ? $" top {maxNumberResults}" : topValue;
+                            result = regex.Replace(result, $"distinct  {top} ", 1);
+                        }
                     }
                     else
                     {
                         regex = new Regex(Regex.Escape("select"), RegexOptions.IgnoreCase);
                         if (regex.IsMatch(result))
                         {
-                            var top = topValue == string.Empty ? $" top {maxNumberResults}" : topValue;
-                            result = regex.Replace(result, $"select {top} ", 1);
+                            if (!string.IsNullOrEmpty(maxNumberResults) || !string.IsNullOrEmpty(topValue))
+                            {
+                                var top = topValue == string.Empty ? $" top {maxNumberResults}" : topValue;
+                                result = regex.Replace(result, $"select {top} ", 1);
+                            }
                         }
                     }
                 }
@@ -89,8 +96,11 @@ namespace MSDF.DataChecker.Services
                     Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
                     if (!m.Success)
                     {
-                        limitValue = limitValue == string.Empty ? " Limit " + maxNumberResults : limitValue;
-                        result = result + " " + limitValue;
+                        if (!string.IsNullOrEmpty(maxNumberResults) || !string.IsNullOrEmpty(limitValue))
+                        {
+                            limitValue = limitValue == string.Empty ? " Limit " + maxNumberResults : limitValue;
+                            result = result + " " + limitValue;
+                        }
                     }
                 }
             }
@@ -120,7 +130,7 @@ namespace MSDF.DataChecker.Services
         public static string ValidateLimitRows(string diagnosticSql, string engine)
         {
             //Replacing line breaks and multiple spaces 
-            var result = Regex.Replace(Regex.Replace(diagnosticSql.Trim(), @"\r\n?|\n", " "), @"\s+", " ").Replace(";", "");
+            var result = Regex.Replace(diagnosticSql, @"[^\S\r\n]+", " ").Replace(";", "");
             if (result.EndsWith(";"))
             {
                 result = result.Remove(result.Length - 1, 1);
@@ -189,7 +199,7 @@ namespace MSDF.DataChecker.Services
         public static string GenerateSqlWithCount(string diagnosticSql, string engine)
         {
             //Replacing line breaks and multiple spaces 
-            var result = Regex.Replace(Regex.Replace(diagnosticSql.Trim(), @"\r\n?|\n", " "), @"\s+", " ").Replace(";", "");
+            var result = Regex.Replace(diagnosticSql, @"[^\S\r\n]+", " ").Replace(";", "");
             if (result.StartsWith("select"))
             {
                 return string.Format("SELECT COUNT(*) FROM ( \n {0} \n) as TBL", ValidateLimitRows(result, engine));

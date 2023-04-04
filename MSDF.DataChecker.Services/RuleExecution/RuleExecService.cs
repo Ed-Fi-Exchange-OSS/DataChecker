@@ -86,6 +86,7 @@ namespace MSDF.DataChecker.Services.RuleExecution
         {
             int? ruleDetailsDestinationId = null;
             var rule = await _ruleService.GetAsync(ruleId);
+            rule.MaxNumberResults = databaseEnvironment.MaxNumberResults;
             var executionLogs = await _ruleExecutionLogQueries.GetByRuleIdAsync(ruleId);
 
             var connectionString = databaseEnvironment.GetConnectionString(_appSettings.Engine);
