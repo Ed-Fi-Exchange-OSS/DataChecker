@@ -170,7 +170,8 @@ namespace MSDF.DataChecker.Services.RuleExecution
 
                 int execution = 0;
                 bool resultWithErrors = false;
-                string sqlToRun = Utils.GenerateSqlWithCount(rule.DiagnosticSql,_appSettings.Engine);
+                var sqlToexecute = Utils.GenerateSqlWithTop(rule.DiagnosticSql, rule.MaxNumberResults.ToString(), _appSettings.Engine);
+                var sqlToRun = Utils.GenerateSqlWithCount(rule.DiagnosticSql, _appSettings.Engine);
                 var parameters = new Dictionary<string, string>();
                 userParams.ForEach(item => { parameters.Add(item.Name, item.Value); });
 
@@ -178,11 +179,10 @@ namespace MSDF.DataChecker.Services.RuleExecution
                 if (string.IsNullOrEmpty(_dataProvider.ConnectionString))
                     _dataProvider.ConnectionString = connectionString;
 
-               
-
                 if (string.IsNullOrEmpty(sqlToRun))
                     sqlToRun = rule.DiagnosticSql;
-                    var dataReader =  _dataProvider.ExecuteReader(connectionString, sqlToRun, parameters);
+
+                var dataReader = _dataProvider.ExecuteReader(connectionString, sqlToRun, parameters);
                 if (dataReader.Rows.Count > 0)
                     execution = dataReader.Rows.Count;
 
@@ -195,7 +195,7 @@ namespace MSDF.DataChecker.Services.RuleExecution
                     Evaluation = !resultWithErrors,
                     Status = !resultWithErrors ? Status.Succeded : Status.Failed,
                     ErrorMessage = !resultWithErrors ? "" : rule.ErrorMessage,
-                    ExecutedSql = rule.DiagnosticSql
+                    ExecutedSql = sqlToexecute
                 };
             }
             catch (Exception e)
