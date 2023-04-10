@@ -29,7 +29,17 @@ namespace MSDF.DataChecker.Services
             }
             return results;
         }
-
+        public static string FindDateFromDiagnosticSql(string diagnosticSql, string Engine) {
+            if (Engine == "SqlServer")
+            {                
+                 diagnosticSql = Regex.Replace(diagnosticSql, @"now\(\)", @"getDate()", RegexOptions.IgnoreCase);
+            }
+            else if (Engine == "Postgres")
+            {
+                diagnosticSql = Regex.Replace(diagnosticSql, @"getDate\(\)", @"now()", RegexOptions.IgnoreCase);
+            }
+            return diagnosticSql;
+        }
         public static string GenerateSqlWithTop(string diagnosticSql, string maxNumberResults, string Engine)
         {
             //Replacing multiple spaces BUT NOT LineBreaks
@@ -124,7 +134,7 @@ namespace MSDF.DataChecker.Services
                     }
                 }
             }
-
+            result=FindDateFromDiagnosticSql(result, Engine);
             return result;
         }
 
