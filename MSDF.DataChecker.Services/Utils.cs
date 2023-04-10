@@ -44,7 +44,7 @@ namespace MSDF.DataChecker.Services
                 result = result.Remove(result.Length - 1, 1);
             }
 
-            
+
             var limitExpression = @"top\s+\d+";
             var limitGroups = Regex.Match(result, limitExpression, RegexOptions.IgnoreCase).Groups;
             if (limitGroups[0].Success)
@@ -52,7 +52,7 @@ namespace MSDF.DataChecker.Services
                 topValue = limitGroups[0].Value;
                 result = result.Replace(limitGroups[0].Value, "");
             }
-            
+
             limitExpression = @"limit\s+\d+";
             limitGroups = Regex.Match(result, limitExpression, RegexOptions.IgnoreCase).Groups;
             if (limitGroups[0].Success)
@@ -68,7 +68,7 @@ namespace MSDF.DataChecker.Services
             else if (Engine == "Postgres" && !string.IsNullOrEmpty(topValue))
             {
                 limitValue = topValue.Replace("top", "Limit");
-            }                     
+            }
 
             if (result.ToLower().StartsWith("select"))
             {  //the statment start with 'select'
@@ -87,13 +87,14 @@ namespace MSDF.DataChecker.Services
                     selectStatement += string.Format("{0} {1}", "", m.Value);
                     result = distinctRegex.Replace(result, $"", 1);
                 }
+
                 if (Engine == "SqlServer")
                 {
                     if (!string.IsNullOrEmpty(maxNumberResults) || !string.IsNullOrEmpty(topValue))
                     {
                         limitOfRecords = topValue == string.Empty ? $" top {maxNumberResults}" : topValue;
+                        selectStatement += string.Format("{0} {1}", limitOfRecords, result);
                     }
-                    selectStatement += string.Format("{0} {1}", limitOfRecords, result);
                 }
                 else
                 {
@@ -103,9 +104,8 @@ namespace MSDF.DataChecker.Services
                         selectStatement += string.Format("{0} {1}", result, limitOfRecords);
                     }
                 }
-                result= string.Format("{0};", selectStatement);  
-            }
-            else if (result.ToLower().StartsWith("with"))
+                result = string.Format("{0};", selectStatement);
+            }else if (result.ToLower().StartsWith("with"))
             {
                 if (!result.ToLower().Contains(") select top"))
                 {
