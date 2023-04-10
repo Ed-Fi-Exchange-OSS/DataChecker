@@ -7,44 +7,75 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
+#nullable disable
+
 namespace MSDF.DataChecker.Migrations.Postgres.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20230306233057_InitialCreate")]
+    [Migration("20230405175832_InitialCreate")]
     partial class InitialCreate
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.3")
+                .HasAnnotation("ProductVersion", "7.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.Catalogs.Catalog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CatalogType")
-                        .HasColumnType("character varying(350)")
-                        .HasMaxLength(350);
+                        .HasMaxLength(350)
+                        .HasColumnType("character varying(350)");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasColumnType("character varying(350)")
-                        .HasMaxLength(350);
+                        .HasMaxLength(350)
+                        .HasColumnType("character varying(350)");
 
                     b.Property<DateTime>("Updated")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Catalogs","core");
+                    b.ToTable("Catalogs", "core");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CatalogType = "EnvironmentType",
+                            Description = "Ed-Fi v2.X",
+                            Name = "Ed-Fi v2.X",
+                            Updated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CatalogType = "EnvironmentType",
+                            Description = "Ed-Fi v3.X",
+                            Name = "Ed-Fi v3.X",
+                            Updated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CatalogType = "RuleDetailsDestinationType",
+                            Description = "EdFiRuleExecutionLogDetails",
+                            Name = "EdFiRuleExecutionLogDetails",
+                            Updated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.Collections.Container", b =>
@@ -60,7 +91,7 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("DateUpdated")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -88,15 +119,16 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
 
                     b.HasIndex("RuleDetailsDestinationId");
 
-                    b.ToTable("Containers","datachecker");
+                    b.ToTable("Containers", "datachecker");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.Collections.ContainerType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -106,7 +138,7 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContainerTypes","core");
+                    b.ToTable("ContainerTypes", "core");
 
                     b.HasData(
                         new
@@ -128,7 +160,7 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DataSource")
                         .HasColumnType("text");
@@ -165,18 +197,19 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DatabaseEnvironments","datachecker");
+                    b.ToTable("DatabaseEnvironments", "datachecker");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.Logs.Log", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DateCreated")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Information")
                         .HasColumnType("text");
@@ -186,15 +219,16 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Logs","core");
+                    b.ToTable("Logs", "core");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.RuleExecutionLogDetails.EdFiRuleExecutionLogDetail", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CourseCode")
                         .HasColumnType("text");
@@ -224,15 +258,16 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
 
                     b.HasIndex("RuleExecutionLogId");
 
-                    b.ToTable("EdFiRuleExecutionLogDetails","destination");
+                    b.ToTable("EdFiRuleExecutionLogDetails", "destination");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.RuleExecutionLogs.RuleExecutionLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<Guid>("DatabaseEnvironmentId")
                         .HasColumnType("uuid");
@@ -253,7 +288,7 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("ExecutionDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<long>("ExecutionTimeMs")
                         .HasColumnType("bigint");
@@ -282,7 +317,7 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
 
                     b.HasIndex("ValidationRunId");
 
-                    b.ToTable("RuleExecutionLogs","destination");
+                    b.ToTable("RuleExecutionLogs", "destination");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.Rules.Rule", b =>
@@ -295,7 +330,7 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("DateUpdated")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -328,18 +363,19 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
 
                     b.HasIndex("ContainerId");
 
-                    b.ToTable("Rules","datachecker");
+                    b.ToTable("Rules", "datachecker");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.Tags.Tag", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -351,19 +387,20 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Updated")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags","datachecker");
+                    b.ToTable("Tags", "datachecker");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.Tags.TagEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<Guid?>("ContainerId")
                         .HasColumnType("uuid");
@@ -382,7 +419,7 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("TagEntities","datachecker");
+                    b.ToTable("TagEntities", "datachecker");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.UserParams.UserParam", b =>
@@ -404,18 +441,19 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
 
                     b.HasIndex("DatabaseEnvironmentId");
 
-                    b.ToTable("UserParams","datachecker");
+                    b.ToTable("UserParams", "datachecker");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.ValidationsRun.ValidationRun", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("EndTime")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("HostDatabase")
                         .IsRequired()
@@ -434,11 +472,11 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("ValidationRun","datachecker");
+                    b.ToTable("ValidationRun", "datachecker");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.Collections.Container", b =>
@@ -456,6 +494,12 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
                     b.HasOne("MSDF.DataChecker.Persistence.Catalogs.Catalog", "RuleDetailsDestination")
                         .WithMany()
                         .HasForeignKey("RuleDetailsDestinationId");
+
+                    b.Navigation("ContainerType");
+
+                    b.Navigation("ParentContainer");
+
+                    b.Navigation("RuleDetailsDestination");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.RuleExecutionLogDetails.EdFiRuleExecutionLogDetail", b =>
@@ -465,6 +509,8 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
                         .HasForeignKey("RuleExecutionLogId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("RuleExecutionLog");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.RuleExecutionLogs.RuleExecutionLog", b =>
@@ -478,6 +524,8 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
                     b.HasOne("MSDF.DataChecker.Persistence.ValidationsRun.ValidationRun", "ValidationRun")
                         .WithMany()
                         .HasForeignKey("ValidationRunId");
+
+                    b.Navigation("ValidationRun");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.Rules.Rule", b =>
@@ -504,6 +552,12 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
                         .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Container");
+
+                    b.Navigation("Rule");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("MSDF.DataChecker.Persistence.UserParams.UserParam", b =>
@@ -513,6 +567,23 @@ namespace MSDF.DataChecker.Migrations.Postgres.Migrations
                         .HasForeignKey("DatabaseEnvironmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MSDF.DataChecker.Persistence.Collections.Container", b =>
+                {
+                    b.Navigation("ChildContainers");
+
+                    b.Navigation("Rules");
+                });
+
+            modelBuilder.Entity("MSDF.DataChecker.Persistence.DatabaseEnvironments.DatabaseEnvironment", b =>
+                {
+                    b.Navigation("UserParams");
+                });
+
+            modelBuilder.Entity("MSDF.DataChecker.Persistence.Rules.Rule", b =>
+                {
+                    b.Navigation("RuleExecutionLogs");
                 });
 #pragma warning restore 612, 618
         }

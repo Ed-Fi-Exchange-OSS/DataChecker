@@ -145,6 +145,7 @@ namespace MSDF.DataChecker.Services
             environment.SecurityIntegrated = model.SecurityIntegrated;
             environment.MapTables = model.MapTables;
             environment.Version = model.Version;
+            environment.MaxNumberResults = model.MaxNumberResults;
             environment.TimeoutInMinutes = model.TimeoutInMinutes;
 
             if (environment.SecurityIntegrated != null && environment.SecurityIntegrated.Value)

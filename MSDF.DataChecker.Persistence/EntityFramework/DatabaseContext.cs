@@ -16,6 +16,7 @@ using MSDF.DataChecker.Persistence.Rules;
 using MSDF.DataChecker.Persistence.Tags;
 using MSDF.DataChecker.Persistence.UserParams;
 using MSDF.DataChecker.Persistence.ValidationsRun;
+using System;
 
 namespace MSDF.DataChecker.Persistence.EntityFramework
 {
@@ -24,6 +25,8 @@ namespace MSDF.DataChecker.Persistence.EntityFramework
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) 
         {
             this.ChangeTracker.AutoDetectChangesEnabled = false;
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
         }
         public DbSet<Container> Containers { get; set; }
         public DbSet<ContainerType> ContainerTypes { get; set; }
@@ -44,9 +47,9 @@ namespace MSDF.DataChecker.Persistence.EntityFramework
             modelBuilder.Entity<ContainerType>().HasData(new ContainerType { Id = 1, Name = "Collection" });
             modelBuilder.Entity<ContainerType>().HasData(new ContainerType { Id = 2, Name = "Folder" });
 
-            //modelBuilder.Entity<Catalog>().HasData(new Catalog { Id = 1, CatalogType = "EnvironmentType", Name = "Ed-Fi v2.X", Description = "Ed-Fi v2.X" });
-            //modelBuilder.Entity<Catalog>().HasData(new Catalog { Id = 2, CatalogType = "EnvironmentType", Name = "Ed-Fi v3.X", Description = "Ed-Fi v3.X" });
-            //modelBuilder.Entity<Catalog>().HasData(new Catalog { Id = 3, CatalogType = "RuleDetailsDestinationType", Name = "EdFiRuleExecutionLogDetails", Description = "EdFiRuleExecutionLogDetails" });
+            modelBuilder.Entity<Catalog>().HasData(new Catalog { Id = 1, CatalogType = "EnvironmentType", Name = "Ed-Fi v2.X", Description = "Ed-Fi v2.X" });
+            modelBuilder.Entity<Catalog>().HasData(new Catalog { Id = 2, CatalogType = "EnvironmentType", Name = "Ed-Fi v3.X", Description = "Ed-Fi v3.X" });
+            modelBuilder.Entity<Catalog>().HasData(new Catalog { Id = 3, CatalogType = "RuleDetailsDestinationType", Name = "EdFiRuleExecutionLogDetails", Description = "EdFiRuleExecutionLogDetails" });
 
         }
     }

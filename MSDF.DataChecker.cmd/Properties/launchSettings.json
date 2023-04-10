@@ -2,7 +2,7 @@
   "profiles": {
     "MSDF.DataChecker.cmd": {
         "commandName": "Project",
-        "commandLineArgs": "--collection \"General Level 2 data validations\"  --environmentname \"EdFi.Ods.Populated.Template12345\" --environmentId \"85897012-F5DB-4A15-61D1-08D7AA67B2D3\"  --ruleName \"Test rules\"  --sqlRules \"\nselect DisciplineIncident.IncidentIdentifier,\n\t DisciplineIncident.SchoolId as educationOrganizationId,\n\t   'Edfi.School' discrimentator,\n\t DisciplineIncident.IncidentDate\nFrom edfi.DisciplineIncident\nleft join edfi.DisciplineIncidentBehavior\n\ton DisciplineIncident.IncidentIdentifier = DisciplineIncidentBehavior.IncidentIdentifier\nWhere DisciplineIncidentBehavior.BehaviorDescriptorId is null\n\""
+        "commandLineArgs": "--collection \"General Level 2 data validations\"  --environmentname \"EdFi.Ods.Populated.Template\" --environmentId \"85897012-F5DB-4A15-61D1-08D7AA67B2D3\"  --ruleName \"Test rules\"  --sqlRules \"\nselect DisciplineIncident.IncidentIdentifier,\n\t DisciplineIncident.SchoolId as educationOrganizationId,\n\t   'Edfi.School' discrimentator,\n\t DisciplineIncident.IncidentDate\nFrom edfi.DisciplineIncident\nleft join edfi.DisciplineIncidentBehavior\n\ton DisciplineIncident.IncidentIdentifier = DisciplineIncidentBehavior.IncidentIdentifier\nWhere DisciplineIncidentBehavior.BehaviorDescriptorId is null\n\""
     }
   }
 }
