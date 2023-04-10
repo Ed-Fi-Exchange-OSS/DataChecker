@@ -26,7 +26,7 @@
         "environmentVariables": {
             "ASPNETCORE_ENVIRONMENT": "Development",
             "DatabaseSettings__Engine": "Postgres",
-            "DatabaseSettings__ConnectionStrings__PostgresSql": "Server=localhost;Port=5432;Database=DataCheckerPersistence1;User Id=postgres;Password=mypassword;",
+            "DatabaseSettings__ConnectionStrings__PostgresSql": "Server=localhost;Port=5432;Database=DataCheckerPersistence;User Id=postgres;Password=mypassword;",
             "DatabaseSettings__ConnectionStrings__SqlServer": "Data Source=localhost;Database=DataCheckerPersistence;User Id=myuser;Password=mypassword;",
             //"Serilog__MinimumLevel__Default": "Warning",
             //"Serilog__WriteTo__0__Args__Name": "Console",
