@@ -39,7 +39,7 @@ This option will work well for teams that are installing data checker on a Windo
 This method is recommend for teams that may want to modify the source code and have sufficent knowledge of the .NET core development environment, visual studio, and IIS.
 #### Source Code Install- Prerequisites ####
 * Basic to mid skills on hosting application on Windows IIS Server
-* Visual Studio 2019 Community edition. ([https://visualstudio.microsoft.com/downloads/](https://visualstudio.microsoft.com/downloads/)
+* Visual Studio 2022 Community edition. ([https://visualstudio.microsoft.com/downloads/](https://visualstudio.microsoft.com/downloads/)
 * .Net core 3.1 hosting bundle (  [https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-3.1.3-windows-hosting-bundle-installer](https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-3.1.3-windows-hosting-bundle-installer) )
 * NodeJs LTS ([https://nodejs.org/en/](https://nodejs.org/en/))
 * Angular CLI ([https://cli.angular.io/](https://cli.angular.io/)) npm install -g @angular/cli
