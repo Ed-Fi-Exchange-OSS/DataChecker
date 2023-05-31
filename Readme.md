@@ -129,7 +129,7 @@ If we have different versions, uninstall and Install the correct versions.
           Make sure your connection Engine match with your Migration Assembly.<br>
           "Engine": "Postgres" —>MSDF.DataChecker.Migrations.Postgres<br>
           "Engine": "SqlServer" —>MSDF.DataChecker.Migrations.SqlServer<br>
-        ![image](https://user-images.githubusercontent.com/85459544/223282673-3543bc50-87f9-4cb8-a0a9-a1e4d86cd29e.png)
+    ![DataCheckerAssembly](https://github.com/Ed-Fi-Exchange-OSS/DataChecker/assets/85459544/b3cd48ab-3c37-4d0f-b569-44cae9d8047b)
 
  3) Run Data checker<br>
     a) Change all your connections strings<br>
@@ -138,8 +138,7 @@ If we have different versions, uninstall and Install the correct versions.
     d) Run the application, instead to run with IIS express, select` MSDF.DataChecker.WebApp`<br>
     
     If everything works well, you are going to see a console application like this.
-
-![image](https://user-images.githubusercontent.com/85459544/221946710-f5e361e0-57e6-42b4-8284-3cb0fb92bd30.png)
+![CompiledSuccessfully](https://github.com/Ed-Fi-Exchange-OSS/DataChecker/assets/85459544/24053c8d-68fe-496b-9543-d0332314877f)
 Note: if for some reason, in the console application you see something like this and your browser never open DataChecker, just close the console application and run DataChecker again.
 ![image](https://user-images.githubusercontent.com/85459544/221947047-2f524334-2789-4fc2-82ca-916d76dd74f5.png)
 
