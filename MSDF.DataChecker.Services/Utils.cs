@@ -105,6 +105,9 @@ namespace MSDF.DataChecker.Services
                         limitOfRecords = topValue == string.Empty ? $" top {maxNumberResults}" : topValue;
                         selectStatement += string.Format("{0} {1}", limitOfRecords, result);
                     }
+                    else {
+                        selectStatement += string.Format(" {0}", result);
+                    }
                 }
                 else
                 {
@@ -112,6 +115,10 @@ namespace MSDF.DataChecker.Services
                     {
                         limitOfRecords = limitValue == string.Empty ? " Limit " + maxNumberResults : limitValue;
                         selectStatement += string.Format("{0} {1}", result, limitOfRecords);
+                    }
+                    else
+                    {
+                        selectStatement += string.Format(" {0}", result);
                     }
                 }
                 result = string.Format("{0};", selectStatement);
