@@ -6,6 +6,7 @@ import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import * as moment from "moment";
 import sqlFormatter from "sql-formatter";
 import { DatabaseEnvironment } from "../models/databaseEnvironment.model";
+import { ValidationRun } from "../models/validationRun.model";
 
 @Component({
   selector: 'rule-execution-component',
@@ -18,7 +19,7 @@ export class RuleExecutionComponentComponent implements OnInit {
   @Input() selectedDatabaseEnvironment: DatabaseEnvironment = new DatabaseEnvironment();
 
   @Output() updateRuleResultFromChild = new EventEmitter<Rule>();
-
+  newValidationRun: ValidationRun = new ValidationRun();
   diagnosticsResult: any;
   ruleDetailsLogResult: any;
   hideInfo: boolean;
@@ -47,20 +48,47 @@ export class RuleExecutionComponentComponent implements OnInit {
 
   ngOnInit() { }
 
+  initValidationRun() {
+    this.newValidationRun.DatabaseEnvironmentId = this.selectedDatabaseEnvironment.id;
+    this.newValidationRun.Source = "Manual";
+    this.newValidationRun.HostDatabase = this.selectedDatabaseEnvironment.database;
+    this.newValidationRun.HostServer = this.selectedDatabaseEnvironment.dataSource;
+    this.newValidationRun.RunStatus = "Running";
+    this.newValidationRun.Id = 0;
+  }
+
+
   executeRule() {
     this.rule.isExecuting = true;
     this.apiService.databaseEnvironment.testDatabaseEnvironmentById(this.selectedDatabaseEnvironment).subscribe(isConnectedMessage => {
       if (isConnectedMessage == null || isConnectedMessage == '') {
-        this.apiService.rule
-          .executeRule({ ruleId: this.rule.id, databaseEnvironmentId: this.selectedDatabaseEnvironment.id })
-          .subscribe(result => {
-            this.rule.counter = result.result;
-            this.rule.isExecuting = false;
-            this.rule.lastStatus = result.status;
-            this.rule.lastExecution = new Date();
-            this.rule.results = result.testResults;
-            this.updateRuleResultFromChild.emit(this.rule);
-          });
+        this.initValidationRun();
+        this.newValidationRun.StartTime = new Date();
+        this.newValidationRun.Id = 0;
+        this.apiService.validationRun.addValidationRun(this.newValidationRun).subscribe(validationRunResult => {
+          this.newValidationRun.Id=validationRunResult;
+          this.apiService.rule
+            .executeRule({ ruleId: this.rule.id, databaseEnvironmentId: this.selectedDatabaseEnvironment.id, validationRunId: this.newValidationRun.Id })
+            .subscribe(result => {
+              this.rule.counter = result.result;
+              this.rule.isExecuting = false;
+              this.rule.lastStatus = result.status;
+              this.rule.lastExecution = new Date();
+              this.rule.results = result.testResults;
+              this.updateRuleResultFromChild.emit(this.rule);
+              this.newValidationRun.EndTime = new Date();
+              this.apiService.validationRun.finishValidationRun(this.newValidationRun).subscribe(validationRunResult => {
+              });
+
+            }, error => {
+              this.apiService.validationRun.errorValidationRun(this.newValidationRun).subscribe(validationRunResult => {
+              });
+
+              throw (error);
+            });
+
+        });
+        
       }
       else {
         this.toastr.error("Review the connection with your environment:" + isConnectedMessage, "Environment Connection Error");

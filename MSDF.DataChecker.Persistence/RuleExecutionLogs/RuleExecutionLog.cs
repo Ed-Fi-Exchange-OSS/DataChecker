@@ -1,10 +1,11 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using MSDF.DataChecker.Persistence.ValidationsRun;
 
 namespace MSDF.DataChecker.Persistence.RuleExecutionLogs
 {
@@ -25,5 +26,10 @@ namespace MSDF.DataChecker.Persistence.RuleExecutionLogs
         public int? RuleDetailsDestinationId { get; set; }
         public string DetailsSchema { get; set; }
         public string DetailsTableName { get; set; }
+
+
+        public int? ValidationRunId { get; set; }
+        [ForeignKey("ValidationRunId")]
+        public ValidationRun ValidationRun { get; set; }
     }
 }

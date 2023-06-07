@@ -15,6 +15,8 @@ using MSDF.DataChecker.Persistence.RuleExecutionLogs;
 using MSDF.DataChecker.Persistence.Rules;
 using MSDF.DataChecker.Persistence.Tags;
 using MSDF.DataChecker.Persistence.UserParams;
+using MSDF.DataChecker.Persistence.ValidationsRun;
+using System;
 
 namespace MSDF.DataChecker.Persistence.EntityFramework
 {
@@ -23,11 +25,14 @@ namespace MSDF.DataChecker.Persistence.EntityFramework
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) 
         {
             this.ChangeTracker.AutoDetectChangesEnabled = false;
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
         }
         public DbSet<Container> Containers { get; set; }
         public DbSet<ContainerType> ContainerTypes { get; set; }
         public DbSet<Rule> Rules { get; set; }
         public DbSet<Log> Logs { get; set; }
+        public DbSet<ValidationRun> ValidationRuns { get; set; }
         public DbSet<RuleExecutionLog> RuleExecutionLogs { get; set; }
         public DbSet<DatabaseEnvironment> DatabaseEnvironments { get; set; }
         public DbSet<UserParam> UserParams { get; set; }

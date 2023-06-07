@@ -10,6 +10,7 @@ using MSDF.DataChecker.Persistence.Providers;
 using MSDF.DataChecker.Persistence.Settings;
 using MSDF.DataChecker.RuleExec.Helpers;
 using MSDF.DataChecker.Services;
+using MSDF.DataChecker.Services.Models;
 using MSDF.DataChecker.Services.RuleExecution;
 using System;
 using System.CommandLine;
@@ -42,9 +43,11 @@ namespace MSDF.DataChecker.RuleExec
                 var _executionService = serviceProvider.GetService<IRuleExecService>();
                 var _catalogService = serviceProvider.GetService<ICatalogService>();
                 var _databaseEnvironmentService = serviceProvider.GetService<IDatabaseEnvironmentService>();
+                var _validationRunService = serviceProvider.GetService<IValidationRunService>();
+                
                 var listEnvironments = _databaseEnvironmentService.GetAsync().GetAwaiter().GetResult();
                 var collection = CommandLine.BuildCollectionJsonRule(sqlRules, ruleName);
-                var settings = configuration.GetSection("Settings").Get<DataBaseSettings>();
+                var settings = configuration.GetSection("DatabaseSettings").Get<DataBaseSettings>();
                 var dbEnvironment = CommandLine.BuildDatabaseEnvironment(connString, settings.Engine);
 
                 var databaseEnvironment = listEnvironments.FirstOrDefault(rec => rec.Name == dbEnvironment.Database && rec.DataSource == dbEnvironment.DataSource);
@@ -56,12 +59,23 @@ namespace MSDF.DataChecker.RuleExec
                     databaseEnvironment = await _databaseEnvironmentService.GetAsync(databaseEnvironment.Id);
                 }
 
+                var validationRun = new ValidationRunBO
+                {
+                    HostDatabase = databaseEnvironment.Database,
+                    HostServer = databaseEnvironment.DataSource,
+                    RunStatus = "Running",
+                    Source = "Manual",
+                    StartTime = DateTime.Now
+                };
+
+                var validationResult = await _validationRunService.AddAsync(validationRun);
+
                 await _containerService.UploadCollectionAsJson(collection);
                 var rulesToExecute = CommandLine.RulesToExecute(_containerService, _ruleService, collection);
 
                 foreach (var r in rulesToExecute)
                 {
-                    var result = await _executionService.ExecuteRuleByEnvironmentIdAsync(r.Id, databaseEnvironment);
+                    var result = await _executionService.ExecuteRuleByEnvironmentIdAsync(validationResult.Id, r.Id, databaseEnvironment);
                 }
                 return;
 

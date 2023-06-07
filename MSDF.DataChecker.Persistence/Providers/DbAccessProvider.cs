@@ -23,7 +23,8 @@ namespace MSDF.DataChecker.Persistence.Providers
     {
         public void PostgresSQL(IServiceCollection configuration, string ConnectionStrings)
         {
-            configuration.AddDbContext<DatabaseContext>(opt => opt.UseNpgsql(ConnectionStrings));
+            configuration.AddDbContext<DatabaseContext>(opt => opt.UseNpgsql(ConnectionStrings, x => x.MigrationsAssembly("MSDF.DataChecker.Migrations.Postgres")));
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             configuration.AddHangfire(globalConfiguration => globalConfiguration
                  .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                  .UseSimpleAssemblyNameTypeSerializer()
@@ -37,8 +38,11 @@ namespace MSDF.DataChecker.Persistence.Providers
         }
 
         public void SQLServer(IServiceCollection configuration, string ConnectionStrings)
+
         {
-            configuration.AddDbContext<DatabaseContext>(options => options.UseSqlServer(ConnectionStrings), ServiceLifetime.Transient);
+
+            configuration.AddDbContext<DatabaseContext>(options => options.UseSqlServer(ConnectionStrings, x => x.MigrationsAssembly("MSDF.DataChecker.Migrations.SqlServer")) ,ServiceLifetime.Transient);
+           //configuration.AddDbContext<DatabaseContext>(options => options.UseSqlServer(ConnectionStrings), ServiceLifetime.Transient);
             configuration.AddHangfire(globalConfiguration => globalConfiguration
                  .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                  .UseSimpleAssemblyNameTypeSerializer()

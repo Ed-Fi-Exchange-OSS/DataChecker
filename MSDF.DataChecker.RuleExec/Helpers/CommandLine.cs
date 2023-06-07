@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using MSDF.DataChecker.Persistence;
+using MSDF.DataChecker.Persistence.ValidationsRun;
 using MSDF.DataChecker.Services;
 using MSDF.DataChecker.Services.Models;
 using MSDF.DataChecker.Services.RuleExecution;
@@ -101,10 +103,11 @@ namespace MSDF.DataChecker.RuleExec.Helpers
             if (Engine == "SqlServer")
             {
                 isPostgres = false;
-                builderSql = new SqlConnectionStringBuilder(connString);
+                
+                builderSql = new SqlConnectionStringBuilder(Utility.ParseConnectionString(connString, Engine));
             }
             else
-                builderNpgsql = new NpgsqlConnectionStringBuilder(connString);
+                builderNpgsql = new NpgsqlConnectionStringBuilder(Utility.ParseConnectionString(connString, Engine));
 
             dbEnvironment.Database = isPostgres ? builderNpgsql.Database : builderSql.InitialCatalog;
             dbEnvironment.DataSource = isPostgres ? builderNpgsql.Host : builderSql.DataSource;
@@ -142,6 +145,7 @@ namespace MSDF.DataChecker.RuleExec.Helpers
 
         public static async Task<RuleTestResult> ExecuteRuleByEnvironmentId(
             IContainerService _containerService,
+            IValidationRunService _validationRunService,
             IRuleService _ruleService,
             IRuleExecService _executionService,
             IDatabaseEnvironmentService _databaseEnvironmentService,
@@ -171,10 +175,22 @@ namespace MSDF.DataChecker.RuleExec.Helpers
             toRun.AddRange(resultRules.Rules);
             toRun = toRun.Where(r => r.Id != Guid.Empty).ToList();
             databaseEnvironment.UserParams = new List<UserParamBO>();
+            databaseEnvironment = await _databaseEnvironmentService.GetAsync(databaseEnvironment.Id);
+            var validationRun = new ValidationRunBO
+            {
+                HostDatabase = databaseEnvironment.Database,
+                HostServer = databaseEnvironment.DataSource,
+                RunStatus = "Running",
+                Source = "Manual",
+                StartTime = DateTime.Now
+            };
+
+            var validationResult = await _validationRunService.AddAsync(validationRun);
+
             foreach (var r in toRun)
             {
-                databaseEnvironment = await _databaseEnvironmentService.GetAsync(databaseEnvironment.Id);
-                result = await _executionService.ExecuteRuleByEnvironmentIdAsync(r.Id, databaseEnvironment);
+
+                result = await _executionService.ExecuteRuleByEnvironmentIdAsync(validationResult.Id, r.Id, databaseEnvironment);
             }
             return result;
         }

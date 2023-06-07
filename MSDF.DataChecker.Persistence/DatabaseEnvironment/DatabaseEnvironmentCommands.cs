@@ -23,6 +23,7 @@ namespace MSDF.DataChecker.Persistence.DatabaseEnvironments
         public DatabaseEnvironmentCommands(DatabaseContext db)
         {
             _db = db;
+            //AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         public async Task<DatabaseEnvironment> AddAsync(DatabaseEnvironment model)
@@ -39,6 +40,8 @@ namespace MSDF.DataChecker.Persistence.DatabaseEnvironments
 
         public async Task<DatabaseEnvironment> UpdateAsync(DatabaseEnvironment model)
         {
+            //AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            //AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
             var entity = await _db
                 .DatabaseEnvironments
                 .Where(rec => rec.Id == model.Id)
@@ -55,6 +58,7 @@ namespace MSDF.DataChecker.Persistence.DatabaseEnvironments
             entity.User = model.User;
             entity.Version = model.Version;
             entity.TimeoutInMinutes = model.TimeoutInMinutes;
+            entity.CreatedDate = System.DateTime.Now;
 
             var result = _db.DatabaseEnvironments.Update(entity);
             await _db.SaveChangesAsync();

@@ -4,6 +4,7 @@
 // See the LICENSE and NOTICES files in the project root for more information.
 
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -11,11 +12,14 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace MSDF.DataChecker.Services
 {
     public static class Utils
     {
+        private static GroupCollection selectGroups;
+
         public static List<Dictionary<string, object>> Serialize(List<string> columnsName, List<DataRow> rows)
         {
             var results = new List<Dictionary<string, object>>();
@@ -25,101 +29,126 @@ namespace MSDF.DataChecker.Services
             }
             return results;
         }
-
+        public static string FindDateFromDiagnosticSql(string diagnosticSql, string Engine) {
+            if (Engine == "SqlServer")
+            {                
+                 diagnosticSql = Regex.Replace(diagnosticSql, @"now\(\)", @"getDate()", RegexOptions.IgnoreCase);
+            }
+            else if (Engine == "Postgres")
+            {
+                diagnosticSql = Regex.Replace(diagnosticSql, @"getDate\(\)", @"now()", RegexOptions.IgnoreCase);
+            }
+            return diagnosticSql;
+        }
         public static string GenerateSqlWithTop(string diagnosticSql, string maxNumberResults, string Engine)
         {
-            string result = diagnosticSql;
-            result = result.ToLower().Trim();
+            //Replacing multiple spaces BUT NOT LineBreaks
+            var limitOfRecords = "";
+            var limitValue = "";
+            var topValue = "";
+            var selectStatement = "";
+            var result = Regex.Replace(diagnosticSql, @"[^\S\r\n]+", " ").Replace(";", "");
+
             if (result.EndsWith(";"))
             {
-                result = result.Remove(result.Length-1,1);
+                result = result.Remove(result.Length - 1, 1);
             }
 
-            var topValue = "";
+
             var limitExpression = @"top\s+\d+";
-           var limitGroups = Regex.Match(result, limitExpression).Groups;
+            var limitGroups = Regex.Match(result, limitExpression, RegexOptions.IgnoreCase).Groups;
             if (limitGroups[0].Success)
             {
                 topValue = limitGroups[0].Value;
                 result = result.Replace(limitGroups[0].Value, "");
             }
 
-
-            var limitValue = "";
             limitExpression = @"limit\s+\d+";
-            limitGroups = Regex.Match(result, limitExpression).Groups;
+            limitGroups = Regex.Match(result, limitExpression, RegexOptions.IgnoreCase).Groups;
             if (limitGroups[0].Success)
             {
                 limitValue = limitGroups[0].Value;
                 result = result.Replace(limitGroups[0].Value, "");
             }
+
             if (Engine == "SqlServer" && !string.IsNullOrEmpty(limitValue))
             {
-                topValue  = limitValue.Replace("limit", "top");
+                topValue = limitValue.Replace("limit", "top");
             }
             else if (Engine == "Postgres" && !string.IsNullOrEmpty(topValue))
             {
-                limitValue = topValue.Replace("top","Limit");
+                limitValue = topValue.Replace("top", "Limit");
             }
 
-            if (result.StartsWith("select"))
-            {
+            if (result.ToLower().StartsWith("select"))
+            {  //the statment start with 'select'
+                var selectRegex = new Regex(@"select\s+", RegexOptions.IgnoreCase);
+                var m = selectRegex.Match(result);   // m is the first match
+                if (m.Success)
+                {
+                    selectStatement = m.Value;
+                    result = selectRegex.Replace(result, $"", 1);
+                }
+                //the statment start with 'distinct'
+                var distinctRegex = new Regex(@"distinct\s+", RegexOptions.IgnoreCase);
+                m = distinctRegex.Match(result);   // m is the first match
+                if (m.Success)
+                {
+                    selectStatement += string.Format("{0} {1}", "", m.Value);
+                    result = distinctRegex.Replace(result, $"", 1);
+                }
+
                 if (Engine == "SqlServer")
                 {
-                    var regex = new Regex(Regex.Escape("select distinct"));
-                    if (regex.IsMatch(result))
+                    if (!string.IsNullOrEmpty(maxNumberResults) || !string.IsNullOrEmpty(topValue))
                     {
-                        var top = topValue==string.Empty ? $" top {maxNumberResults}" : topValue;
-                        result = regex.Replace(result, $"select distinct {top} ", 1);
-                    }                        
-                    else
-                    {
-                        regex = new Regex(Regex.Escape("select"));
-                        if (regex.IsMatch(result))
-                        {
-                            var top = topValue == string.Empty ? $" top {maxNumberResults}" : topValue;
-                            result = regex.Replace(result, $"select {top} ", 1);
-                        }
+                        limitOfRecords = topValue == string.Empty ? $" top {maxNumberResults}" : topValue;
+                        selectStatement += string.Format("{0} {1}", limitOfRecords, result);
+                    }
+                    else {
+                        selectStatement += string.Format(" {0}", result);
                     }
                 }
                 else
                 {
-                    string pattern = @"limit\s+\d+";
-                    Match m = Regex.Match(result, pattern, RegexOptions.IgnoreCase);
-                    if (!m.Success)
+                    if (!string.IsNullOrEmpty(maxNumberResults) || !string.IsNullOrEmpty(limitValue))
                     {
-                        limitValue = limitValue == string.Empty ? " Limit " + maxNumberResults : limitValue;
-                        result = result + " " + limitValue;
+                        limitOfRecords = limitValue == string.Empty ? " Limit " + maxNumberResults : limitValue;
+                        selectStatement += string.Format("{0} {1}", result, limitOfRecords);
+                    }
+                    else
+                    {
+                        selectStatement += string.Format(" {0}", result);
                     }
                 }
-            }
-            else if (result.StartsWith("with"))
+                result = string.Format("{0};", selectStatement);
+            }else if (result.ToLower().StartsWith("with"))
             {
-                if (!result.Contains(") select top"))
+                if (!result.ToLower().Contains(") select top"))
                 {
                     if (Engine == "SqlServer")
                     {
-                        if (result.Contains(") select distinct"))
+                        if (result.ToLower().Contains(") select distinct"))
                         {
-                            var regex = new Regex(Regex.Escape(") select distinct"));
+                            var regex = new Regex(Regex.Escape(") select distinct"), RegexOptions.IgnoreCase);
                             result = regex.Replace(result, ") select distinct top " + maxNumberResults + " ", 1);
                         }
                         else
                         {
-                            var regex = new Regex(Regex.Escape(") select"));
+                            var regex = new Regex(Regex.Escape(") select"), RegexOptions.IgnoreCase);
                             result = regex.Replace(result, ") select top " + maxNumberResults + " ", 1);
                         }
                     }
                 }
             }
+            result=FindDateFromDiagnosticSql(result, Engine);
             return result;
         }
 
-        public static string ValidateLimitRows(string diagnosticSql,string engine)
+        public static string ValidateLimitRows(string diagnosticSql, string engine)
         {
-            string result = diagnosticSql;
-            result = result.ToLower().Trim().Replace(";", "");
-            result = result.ToLower().Trim();
+            //Replacing line breaks and multiple spaces 
+            var result = Regex.Replace(diagnosticSql, @"[^\S\r\n]+", " ").Replace(";", "");
             if (result.EndsWith(";"))
             {
                 result = result.Remove(result.Length - 1, 1);
@@ -127,7 +156,7 @@ namespace MSDF.DataChecker.Services
 
             var topValue = "";
             var limitExpression = @"top\s+\d+";
-            var limitGroups = Regex.Match(result, limitExpression).Groups;
+            var limitGroups = Regex.Match(result, limitExpression, RegexOptions.IgnoreCase).Groups;
             if (limitGroups[0].Success)
             {
                 topValue = limitGroups[0].Value;
@@ -137,7 +166,7 @@ namespace MSDF.DataChecker.Services
 
             var limitValue = "";
             limitExpression = @"limit\s+\d+";
-            limitGroups = Regex.Match(result, limitExpression).Groups;
+            limitGroups = Regex.Match(result, limitExpression, RegexOptions.IgnoreCase).Groups;
             if (limitGroups[0].Success)
             {
                 limitValue = limitGroups[0].Value;
@@ -153,18 +182,18 @@ namespace MSDF.DataChecker.Services
             }
 
 
-            if (result.StartsWith("select"))
+            if (result.ToLower().StartsWith("select"))
             {
                 if (engine == "SqlServer")
                 {
-                    var regex = new Regex(Regex.Escape("select distinct"));
+                    var regex = new Regex(Regex.Escape("select distinct"), RegexOptions.IgnoreCase);
                     if (regex.IsMatch(result))
                     {
                         result = regex.Replace(result, $"select distinct {topValue} ", 1);
                     }
                     else
                     {
-                        regex = new Regex(Regex.Escape("select"));
+                        regex = new Regex(Regex.Escape("select"), RegexOptions.IgnoreCase);
                         if (regex.IsMatch(result))
                         {
                             result = regex.Replace(result, $"select {topValue} ", 1);
@@ -179,15 +208,16 @@ namespace MSDF.DataChecker.Services
                     {
                         result = result + " " + limitValue;
                     }
+                    result = Regex.Replace(result, "getdate", "now", RegexOptions.IgnoreCase);
                 }
             }
 
             return result;
         }
-            public static string GenerateSqlWithCount(string diagnosticSql,string engine)
+        public static string GenerateSqlWithCount(string diagnosticSql, string engine)
         {
-            string result = diagnosticSql;
-
+            //Replacing line breaks and multiple spaces 
+            var result = Regex.Replace(Regex.Replace(diagnosticSql.Trim(), @"\r\n?|\n", " "), @"\s+", " ").Replace(";", "");
             if (result.StartsWith("select"))
             {
                 return string.Format("SELECT COUNT(*) FROM ( \n {0} \n) as TBL", ValidateLimitRows(result, engine));
@@ -223,7 +253,7 @@ namespace MSDF.DataChecker.Services
             {
                 List<string> staticColumns = new List<string>();
                 List<string> jsonColumns = new List<string>();
-               var  columnsToIgnore = new List<string>() { "id", "otherdetails", "ruleexecutionlogid" };
+                var columnsToIgnore = new List<string>() { "id", "otherdetails", "ruleexecutionlogid" };
 
                 var columnsSource = reader.Columns;
                 foreach (DataColumn column in columnsSource)
