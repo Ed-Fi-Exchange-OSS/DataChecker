@@ -92,7 +92,7 @@ As an added level of security, windows authentication should be considered for t
 * More detailed user instructions can be found at: [Data Checker Overview and User Guide](https://docs.google.com/document/d/17FkjSqg55-MOvFxpmbAZ06okIdxyjXhHoN4DnxgIC8A/)
 
 # Known Issues #
-## Why is Data Checker only showing a blank page?
+## a) Why is Data Checker only showing a blank page?
 The issue could be caused because we have different version of Angular Clic and Node in our environment.
 Data checker needs:
 
@@ -142,7 +142,14 @@ If we have different versions, uninstall and Install the correct versions.
 Note: if for some reason, in the console application you see something like this and your browser never open DataChecker, just close the console application and run DataChecker again.
 ![image](https://user-images.githubusercontent.com/85459544/221947047-2f524334-2789-4fc2-82ca-916d76dd74f5.png)
 
+## b) Provider: SSL Provider, error: 0 - The certificate chain was issued by an authority that is not trusted.
+ If you get this error message:   A connection was successfully established with the server, but then an error occurred during the login process. (provider: SSL Provider, error: 0 - The   certificate chain was issued by an authority that is not trusted.) , fix the issue by adding `TrustServerCertificate=true;` to your DB connections
+        Examples:    
+         `Data Source=localhost;Database=DataCheckerPersistence;User Id=myuser;Password=mypassword;TrustServerCertificate=true;`
+    Also update your environments and add `TrustServerCertificate=true;` into the `Extra` field
+    ![image](https://github.com/Ed-Fi-Exchange-OSS/DataChecker/assets/85459544/57cb1c90-ceac-47e3-a153-cf05e576bef8)
 
+    
 # Support #
 * For Questions,or  comments, please use the #users-datachecker channel on the Ed-Fi Alliance Slack workspace.
 * For support requests or bugs please open a ticket with the Ed-Fi support group with Data Checker in the title.
