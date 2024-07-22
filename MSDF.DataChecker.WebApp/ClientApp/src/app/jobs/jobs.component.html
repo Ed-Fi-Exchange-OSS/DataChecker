@@ -75,7 +75,7 @@
       <div class="row">
         <div class="col-md-12 text-right">
           <button *ngIf="(newJob.cron=='')||(newJob.cron==null)||(cron.invalid)" type="submit" class="btn btn-info btn-lg btn-margin" [disabled]="!jobForm.form.valid">
-            <i class="ion-md-checkmark-circle-outline"></i> Run & Forget
+            <i class="ion-md-checkmark-circle-outline"></i> Save & Run
           </button>
 
           <button *ngIf="(newJob.cron!='')&&(newJob.cron!=null)&&(!cron.invalid)" type="submit" class="btn btn-info btn-lg btn-margin" [disabled]="!jobForm.form.valid">
